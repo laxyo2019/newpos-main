@@ -1,0 +1,14 @@
+<div class="form-group form-group-sm">
+					<?php echo form_label($this->lang->line('customers_discount'), 'discount_percent', array('class' => 'control-label col-xs-3')); ?>
+					<div class='col-xs-3'>
+						<div class="input-group input-group-sm">
+							<?php echo form_input(array(
+									'name'=>'discount_percent',
+									'id'=>'discount_percent',
+									'class'=>'form-control input-sm',
+									'value'=>$person_info->discount_percent)
+									);?>
+							<span class="input-group-addon input-sm"><b>%</b></span>
+						</div>
+					</div>	
+				</div>
