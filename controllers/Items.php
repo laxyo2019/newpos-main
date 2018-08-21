@@ -453,7 +453,7 @@ class Items extends Secure_Controller
 		{
 			$array = array(
 				$radio => $key1,
-				'deleted !=' => 1
+				'deleted' => 0
 			);
 		}
 		else
@@ -461,7 +461,7 @@ class Items extends Secure_Controller
 			$array = array(
 				'category' => $key1,
 				$radio => $key2,
-				'deleted !=' => 1
+				'deleted' => 0
 			);
 		}
 		$this->db->where($array);

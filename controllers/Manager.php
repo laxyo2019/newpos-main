@@ -164,7 +164,7 @@ class Manager extends Secure_Controller
     $count = $this->db->where('name', $name)->count_all_results($tablename);
     if($count == 0)
     {
-      $this->db->insert($table, $data);
+      $this->db->insert($tablename, $data);
       echo "Successfully Created";
     }
     else
@@ -173,31 +173,30 @@ class Manager extends Secure_Controller
 		}
 	}
 
-	// public function mci_update()  // update existing cat,subcat,brand,size,color
-	// {
-	// 	$name = strtoupper(trim($this->input->post('name')));
-	// 	$type = $this->input->post('type');
-	// 	$id = $this->input->post('id');
+	public function mci_update()  // update existing cat,subcat,brand,size,color
+	{
+		$name = strtoupper(trim($this->input->post('name')));
+		$type = $this->input->post('type');
+		$id = $this->input->post('id');
 
-	// 	if($type == "subcategories")
-	// 	{
-	// 		$parent_id = $this->input->post('parent_id');
-	// 		$data = array(
-	// 			'name' => $name,
-	// 			'parent_id' => $parent_id
-	// 		);
-	// 	}
-	// 	else
-	// 	{
-	// 		$data = array(
-	// 			'name' => $name,
-	// 		);
-	// 	}
-	// 	$this->db->where('id', $id);
-	// 	$tablename = 'master_'.$type;
-	// 	$this->db->update($tablename, $data);
-	// 	$response['message'] = 'Successfully Saved!';
-	// 	echo json_encode($response);
-	// }
+		if($type == "subcategories")
+		{
+			$parent_id = $this->input->post('parent_id');
+			$data = array(
+				'name' => $name,
+				'parent_id' => $parent_id
+			);
+		}
+		else
+		{
+			$data = array(
+				'name' => $name,
+			);
+		}
+		$this->db->where('id', $id);
+		$tablename = 'master_'.$type;
+		$this->db->update($tablename, $data);
+		echo 'Successfully Updated';
+	}
   
 }

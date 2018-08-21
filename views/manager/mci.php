@@ -68,7 +68,7 @@
 			var main2 = ["subcategories"];
 			$('#index').toggle(main.includes(selected_mci));
 			$('#cSwitch').toggle(main2.includes(selected_mci));
-			$.post('<?php echo site_url($controller_name."/get_mci_list");?>', {'type': selected_mci}, function(data) {
+			$.post('<?php echo site_url($controller_name."/get_mci_list"); ?>', {'type': selected_mci}, function(data) {
 				$('#mci_sublist').html(data);
 				$('#list').DataTable({
             "scrollX": true,
