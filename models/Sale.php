@@ -1198,9 +1198,7 @@ class Sale extends CI_Model
 		$this->db->where_in('sale_type', $sale_types);
 		$count = $this->db->count_all_results('sales')+1;
 
-		$this->db->where('person_id', $person_id);
-		$query = $this->db->get('people');
-		$prefix = $query->row('inv_prefix');
+		$prefix = $this->db->where('person_id', $person_id)->get('employees')->row()->inv_prefix;
 
 		return $prefix.'/'.$person_id.'/'.$count;
 	}

@@ -29,6 +29,11 @@ if (isset($msg))
 				title='Quick Excel Stock Transfer'>
 			Quick Transfer
 		</button>
+		
+		<button id="transfer_status" class="btn btn-sm pull-left modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_transfer_status"); ?>'
+		title='Pending Transfers'>
+			Pending Transfers
+		</button>
 
 		<button id="challan_list" class="btn btn-warning btn-sm pull-right modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_all_challans"); ?>'
 		title='Challan List'>
@@ -53,7 +58,7 @@ if (isset($msg))
 				?>
 
 					<?php
-						echo form_hidden('stock_source', $this->Receiving->get_location_id_by_owner($this->session->userdata('person_id'))); //Stock source set by logged in user
+						echo form_hidden('stock_source', $this->Stock_location->get_location_id_2($this->session->userdata('person_id'))); //Stock source set by logged in user
 					?>
 
 					<?php
@@ -82,7 +87,7 @@ if (isset($msg))
 				?>
 				<li class="pull-right">
 					<?php if($transfers > 0){ ?>
-						<button class="btn btn-sm btn-danger modal-dlg-wide animated flash infinite" data-href='<?php echo site_url("receivings/st_view"); ?>'
+						<button class="btn btn-sm btn-success modal-dlg-wide animated flash infinite" data-href='<?php echo site_url("receivings/st_view"); ?>'
 								title='New Stock Transfer'>Items Received</button>
 					<?php } ?>
 				</li>			
@@ -140,13 +145,14 @@ if (isset($msg))
 		<thead>
 			<tr>
 				<th style="width:5%;"><?php echo $this->lang->line('common_delete'); ?></th>
+				<th style="width:15%;">Barcode</th>
 				<th style="width:45%;"><?php echo $this->lang->line('receivings_item_name'); ?></th>
 				<th style="width:10%;"><?php echo $this->lang->line('receivings_cost'); ?></th>
 				<th style="width:10%;"><?php echo $this->lang->line('receivings_quantity'); ?></th>
 				<th style="width:5%;"></th>
-				<th style="width:10%;"><?php echo $this->lang->line('receivings_discount'); ?></th>
+				<!-- <th style="width:10%;"><?php //echo $this->lang->line('receivings_discount'); ?></th> -->
 				<th style="width:10%;"><?php echo $this->lang->line('receivings_total'); ?></th>
-				<th style="width:5%;"><?php echo $this->lang->line('receivings_update'); ?></th>
+				<!-- <th style="width:5%;"><?php //echo $this->lang->line('receivings_update'); ?></th> -->
 			</tr>
 		</thead>
 
@@ -170,6 +176,7 @@ if (isset($msg))
 					<?php echo form_open($controller_name."/edit_item/$line", array('class'=>'form-horizontal', 'id'=>'cart_'.$line)); ?>
 						<tr>
 							<td><?php echo anchor($controller_name."/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>');?></td>
+							<td><?php echo $item['item_number'] ?></td>
 							<td style="align:center;">
 								<?php echo $item['name']; ?><br /> <?php echo '[' . to_quantity_decimals($item['in_stock']) . ' in ' . $item['stock_name'] . ']'; ?>
 								<?php echo form_hidden('in_stock', $item['in_stock']); ?>
@@ -187,7 +194,7 @@ if (isset($msg))
 							{
 							?>
 								<td>
-									<?php echo $item['price']; ?>
+									<?php echo to_currency($item['price']); ?>
 									<?php echo form_hidden('price', to_currency_no_money($item['price'])); ?>
 								</td>
 							<?php
@@ -220,13 +227,13 @@ if (isset($msg))
 							else
 							{
 							?>
-								<td><?php echo $item['discount']; ?></td>
+								<!-- <td><?php //echo $item['discount']; ?></td> -->
 								<?php echo form_hidden('discount',$item['discount']); ?>
 							<?php
 							}
 							?>
 							<td><?php echo to_currency($item['price']*$item['quantity']*$item['receiving_quantity']-$item['price']*$item['quantity']*$item['receiving_quantity']*$item['discount']/100); ?></td> 
-							<td><a href="javascript:$('#<?php echo 'cart_'.$line ?>').submit();" title=<?php echo $this->lang->line('receivings_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td>
+							<!-- <td><a href="javascript:$('#<?php //echo 'cart_'.$line ?>').submit();" title=<?php //echo $this->lang->line('receivings_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td> -->
 						</tr>
 						<tr>
 							<?php 
@@ -247,12 +254,12 @@ if (isset($msg))
 								{
 									if ($item['description']!='')
 									{
-										echo $item['description'];
-	        							echo form_hidden('description',$item['description']);
+										//echo $item['description'];
+										echo form_hidden('description',$item['description']);
 									}
 									else
 									{
-										echo $this->lang->line('sales_no_description');
+										//echo $this->lang->line('sales_no_description');
 										echo form_hidden('description','');
 									}
 								}
@@ -311,7 +318,7 @@ if (isset($msg))
 							
 							<div class="btn btn-sm btn-danger pull-left" id='cancel_receiving_button'><span class="glyphicon glyphicon-remove">&nbsp</span><?php echo $this->lang->line('receivings_cancel_receiving'); ?></div>
 							
-							<input type="hidden" name="location_owner" value="<?php echo $this->Receiving->get_owner_id_by_location($this->session->userdata('recv_stock_destination')); ?>">
+							<input type="hidden" name="location_owner" value="<?php echo $this->Stock_location->get_owner_id($this->session->userdata('recv_stock_destination')); ?>">
 
 							<div class="btn btn-sm btn-success pull-right" id='finish_receiving_button'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $this->lang->line('receivings_complete_receiving'); ?></div>
 						</div>

@@ -142,7 +142,7 @@ if(isset($success))
 				<th style="width: 10%;"><?php echo $this->lang->line('sales_quantity'); ?></th>
 				<th style="width: 10%;"><?php echo $this->lang->line('sales_discount'); ?></th>
 				<th style="width: 10%;"><?php echo $this->lang->line('sales_total'); ?></th>
-				<th style="width: 5%;"><?php echo $this->lang->line('sales_update'); ?></th>
+				<!-- <th style="width: 5%;"><?php //echo $this->lang->line('sales_update'); ?></th> -->
 			</tr>
 		</thead>
 
@@ -230,7 +230,7 @@ if(isset($success))
 								}
 								?>
 							</td>
-							<td><a class="update1" href="javascript:document.getElementById('<?php echo 'cart_'.$line ?>').submit();" title=<?php echo $this->lang->line('sales_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td>
+							<!-- <td><a class="update1" href="javascript:document.getElementById('<?php //echo 'cart_'.$line ?>').submit();" title=<?php //echo $this->lang->line('sales_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td> -->
 							</tr>
 							<tr>
 							<?php
@@ -252,12 +252,12 @@ if(isset($success))
 								{
 									if($item['description']!='')
 									{
-										echo $item['description'];
+										//echo $item['description'];
 										echo form_hidden('description', $item['description']);
 									}
 									else
 									{
-										echo $this->lang->line('sales_no_description');
+										//echo $this->lang->line('sales_no_description');
 										echo form_hidden('description','');
 									}
 								}
@@ -378,8 +378,8 @@ if(isset($success))
 					}
 					?>
 					<?php
-					echo $customer_credit_note;
-					//{
+					if(!empty($customer_credit_note))
+					{
 					?>
 						<tr>
 							<th style='width: 55%;'><?php echo $this->lang->line("sales_customer_credit_note"); ?></th>
@@ -388,7 +388,7 @@ if(isset($success))
 							</th>
 						</tr>
 					<?php
-					//}
+					}
 					?>
 				</table>
 

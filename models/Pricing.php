@@ -6,21 +6,27 @@
 
 class Pricing extends CI_Model
 {
-	public function check_validity($validity)
-	{
-		$now = time();
-		$db_time = strtotime($validity);
-		if($db_time > $now)
-		{
-		  return TRUE;
-		}
+	// public function check_validity($validity)
+	// {
+	// 	$now = time();
+	// 	$db_time = strtotime($validity);
+	// 	if($db_time > $now)
+	// 	{
+	// 	  return TRUE;
+	// 	}
 
-		return FALSE;
-	}
-	
-	public function get_favorite_location()
+	// 	return FALSE;
+	// }
+
+	public function get_active_shops()
 	{
-		return "10";
+		$this->db->from('employees');
+		$this->db->join('people', 'people.person_id = employees.person_id');
+
+		$shop_types = array('dbf', 'shop');
+		$this->db->where_in('login_type', $shop_types);
+		$this->db->where('deleted', 0);
+		return $this->db->get()->result_array();
 	}
 
   public function get_all($employee_id)
@@ -47,21 +53,56 @@ class Pricing extends CI_Model
 		return $this->db->get()->result_array();
 	}
 	
-	public function get_special_price($item_id)
+	public function get_core_plans()
+	{
+		return $this->db->where('tag', 'special_pricing')
+		->get('custom_fields')
+		->result_array();
+	}
+
+	public function pointer_search($plan, $info)
 	{
 		$array = array(
-			'item_id' => $item_id,
-			'status' => 1
+			'status' => 1,
+			'plan' => $plan,
+			'locations' => $this->session->userdata('person_id')
 		);
 		$this->db->where($array);
-		$count = $this->db->count_all_results('special_prices');
-		if($count > 0)
+		$results = $this->db->get('special_prices')->result_array();
+		foreach($results as $row)
 		{
-			$this->db->where($array);
-			return $this->db->get('special_prices')->row()->price;
+			if($row['pointer'] == $info)
+			{
+				return $row;
+			}
+			else
+			{
+				return "NO_MATCH";
+			}
 		}
-		
-		return FALSE;
+	}
+
+	public function check_active_offers($item_id)
+	{
+		$response = array();
+		$item_row = $this->Item->get_info($item_id);
+		$item_info = array( // DO NOT CHANGE ORDER (SET ON PRIORITY RULE)
+			'single' => $item_row->item_number,
+			// 'sublist' => $item_row->item_number,
+			'brand' => $item_row->brand,
+			'subcategory' => $item_row->subcategory,
+			'category' => $item_row->category
+		);
+
+		foreach($item_info as $key=>$value)
+		{
+			$result = $this->pointer_search($key, $value);
+			if(!empty($result))
+			{
+				return $result;
+			}
+		}
+
 	}
 
 }

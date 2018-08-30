@@ -1,6 +1,6 @@
 <ul id="error_message_box" class="error_message_box"></ul>
 
-<?php echo form_open_multipart('receivings/do_quick_transfer/', array('id'=>'excel_form', 'class'=>'form-horizontal')); ?>
+<?php echo form_open_multipart('special_pricing/do_make_barcode_list/', array('id'=>'excel_form', 'class'=>'form-horizontal')); ?>
 	<fieldset id="item_basic_info">
 		<div class="form-group form-group-sm">
 			<div class='col-xs-12'>
@@ -25,7 +25,6 @@ $(document).ready(function()
 				{
 					dialog_support.hide();
 					$.notify(response.message, { type: response.success ? 'success' : 'danger'} );
-					window.location.href = "receivings";
 				},
 				dataType: 'json'
 			});

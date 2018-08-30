@@ -1,40 +1,29 @@
 <?php
-  echo "<p>Barcode: <strong>".$barcode."</strong></p>";
-  echo "<p>Item Name: <strong>".$item_name."</strong></p>";
+  echo '<p style="text-align:center; font-weight:bold">'.$barcode.' | '.$item_name.' | '.$item_data_type.'</p>';
 ?>
-<table class="table table-bordered">
-  <tbody>
-    <?php if($item_data_type == 'discounted'){ ?>
-      <tr>
-        <th>Type</th>
-        <th>Discount</th>
-      </tr>
-      <?php
-        foreach(json_decode($item_data) as $key=>$value){
-            $label = ($key == 'ys') ? "DAMAGED" : strtoupper($key);    
-          echo '<tr>';
-          echo '<td>'.$label.'</td>';
-          echo '<td>'.$value.'%</td>';
-          echo '</tr>';
-        }
-      ?>
-    <?php }else if($item_data_type == 'fixed'){ ?>
-      <tr>
-        <th>Type</th>
-        <th>Fixed Price</th>
-      </tr>
-      <?php
-        foreach(json_decode($item_data) as $key=>$value){
-            $label = ($key == 'ys') ? "DAMAGED" : strtoupper($key);
-          echo '<tr>';
-          echo '<td>'.$label.'</td>';
-          echo '<td>'.$value.'</td>';
-          echo '</tr>';
-        }
-      ?>
-    <?php } ?>
 
-  </tbody>
+<ul class="list-group">
+  <li class="list-group-item">
+    <span class="badge"><?php echo json_decode($item_data)->retail; ?></span>
+    RETAIL
+  </li>
 
+  <?php if($this->Item->is_both()){ ?>
+    <li class="list-group-item">
+      <span class="badge"><?php echo json_decode($item_data)->wholesale; ?></span>
+      WHOLESALE
+    </li>
+  <?php } ?>
 
-</table>
+  <li class="list-group-item">
+    <span class="badge"><?php echo json_decode($item_data)->franchise; ?></span>
+    FRANCHISE
+  </li>
+
+  <?php if(!$this->Item->is_franchise()){ ?>
+    <li class="list-group-item">
+      <span class="badge"><?php echo json_decode($item_data)->ys; ?></span>
+      SPECIAL APPROVAL
+    </li>
+  <?php } ?>
+</ul>

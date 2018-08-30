@@ -31,10 +31,7 @@ class Item extends CI_Model
 {
 	public function check_login_type()
 	{
-		$id = $this->session->userdata('person_id');
-		$this->db->where('person_id', $id);
-		$query = $this->db->get('employees');
-		return $query->row('login_type');
+		return $this->db->where('person_id', $this->session->userdata('person_id'))->get('employees')->row()->login_type;
 	}
 
 	public function is_admin()
@@ -62,6 +59,21 @@ class Item extends CI_Model
 	public function is_dewasnaka()
 	{
 		if($this->check_login_type() == 'main_warehouse'){
+      return true;
+    }
+	}
+
+	public function is_franchise()
+	{
+		if($this->check_login_type() == 'franchise'){
+      return true;
+    }
+	}
+
+	public function is_accounts()
+	{
+		$type = $this->check_login_type();
+		if($type == 'admin' || $type == 'superadmin' || $type == 'accounts'){
       return true;
     }
 	}

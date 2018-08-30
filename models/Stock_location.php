@@ -83,34 +83,29 @@ class Stock_location extends CI_Model
 		return $this->db->get()->row()->location_id;
 	}
 
-	public function get_custom_location_id($user_id)
-	{
-		$this->db->where('location_owner', $user_id);
-		return $this->db->get('stock_locations')->row()->location_id;
-	}
-
 	public function get_location_name($location_id)
 	{
-		$this->db->from('stock_locations');
-		$this->db->where('location_id', $location_id);
-
-		return $this->db->get()->row()->location_name;
+		return $this->db->where('location_id', $location_id)->get('stock_locations')->row()->location_name;
 	}
 
-	public function get_location_name2($employee_id)
+	public function get_location_name2($owner_id)
 	{
-		$this->db->from('stock_locations');
-		$this->db->where('location_owner', $employee_id);
-
-		return $this->db->get()->row()->location_name;
+		return $this->db->where('location_owner', $owner_id)->get('stock_locations')->row()->location_name;
 	}
 
 	public function get_location_id($location_name)
 	{
-		$this->db->from('stock_locations');
-		$this->db->where('location_name', $location_name);
+		return $this->db->where('location_name', $location_name)->get('stock_locations')->row()->location_id;
+	}
 
-		return $this->db->get()->row()->location_id;
+	public function get_location_id_2($owner_id)
+	{
+		return $this->db->where('location_owner', $owner_id)->get('stock_locations')->row()->location_id;
+	}
+
+	public function get_owner_id($location_id)
+	{
+		return $this->db->where('location_id', $location_id)->get('stock_locations')->row()->location_owner;
 	}
 
 	public function save(&$location_data, $location_id)

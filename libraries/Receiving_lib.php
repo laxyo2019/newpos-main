@@ -128,7 +128,7 @@ class Receiving_lib
 	{
 		if(!$this->CI->session->userdata('recv_stock_source'))
 		{
-			$this->set_stock_source($this->CI->Receiving->get_location_id_by_owner($this->CI->session->userdata('person_id'))); //setting stock source as logged in user
+			$this->set_stock_source($this->CI->Stock_location->get_location_id_2($this->CI->session->userdata('person_id'))); //setting stock source as logged in user
 		}
 
 		return $this->CI->session->userdata('recv_stock_source');
@@ -211,6 +211,7 @@ class Receiving_lib
 		$price = $item_info->unit_price > 0 ? $item_info->unit_price : json_decode($item_info->cost_price)->retail;
 		$item = array($insertkey => array(
 				'item_id' => $item_id,
+				'item_number' => $item_info->item_number,
 				'item_location' => $item_location,
 				'stock_name' => $this->CI->Stock_location->get_location_name($item_location),
 				'line' => $insertkey,

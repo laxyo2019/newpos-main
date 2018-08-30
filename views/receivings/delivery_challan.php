@@ -8,13 +8,6 @@ if(isset($error_message))
 }
 ?>
 
-<script type="text/javascript">
-  $(document).ready(function()
-  {
-    //
-  });
-</script>
-
 <?php
 if(isset($error_message))
 {
@@ -59,10 +52,10 @@ if(isset($error_message))
           <tr>
             <td><?php echo $challan_id; ?></td>
             <td><?php echo $stock_transfer_id; ?></td>
-            <td><input style="border:none;" type="text"></td>
-            <td><input style="border:none;" type="text"></td>
-            <td><input style="border:none;" type="text"></td>
-            <td><input style="border:none;" type="text"></td>
+            <td><input style="border:none;" value="LEL INDORE" type="text"></td>
+            <td><input style="border:none;" value="" type="text"></td>
+            <td><input style="border:none;" value="" type="text"></td>
+            <td><input style="border:none;" value="MP.43.C.1596" type="text"></td>
             <td><?php echo date('d-m-Y H:i'); ?></td>
           </tr>
         </tbody>

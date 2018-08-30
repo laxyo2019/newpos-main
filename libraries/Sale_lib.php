@@ -652,13 +652,11 @@ class Sale_lib
 	{
 		if(!$this->CI->session->userdata('sales_location'))
 		{
-			$this->set_sale_location($this->CI->Stock_location->get_custom_location_id($this->CI->session->userdata('person_id')));
+			$this->set_sale_location($this->CI->Stock_location->get_location_id_2($this->CI->session->userdata('person_id')));
 		}
 
 		return $this->CI->session->userdata('sales_location');
 	}
-
-	// public function get
 
 	public function set_sale_location($location)
 	{
@@ -713,12 +711,13 @@ class Sale_lib
 	public function add_item(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL )
 	{
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
-		$billtype = $this->CI->session->userdata('billtype');
-		if(empty($billtype))
+		$billtype = (empty($this->CI->session->userdata('billtype'))) ? "retail" : $this->CI->session->userdata('billtype');
+		$discount = json_decode($item_info->discounts)->$billtype; //get discount value from session (saved as json in 'discounts' column)
+
+		if($billtype == "1rupee")
 		{
-			$billtype = 'retail';
+			$price_mode = PRICE_MODE_1_RUPEE;
 		}
-		$discount = json_decode($item_info->discounts)->$billtype; //get specific discount value from json using billtype variable set in session
 		
 		//make sure item exists
 		if(empty($item_info))
@@ -731,30 +730,30 @@ class Sale_lib
 		$item_type = $item_info->item_type;
 		$stock_type = $item_info->stock_type;
 		$unit_price = $item_info->unit_price;
-		/*
-		### Current status:
-		1) 4 discounts set as json - 'discounts' field (price as unit_price and discount according to billtype)
-		2) 4 fixed prices set as json - 'cost_price' field (discount is kept 0.00 in this case)
 
-		### Conditions to check:
-		1) billtype == "1rupee" (for both discounted and fixed price)
-		2) special price condition ()
-		3)  	
-		*/
 		if($price_mode == PRICE_MODE_STANDARD)
 		{
-			if($unit_price < 1){
-				$price = json_decode($item_info->cost_price)->$billtype;
-				$discount = 0.00;
-			}else{
-				$price = $unit_price;
-				if($billtype == "1rupee")
-				{
-					$price = 1;
+			$cost_price = $item_info->cost_price;
+			$sp_data = $this->CI->Pricing->check_active_offers($item_id);
+			if(!empty($sp_data))
+			{
+				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : $unit_price;
+				$discount = $sp_data['discount'];
+			}
+			else
+			{
+				if($unit_price < 1){ //FIXED PRICE ITEM
+					$price = json_decode($item_info->cost_price)->$billtype;
 					$discount = 0.00;
+				}else{ //DISCOUNTED ITEM
+					$price = $unit_price;
 				}
 			}
-
+		}
+		elseif($price_mode == PRICE_MODE_1_RUPEE)
+		{
+			$price = 1.00;
+			$discount = 0.00;
 			$cost_price = $item_info->cost_price;
 		}
 		elseif($price_mode == PRICE_MODE_KIT)

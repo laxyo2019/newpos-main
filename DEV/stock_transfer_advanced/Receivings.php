@@ -256,7 +256,7 @@ class Receivings extends Secure_Controller
 
 			$owner_id = $this->Receiving->get_recv_stock_owner($receiving_id, 'destination');
 
-			$location_id = $this->Receiving->get_location_id_by_owner($owner_id);
+			$location_id = $this->Stock_location->get_location_id_2($owner_id);
 
 			// ----------------------------------------------------
 
@@ -322,7 +322,7 @@ class Receivings extends Secure_Controller
 
 				$owner_id = $this->Receiving->get_recv_stock_owner($recv, 'employee_id');
 
-				$source_location_id = $this->Receiving->get_location_id_by_owner($owner_id);
+				$source_location_id = $this->Stock_location->get_location_id_2($owner_id);
 
 				// ----------------------------------------------------
 

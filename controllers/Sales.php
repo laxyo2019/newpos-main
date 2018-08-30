@@ -4,6 +4,7 @@ require_once("Secure_Controller.php");
 
 define('PRICE_MODE_STANDARD', 0);
 define('PRICE_MODE_KIT', 1);
+define('PRICE_MODE_1_RUPEE', 5);
 
 class Sales extends Secure_Controller
 {
@@ -96,7 +97,7 @@ class Sales extends Secure_Controller
 						 'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
 						);
 		
-		if($this->Item->is_both())
+		if($this->Item->is_accounts())
 		{
 			$filters['location_id'] = 'all';
 		}
@@ -563,9 +564,7 @@ class Sales extends Secure_Controller
 
 	public function get_cashier_detail($id, $type)
 	{
-		$this->db->where('id', $id);
-		$query = $this->db->get('cashiers');
-		return $query->row($type);
+		return $this->db->where('id', $id)->get('cashiers')->row()->$type;
 	}
 
 	public function complete()

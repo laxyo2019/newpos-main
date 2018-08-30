@@ -24,20 +24,6 @@ class Receiving extends CI_Model
 		return $this->db->get();
 	}
 
-	public function get_location_id_by_owner($id)
-	{
-		$this->db->where('location_owner', $id);
-		$query = $this->db->get('stock_locations');
-		return $query->row('location_id');
-	}
-
-	public function get_owner_id_by_location($id)
-	{
-		$this->db->where('location_id', $id);
-		$query = $this->db->get('stock_locations');
-		return $query->row('location_owner');
-	}
-
 	public function get_recv_stock_owner($id, $type)
 	{
 		$this->db->where('receiving_id', $id);
@@ -58,6 +44,34 @@ class Receiving extends CI_Model
 		}
 		
 		return FALSE;
+	}
+
+	public function get_items_left($receiving_id, $reqtype = -1)
+	{
+		$array = array(
+			'receiving_id' => $receiving_id,
+			'processed' => 0
+		);
+		if($reqtype == "rows")
+		{
+			$this->db->where($array);
+			return $this->db->count_all_results('stock_movement');
+		}
+		else if ($reqtype == "quantity")
+		{
+			$quantity = 0;
+			$this->db->where($array);
+			foreach($this->db->get('stock_movement')->result_array() as $row)
+			{
+				$quantity += $row['quantity'];
+			}
+			return $quantity;
+		}
+		else
+		{
+			$this->db->where($array);
+			return $this->db->get('stock_movement')->result_array();
+		}
 	}
 
 	public function is_valid_receipt($receipt_receiving_id)

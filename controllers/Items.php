@@ -674,40 +674,21 @@ class Items extends Secure_Controller
 	}
 
 	public function get_custom_discounts(){
-		$this->db->where('tag', 'billtype');
-		return $this->db->get('custom_fields')->result_array();
+		return $this->db->where('tag', 'billtype')->get('custom_fields')->result_array();
 	}
 
 	public function display_discounts($item_id){
 		$this->db->where('item_id', $item_id);
 		$query = $this->db->get('items');
-		if($query->row('unit_price') == 0)
-		{
-			$data['item_data_type'] = 'fixed';
-			$data['item_data'] = $query->row('cost_price');
-		}
-		else
-		{
-			$data['item_data_type'] = 'discounted';
-			$data['item_data'] = $query->row('discounts');
-		}
+
+		$data['item_data_type'] = ($query->row('unit_price') < 1) ? 'FIXED PRICE' : 'DISCOUNTED';
+		$data['item_data'] = ($query->row('unit_price') < 1) ? $query->row('cost_price') : $query->row('discounts');
 
 		$data['item_name'] = $query->row('name');
 		$data['barcode'] = $query->row('item_number');
 
 		$this->load->view('items/discount_tooltip', $data);
 	}
-
-	// public function items_livesearch()
-	// {
-	// 	$item = $this->input->post('keyword');
-	// 	$this->db->where('deleted', '!==', 1); // to avoid items which are deleted
-	// 	$this->db->like('name', $item);
-	// 	$query = $this->db->get('items');
-	// 	foreach($query->result_array() as $row){
-	// 		echo '<span id="'.$row['name'].'" class="form-control input-sm liveresults">'.$row['name'].'</span>';
-	// 	}
-	// }
 
 	public function save($item_id = -1) // #save-method for both insert and update
 	{

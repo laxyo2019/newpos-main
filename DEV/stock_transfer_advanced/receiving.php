@@ -304,7 +304,7 @@ if (isset($msg))
 							
 							<div class="btn btn-sm btn-danger pull-left" id='cancel_receiving_button'><span class="glyphicon glyphicon-remove">&nbsp</span><?php echo $this->lang->line('receivings_cancel_receiving'); ?></div>
 							
-							<input type="hidden" name="location_owner" value="<?php echo $this->Receiving->get_owner_id_by_location($this->session->userdata('recv_stock_destination')); ?>">
+							<input type="hidden" name="location_owner" value="<?php echo $this->Stock_location->get_owner_id($this->session->userdata('recv_stock_destination')); ?>">
 
 							<div class="btn btn-sm btn-success pull-right" id='finish_receiving_button'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $this->lang->line('receivings_complete_receiving'); ?></div>
 						</div>

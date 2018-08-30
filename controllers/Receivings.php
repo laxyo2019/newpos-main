@@ -104,7 +104,6 @@ class Receivings extends Secure_Controller
 				$i = 1;
 
 				$failCodes = array();
-				$error_data = array();
 
 				while(($data = fgetcsv($handle)) !== FALSE)
 				{
@@ -260,6 +259,17 @@ class Receivings extends Secure_Controller
 		$this->load->view('receivings/challan_list', $data);
 	}
 
+	public function get_transfer_status()
+	{
+		$pending_transfers = $this->db->where('completed', 0)
+			->order_by('receiving_id', 'desc')
+			->get('receivings')
+			->result_array();
+
+		$data['pending_transfers'] = $pending_transfers;
+		$this->load->view('receivings/transfer_status', $data);
+	}
+
 	public function delivery_challan($last_receiving_id = -1)
 	{
 		$items_sub_array = array();
@@ -352,7 +362,7 @@ class Receivings extends Secure_Controller
 
 			$owner_id = $this->Receiving->get_recv_stock_owner($receiving_id, 'destination');
 
-			$location_id = $this->Receiving->get_location_id_by_owner($owner_id);
+			$location_id = $this->Stock_location->get_location_id_2($owner_id);
 
 			// ----------------------------------------------------
 
@@ -418,7 +428,7 @@ class Receivings extends Secure_Controller
 
 				$owner_id = $this->Receiving->get_recv_stock_owner($recv, 'employee_id');
 
-				$source_location_id = $this->Receiving->get_location_id_by_owner($owner_id);
+				$source_location_id = $this->Stock_location->get_location_id_2($owner_id);
 
 				// ----------------------------------------------------
 
