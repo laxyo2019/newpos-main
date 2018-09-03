@@ -113,12 +113,14 @@ class Special_pricing extends Secure_Controller
 	public function add_basic_save()
 	{
 		$locations = $this->input->post('locations');
-		$pointer = $this->input->post('pointer');
 		$plan = $this->input->post('plan');
+		$pointer = ($plan == 'mixed') ? json_encode($this->input->post('pointer')) : trim($this->input->post('pointer'));
 
-		$this->db->where('locations', $locations);
-		$this->db->where('pointer', $pointer);
-		$offer_count = $this->db->count_all_results('special_prices');
+		$array = array(
+			'locations' => $locations,
+			'pointer' => $pointer
+		);
+		$offer_count = $this->db->where($array)->count_all_results('special_prices');
 
 		if($offer_count != 0)
 		{
@@ -126,49 +128,43 @@ class Special_pricing extends Secure_Controller
 		}
 		else
 		{
-			$start_time = $this->input->post('start_time');
-			$end_time = $this->input->post('end_time');
-			if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
-			{
+			// $start_time = $this->input->post('start_time');
+			// $end_time = $this->input->post('end_time');
+			// if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
+			// {
 				$data = array(
 					'plan' => $plan,
 					'locations' => $locations,
-					'pointer' => trim($pointer),
+					'pointer' => $pointer,
 					'price' => $this->input->post('price'),
 					'discount' => $this->input->post('discount'),
-					'start_time' => $start_time,
-					'end_time' => $end_time
+					// 'start_time' => $start_time,
+					// 'end_time' => $end_time
 				); 
 			
 				$this->db->insert('special_prices', $data);
 				echo "Created Successfully";
-			}
-			else
-			{
-				echo "Invalid Date Range";
-			}
+			// }
+			// else
+			// {
+			// 	echo "Invalid Date Range";
+			// }
 		}
 	}
 
-	public function deactivate_offer()
+	public function offer_toggle()
 	{
-		$this->db->where('id', $this->input->post('id'));
+		$status = ($this->input->post('status') == 'true') ? 'checked' : '';
 		$data = array(
-			'status' => 0
+			'status' => $status
 		);
-		if($this->db->update('special_prices', $data))
-		{
-			echo "success";
-		}
+		$this->db->where('id', $this->input->post('id'));
+		echo ($this->db->update('special_prices', $data)) ? 'success' : 'failed';
 	}
 
 	public function get_offers_sublist()
 	{
-		$array = array(
-			'plan' => $this->input->post('plan'),
-			'status' => 1
-		);
-		$data['offers'] = $this->db->where($array)->get('special_prices')->result_array();
+		$data['offers'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
 
 		$this->load->view('special_pricing/offers_sublist', $data);
 	}

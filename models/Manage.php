@@ -6,5 +6,5 @@
 
 class Manage extends CI_Model
 {
-
+  
 }

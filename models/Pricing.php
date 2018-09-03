@@ -6,24 +6,12 @@
 
 class Pricing extends CI_Model
 {
-	// public function check_validity($validity)
-	// {
-	// 	$now = time();
-	// 	$db_time = strtotime($validity);
-	// 	if($db_time > $now)
-	// 	{
-	// 	  return TRUE;
-	// 	}
-
-	// 	return FALSE;
-	// }
-
 	public function get_active_shops()
 	{
 		$this->db->from('employees');
 		$this->db->join('people', 'people.person_id = employees.person_id');
 
-		$shop_types = array('dbf', 'shop');
+		$shop_types = array('dbf', 'shop', 'franchise');
 		$this->db->where_in('login_type', $shop_types);
 		$this->db->where('deleted', 0);
 		return $this->db->get()->result_array();
@@ -63,7 +51,7 @@ class Pricing extends CI_Model
 	public function pointer_search($plan, $info)
 	{
 		$array = array(
-			'status' => 1,
+			'status' => 'checked',
 			'plan' => $plan,
 			'locations' => $this->session->userdata('person_id')
 		);
@@ -71,7 +59,8 @@ class Pricing extends CI_Model
 		$results = $this->db->get('special_prices')->result_array();
 		foreach($results as $row)
 		{
-			if($row['pointer'] == $info)
+			$offer = ($plan == "mixed") ? json_decode($row['pointer']) : $row['pointer'];
+			if($offer == $info)
 			{
 				return $row;
 			}
@@ -89,6 +78,7 @@ class Pricing extends CI_Model
 		$item_info = array( // DO NOT CHANGE ORDER (SET ON PRIORITY RULE)
 			'single' => $item_row->item_number,
 			// 'sublist' => $item_row->item_number,
+			'mixed' => [$item_row->category, $item_row->subcategory, $item_row->brand],
 			'brand' => $item_row->brand,
 			'subcategory' => $item_row->subcategory,
 			'category' => $item_row->category

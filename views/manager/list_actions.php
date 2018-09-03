@@ -1,7 +1,7 @@
 <div class="row">
   <span class="col-md-6">
     <div class="form-group" style="padding-top:10px;">
-      <select class="form-control locations2" multiple="multiple">
+      <select class="form-control" multiple="multiple" id="list_locations">
         <?php foreach($stock_locations as $key=>$value): ?>
           <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
         <?php endforeach; ?>
@@ -77,7 +77,7 @@
 
 <script>
 	$(document).ready( function () {
-    $('.locations2').select2();
+    $('#list_locations').select2();
 
     $('#category2').on('change',function(){
       var level1 = $(this).val();
@@ -92,7 +92,7 @@
     });
     
     $('#allItems').on('click', function(){
-      var locations = $('.locations2').val();
+      var locations = $('#list_locations').val();
       console.log(locations);
       if(locations != null)
       {
@@ -115,7 +115,7 @@
     });
 
     $('#filterItems').on('click', function(){
-      var locations = $('.locations2').val();
+      var locations = $('#list_locations').val();
       var category = $('#category2').val();
       console.log(locations);
       if(locations != null && category != "")

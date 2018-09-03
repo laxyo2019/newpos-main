@@ -77,11 +77,7 @@ $(document).ready(function()
             title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
         <span class="glyphicon glyphicon-tag">&nbsp</span><?php echo $this->lang->line($controller_name. '_new'); ?>
     </button>
-
-    <a class="btn btn-info btn-sm pull-right modal-dlg" data-href='<?php echo site_url($controller_name."/bulk_discount_view"); ?>' title="Bulk Discounts">Bulk Discounts</a>
-
-    <a class="btn btn-info btn-sm pull-right modal-dlg" data-href='<?php echo site_url($controller_name."/bulk_hsn_view"); ?>' title="Bulk HSN">Bulk HSN</a>
-
+    
 <?php } ?>
 
 </div>

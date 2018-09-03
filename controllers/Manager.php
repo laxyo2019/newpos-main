@@ -11,6 +11,7 @@ class Manager extends Secure_Controller
 
   public function index()
   {
+    $data['cashiers'] = $this->db->get('cashiers')->result_array();
     $data['stock_locations'] = $this->Stock_location->get_allowed_locations();
     $data['mci_data'] = $this->Item->get_mci_data('all');
     $this->load->view('manager/dashboard', $data);
@@ -83,7 +84,7 @@ class Manager extends Secure_Controller
   {
     $data['locations'] = $this->input->post('locations');
     $data['items'] = $this->Item->get_all()->result_array();
-    $this->load->view('manager/items_sublist', $data);
+    $this->load->view('manager/sublists/items_sublist', $data);
   }
 
   public function list_filtered_items()
@@ -101,7 +102,7 @@ class Manager extends Secure_Controller
     $this->db->where('deleted', 0);
     $this->db->where($array);
     $data['items'] = $this->db->get('items')->result_array();
-    $this->load->view('manager/items_sublist', $data);
+    $this->load->view('manager/sublists/items_sublist', $data);
   }
 
   public function fetch_stockup_items()
@@ -113,21 +114,21 @@ class Manager extends Secure_Controller
     
     $data['items'] = json_decode($items);
 
-    $this->load->view('manager/stockup_sublist', $data);
+    $this->load->view('manager/sublists/stockup_sublist', $data);
   }
 
   public function get_mci_list()
   {
     $table = 'master_'.$this->input->post('type');
     $data['mci_data'] = $this->db->get($table)->result_array();
-    $this->load->view('manager/mci_sublist', $data);
+    $this->load->view('manager/sublists/mci_sublist', $data);
   }
 
   public function get_mci_sublist()
   {
     $parent_id = $this->input->post('parent_id');
     $data['mci_data'] = $this->db->where('parent_id', $parent_id)->get('master_subcategories')->result_array();
-    $this->load->view('manager/mci_sublist', $data);
+    $this->load->view('manager/sublists/mci_sublist', $data);
   }
 
   public function mci_save()  // create new cat,subcat,brand,size,color
@@ -197,6 +198,192 @@ class Manager extends Secure_Controller
 		$tablename = 'master_'.$type;
 		$this->db->update($tablename, $data);
 		echo 'Successfully Updated';
+  }
+
+  public function cashier_add()
+  {
+    foreach($this->Pricing->get_active_shops() as $row)
+		{
+			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
+		}
+		$data['shops'] = $shops;
+    $this->load->view('manager/cashier_add', $data);
+  }
+
+  public function cashier_save()
+	{
+    $sale_code = $this->input->post('sale_code');
+    $count = $this->db->where('id', $sale_code)->count_all_results('cashiers');
+
+    if($count == 0)
+    {
+      $data = array(
+        'id' => $sale_code,
+        'shops' => json_encode($this->input->post('shops')),
+        'name' => $this->input->post('name')
+      );
+  
+      if($this->db->insert('cashiers', $data)){
+        echo "Cashier Added";
+      }
+    }
+    else
+    {
+      echo "Duplicate Sale Code";
+    }
+  }
+  
+  // public function get_incentive_report()
+  // {
+  //   $shop_id = $this->input->post('shop_id');
+  //   $this->db->where('employee_id', $shop_id);
+
+  // }
+
+  public function bulk_hsn_view()
+	{
+		$categories = array('' => $this->lang->line('items_none'));
+		foreach($this->Item->get_mci_data('categories') as $row)
+		{
+			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
+		}
+
+		$data['categories'] = $categories;
+		$this->load->view('manager/bulk_hsn_form', $data);
+	}
+
+	public function bulk_hsn_update()
+	{
+		$count = 0;
+		$category = $this->input->post('category');
+		$subcategory = $this->input->post('subcategory');
+    $hsn = $this->input->post('hsn');
+    $input_tax = $this->input->post('tax');
+		$tax_percents = array(
+			'CGST' => $input_tax/2,
+			'SGST' => $input_tax/2,
+			'IGST' => $input_tax
+		);
+
+		$array = array( #q1-array
+			'category' => $category,
+			);
+
+		if(!empty($subcategory))
+		{
+			$array['subcategory'] = $subcategory; // further narrow down
+		}
+
+		$this->db->where($array); #q1
+		$items_query = $this->db->get('items');
+
+		foreach($items_query->result_array() as $row)
+		{
+			$item_id = $row['item_id'];
+			if(!empty($hsn))
+			{
+				$data = array( #q2-array
+					'custom1' => $hsn
+				);
+				$this->db->where('item_id', $item_id);
+				$this->db->update('items', $data); #q2
+			}
+
+			foreach($tax_percents as $key=>$value)
+			{
+				$count++;
+				$array = array( #q3-array
+					'item_id' => $item_id,
+					'name' => $key
+				);
+				$this->db->where($array); #q3
+
+				$data = array( #q4-array
+					'percent' => $value
+				);
+				$this->db->update('items_taxes', $data); #q4
+				if($this->db->affected_rows() != 1)
+				{
+          if($this->db->where($array)->count_all_results('items_taxes') != 1)
+          {
+            $data = array(
+              'item_id' => $item_id,
+              'name' => $key,
+              'percent' => $value
+            );
+            $this->db->insert('items_taxes', $data);
+          }
+				}
+			}
+		}
+		echo $count.' Items successfully processed';
+	}
+
+	// Custom Bulk Discount Update Function
+	public function bulk_discount_view()
+	{
+		$categories = array('' => $this->lang->line('items_none'));
+		foreach($this->Item->get_mci_data('categories') as $row)
+		{
+			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
+		}
+		$brands = array('' => $this->lang->line('items_none'));
+		foreach($this->Item->get_mci_data('brands') as $row)
+		{
+			$brands[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
+		}
+		foreach($this->Item->get_custom_discounts() as $row)
+		{
+			$custom_discounts[$this->xss_clean($row['alias'])] = $this->xss_clean($row['title']);
+		}
+
+		$data['categories'] = $categories;
+		$data['brands'] = $brands;
+		$data['custom_discounts'] = $custom_discounts;
+		$this->load->view('manager/bulk_discount_form', $data);
+	}
+
+	public function bulk_discount_update()
+	{
+    $counter = 0;
+		$radio = $this->input->post('radio');
+		$key1 = $this->input->post('key1');
+		$key2 = $this->input->post('key2');
+		$dtype = $this->input->post('dtype');
+		$dvalue = $this->input->post('dvalue');
+
+		if($radio == "subcategory")
+		{
+      $array = array(
+				'category' => $key1,
+				$radio => $key2,
+				'deleted' => 0
+			);
+		}
+		else
+		{
+      $array = array(
+				$radio => $key1,
+				'deleted' => 0
+      );
+		}
+    $this->db->where($array);
+    $items_array = $this->db->get('items')->result_array();
+		foreach($items_array as $row)
+		{
+			$item_id = $row['item_id'];
+			$discounts = json_decode($row['discounts']);
+      $discounts->$dtype = number_format($dvalue, 2);
+      $data = array(
+        'discounts' => json_encode($discounts)
+      );
+			$this->db->where('item_id', $item_id);
+      if($this->db->update('items', $data))
+      {
+        $counter++;
+      }
+		}
+		echo $counter.' Items successfully updated!';
 	}
   
 }

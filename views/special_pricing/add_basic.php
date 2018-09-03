@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <div class="col-md-4">
+  <!-- <div class="col-md-4">
     <div class="form-group">
       <div class='input-group date datetimepicker' id='datetimepicker1'>
           <input type='text' class="form-control" id="start_time" placeholder="Start Time" />
@@ -55,39 +55,64 @@
           </span>
       </div>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <script>
 	$(document).ready( function () {
-    $('.datetimepicker').datetimepicker({
-      // format: 'dd.mm.yyyy',
-      // minView: 2,
-      // maxView: 4,    
-      autoclose: true
-    });
+    // $('.datetimepicker').datetimepicker({
+    //   // format: 'dd.mm.yyyy',
+    //   // minView: 2,
+    //   // maxView: 4,    
+    //   autoclose: true
+    // });
   
     var selected_plan = $('#select_plan').val();
     var main = ["single"];
     var main2 = ["category"];
     var main3 = ["subcategory"];
     var main4 = ["brand"];
-    // var main5 = ["sublist"];
-    $('#item_id').toggle(main.includes(selected_plan));
-    $('#price').toggle(main.includes(selected_plan));
+
+    $('#item_id, #price').toggle(main.includes(selected_plan));
     $('#category').toggle(main2.includes(selected_plan));
     $('#subcategory').toggle(main3.includes(selected_plan));
     $('#brand').toggle(main4.includes(selected_plan));
-    // $('#barcode_list').toggle(main5.includes(selected_plan));
+
+    if(selected_plan == 'mixed')
+    {
+      var main5 = ["mixed"];
+      $('#category, #subcategory, #brand').toggle(main5.includes(selected_plan));
+    }
+    
+    $('#category').on('change', function(){
+      var selected_plan = $('#select_plan').val();
+      if(selected_plan = 'mixed')
+      {
+        var level1 = $(this).val();
+        // console.log(val);
+        if(level1){
+            $.post('<?php echo site_url("items/ajax_fetch_subcategories");?>', {'category' : level1}, function(data) {
+              $('#subcategory').html(data);
+          }); 
+        }else{
+            $('#subcategory').html('<option value="">Loading...</option>');
+        }
+      }
+    });
 
     $('#submit').on('click', function(){
       var locations = $('.locations').val();
       var plan = $('#select_plan').val();
-      var pointer = $('.pointer:visible').val();
+      if(plan == 'mixed')
+      {
+        var pointer = [$('#category').val(), $('#subcategory').val(), $('#brand').val()];
+      }else{
+        var pointer = $('.pointer:visible').val();
+      }
       var price = $('#price').val();
       var discount = $('#discount').val();
-      var start_time = $('#start_time').val();
-      var end_time = $('#end_time').val();
+      // var start_time = $('#start_time').val();
+      // var end_time = $('#end_time').val();
 
       console.log(pointer);
       $.post('<?php echo site_url($controller_name."/add_basic_save"); ?>', 
@@ -97,8 +122,8 @@
         'pointer':pointer,
         'price':price,
         'discount':discount,
-        'start_time':start_time,
-        'end_time':end_time
+        // 'start_time':start_time,
+        // 'end_time':end_time
       },
       function(data) {
         alert(data);

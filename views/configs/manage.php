@@ -9,9 +9,6 @@
 		<a data-toggle="tab" href="#info_tab" title="<?php echo $this->lang->line('config_info_configuration'); ?>"><?php echo $this->lang->line('config_info'); ?></a>
 	</li>
 	<li role="presentation">
-		<a data-toggle="tab" href="#cashier_tab">Cashiers</a>
-	</li>
-	<li role="presentation">
 		<a data-toggle="tab" href="#general_tab" title="<?php echo $this->lang->line('config_general_configuration'); ?>"><?php echo $this->lang->line('config_general'); ?></a>
 	</li>
 	<li role="presentation">
@@ -55,9 +52,6 @@
 <div class="tab-content">
 	<div class="tab-pane fade in active" id="info_tab">
 		<?php $this->load->view("configs/info_config"); ?>
-	</div>
-	<div class="tab-pane" id="cashier_tab">
-		<?php $this->load->view("configs/cashier_config"); ?>
 	</div>
 	<div class="tab-pane" id="general_tab">
 		<?php $this->load->view("configs/general_config"); ?>

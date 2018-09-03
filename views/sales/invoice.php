@@ -200,6 +200,11 @@ $(document).ready(function()
                 <td colspan="2" style="text-align:right;"><b><?php echo to_currency(ceil($total)); ?></b></td>
               </tr>
 							<tr>
+								<td style="text-align:right;"><b>Amount in words:</b></td>
+								<td></td>
+								<td colspan="6" style="text-align:right;"><?php echo ucfirst($this->Sale->getIndianCurrency(ceil($total))); ?></td>
+							</tr>
+							<tr>
                 <td style="text-align:right;"><b>Payment Details</b></td>
                 <td colspan="3"></td>
                 <td colspan="4" style="font-size:0.9em;">

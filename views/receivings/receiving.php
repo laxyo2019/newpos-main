@@ -69,16 +69,8 @@ if (isset($msg))
 						<label class="control-label"><?php echo $this->lang->line('receivings_stock_destination'); ?></label>
 					</li>
 					<li class="pull-left">
-						<?php 
-							if($this->Item->is_dewasnaka())
-							{
-								echo form_hidden('stock_destination', '4'); //Dewasnaka fixed transfer to Laxyo Basement Only
-								echo '<h5 style="color:#18bc9c;font-weight:bold">Laxyo Basement</h5>';
-							}
-							else
-							{
-								echo form_dropdown('stock_destination', $stock_locations, $stock_destination, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
-							}
+						<?php
+							echo form_dropdown('stock_destination', $stock_locations, $stock_destination, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
 						?>
 					</li>
 				<?php

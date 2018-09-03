@@ -574,7 +574,7 @@ class Sales extends Secure_Controller
 		$data = array();
 		$cashier_id = $this->session->userdata('cashier_id');
 		$data['cashier_name'] = $this->get_cashier_detail($cashier_id, 'name');
-		$data['cashier_sale_code'] = $this->get_cashier_detail($cashier_id, 'sale_code');
+		$data['cashier_sale_code'] = $this->get_cashier_detail($cashier_id, 'id');
 		$data['dinner_table'] = $this->sale_lib->get_dinner_table();
 		$data['cart'] = $this->sale_lib->get_cart();
 		$data['transaction_time'] = date($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'));
@@ -1080,7 +1080,7 @@ class Sales extends Secure_Controller
 		$data['comments'] = $sale_info['comment'];
 		$data['invoice_number'] = $sale_info['invoice_number'];
 		$data['cashier_name'] = $this->get_cashier_detail($sale_info['cashier_id'], 'name');
-		$data['cashier_sale_code'] = $this->get_cashier_detail($sale_info['cashier_id'], 'sale_code');
+		$data['cashier_sale_code'] = $this->get_cashier_detail($sale_info['cashier_id'], 'id');
 		$data['quote_number'] = $sale_info['quote_number'];
 		$data['sale_status'] = $sale_info['sale_status'];
 		$data['company_info'] = implode("\n", array(
@@ -1122,12 +1122,6 @@ class Sales extends Secure_Controller
 		}
 
 		return $this->xss_clean($data);
-	}
-
-	public function get_cashiers($id)
-	{
-		$this->db->where('shop_id', $id);
-		return $this->db->get('cashiers');
 	}
 
 	private function _reload($data = array())
@@ -1211,9 +1205,9 @@ class Sales extends Secure_Controller
 		}
 
 		$cashiers = array('' => 'Select Cashier');
-		foreach($this->get_cashiers($this->session->userdata('person_id'))->result_array() as $row)
+		foreach($this->Sale->get_cashiers() as $key=>$value)
 		{
-			$cashiers[$this->xss_clean($row['id'])] = $this->xss_clean($row['name']);
+			$cashiers[$this->xss_clean($key)] = $this->xss_clean($value);
 		}
 		$data['cashiers'] = $cashiers;
 		$data['cashier'] = $this->session->userdata('cashier_id');

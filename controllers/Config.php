@@ -226,7 +226,6 @@ class Config extends Secure_Controller
 		$data['rounding_options'] = Rounding_mode::get_rounding_options();
 		$data['tax_codes'] = $this->get_tax_code_options();
 		$data['show_office_group'] = $this->Module->get_show_office_group();
-		$data['cashiers'] = $this->db->get('cashiers')->result_array();
 		$data['operating_shops'] = $this->get_operating_shops();
 
 		$data = $this->xss_clean($data);
@@ -253,33 +252,7 @@ class Config extends Secure_Controller
 
 		$this->load->view("configs/manage", $data);
 	}
-
-	public function cashier_save()
-	{
-		$data = array(
-			'shop_id' => $this->input->post('shop_id'),
-			'name' => $this->input->post('name'),
-			'sale_code' => $this->input->post('sale_code'),
-		);
-
-		if($this->db->insert('cashiers', $data)){
-			echo "success";
-		}else{
-			echo "failed";
-		}
-		
-	}
-
-	public function cashier_delete()
-	{
-		$this->db->where('id', $this->input->post('id'));
-		if($this->db->delete('cashiers')){
-			echo "deleted";
-		}else{
-			echo "failed";
-		}
-	}
-
+	
 	public function get_tax_code_options()
 	{
 		$tax_codes = $this->Tax->get_all_tax_codes()->result_array();

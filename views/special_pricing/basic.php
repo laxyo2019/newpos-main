@@ -12,7 +12,7 @@
 	</span>
   <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/add_basic_form"); ?>'
             title='Add New Basic Offer'>
-        Add New
+      Add New
   </button>
 
 </div>

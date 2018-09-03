@@ -100,6 +100,11 @@ class Item extends CI_Model
 		return FALSE;
 	}
 
+	public function get_custom_discounts()
+	{
+		return $this->db->where('tag', 'billtype')->get('custom_fields')->result_array();
+	}
+
 	/*
 	Determines if a given item_number exists [#mechtech5 : this func may need modification]
 	*/

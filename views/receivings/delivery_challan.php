@@ -97,6 +97,7 @@ if(isset($error_message))
     </div>
     <div class="col-md-12">
       <p class="text-center small">(BEING THE GOODS TRANSFER FROM WAREHOUSE TO SHOP/SHOP TO WAREHOUSE HENCE NO COMMERCIAL VALUE)</p><br><br><br>
+      <img id="image" src="<?php echo base_url('images/laxyo_stamp.png'); ?>" alt="company_stamp" />
         <p>FOR LAXYO ENERGY LTD.</p>
         <p>AUTHORISED SIGNATORY</p>
       </span>

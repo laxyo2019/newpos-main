@@ -337,148 +337,9 @@ class Items extends Secure_Controller
 			$data['stock_locations'] = $location_array;
 		}
 
-		$data['custom_discounts'] = $this->get_custom_discounts();
+		$data['custom_discounts'] = $this->Item->get_custom_discounts();
 
 		$this->load->view('items/form', $data);
-	}
-
-	public function bulk_hsn_view()
-	{
-		$categories = array('' => $this->lang->line('items_none'));
-		foreach($this->Item->get_mci_data('categories') as $row)
-		{
-			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-		}
-
-		$data['categories'] = $categories;
-		$this->load->view('items/bulk_hsn_form', $data);
-	}
-
-	public function bulk_hsn_update()
-	{
-		$count = 0;
-		$category = $this->input->post('category');
-		$subcategory = $this->input->post('subcategory');
-		$hsn = $this->input->post('hsn');
-		$tax_percents = array(
-			'CGST' => $this->input->post('cgst'),
-			'SGST' => $this->input->post('sgst'),
-			'IGST' => $this->input->post('igst')
-		);
-
-		$array = array( #q1-array
-			'category' => $category,
-			);
-
-		if(!empty($subcategory))
-		{
-			$array['subcategory'] = $subcategory; // further narrow down
-		}
-
-		$this->db->where($array); #q1
-		$items_query = $this->db->get('items');
-
-		foreach($items_query->result_array() as $row)
-		{
-			$item_id = $row['item_id'];
-			if(!empty($hsn))
-			{
-				$data = array( #q2-array
-					'custom1' => $hsn
-				);
-				$this->db->where('item_id', $item_id);
-				$this->db->update('items', $data); #q2
-			}
-
-			foreach($tax_percents as $key=>$value)
-			{
-				$count++;
-				$array = array( #q3-array
-					'item_id' => $item_id,
-					'name' => $key
-				);
-				$this->db->where($array); #q3
-
-				$data = array( #q4-array
-					'percent' => $value
-				);
-				$this->db->update('items_taxes', $data); #q4
-				if($this->db->affected_rows() != 1)
-				{
-					$data = array(
-								'item_id' => $item_id,
-								'name' => $key,
-								'percent' => $value
-							);
-					$this->db->insert('items_taxes', $data);
-				}
-			}
-		}
-		echo $count.' Items successfully processed';
-	}
-
-	// Custom Bulk Discount Update Function
-	public function bulk_discount_view()
-	{
-		$categories = array('' => $this->lang->line('items_none'));
-		foreach($this->Item->get_mci_data('categories') as $row)
-		{
-			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-		}
-		$brands = array('' => $this->lang->line('items_none'));
-		foreach($this->Item->get_mci_data('brands') as $row)
-		{
-			$brands[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-		}
-		foreach($this->get_custom_discounts() as $row)
-		{
-			$custom_discounts[$this->xss_clean($row['alias'])] = $this->xss_clean(strtoupper($row['alias']));
-		}
-
-		$data['categories'] = $categories;
-		$data['brands'] = $brands;
-		$data['custom_discounts'] = $custom_discounts;
-		$this->load->view('items/bulk_discount_form', $data);
-	}
-
-	public function bulk_discount_update()
-	{
-		$radio = $this->input->post('radio');
-		$key1 = $this->input->post('key1');
-		$key2 = $this->input->post('key2');
-		$dtype = $this->input->post('dtype');
-		$dvalue = $this->input->post('dvalue');
-
-		if($radio != "subcategory")
-		{
-			$array = array(
-				$radio => $key1,
-				'deleted' => 0
-			);
-		}
-		else
-		{
-			$array = array(
-				'category' => $key1,
-				$radio => $key2,
-				'deleted' => 0
-			);
-		}
-		$this->db->where($array);
-		$query = $this->db->get('items');
-		$count = 0;
-		foreach($query->result_array() as $row)
-		{
-			$item_id = $row['item_id'];
-			$discounts = json_decode($row['discounts']);
-			$discounts->$dtype = number_format($dvalue, 2);
-			$data = array();
-			$data['discounts'] = json_encode($discounts);
-			$this->db->where('item_id', $item_id);
-			$query = $this->db->update('items', $data);
-			if($query){ $count++; }
-		}
-		echo $count.' Items successfully updated!';
 	}
 
 	public function barcode_table()
@@ -531,27 +392,24 @@ class Items extends Secure_Controller
 		}
 	}
 
-	public function ajax_fetch_subcategories() // fetch subcats dynamically (used in 2 places)
+	public function ajax_fetch_subcategories()
 	{
-		if($this->input->post('category'))
+		$category = $this->input->post('category');
+		if(!empty($category))
 		{
-			$this->db->where('name', $this->input->post('category'));
-			$query = $this->db->get('master_categories');
-			$parent_id = $query->row('id');
-			$this->db->where('parent_id', $parent_id);
-			$query = $this->db->get('master_subcategories');
+			$parent_id = $this->db->where('name', $category)->get('master_categories')->row()->id;
+			$sub_array = $this->db->where('parent_id', $parent_id)->get('master_subcategories')->result_array();
+
 			echo '<option value="">Select Subcategory</option>';
-			foreach($query->result_array() as $row)
+			foreach($sub_array as $row)
 			{
 				echo '<option value="'.$row['name'].'">'.$row['name'].'</option>';
 			}
 		}
 		else if($this->input->post('parent_id'))
 		{
-			$this->db->where('parent_id', $this->input->post('parent_id'));
-			$query = $this->db->get('master_subcategories');
-
-			foreach($query->result_array() as $row)
+			$sub_array = $this->db->where('parent_id', $this->input->post('parent_id'))->get('master_subcategories')->result_array();
+			foreach($sub_array as $row)
 			{
 				$subcategories[$this->xss_clean($row['id'])] = $this->xss_clean($row['name']);
 			}
@@ -673,10 +531,6 @@ class Items extends Secure_Controller
 		$this->load->view('items/form_bulk', $data);
 	}
 
-	public function get_custom_discounts(){
-		return $this->db->where('tag', 'billtype')->get('custom_fields')->result_array();
-	}
-
 	public function display_discounts($item_id){
 		$this->db->where('item_id', $item_id);
 		$query = $this->db->get('items');
@@ -694,7 +548,7 @@ class Items extends Secure_Controller
 	{
 		// ---------------------------------------------- Discounts JSON processing
 		$discounts = array();
-		foreach($this->get_custom_discounts() as $row)
+		foreach($this->Item->get_custom_discounts() as $row)
 		{
 			$discounts[$row['alias']] = $this->input->post('ds_'.$row['id']) == NULL ? '0.00' : number_format($this->input->post('ds_'.$row['id']), 2, '.', '');
 		}

@@ -17,6 +17,11 @@
 	<li role="presentation">
 		<a data-toggle="tab" href="#bulk_mod" title="Bulk Actions">Bulk Actions</a>
 	</li>
+	<?php if($this->Item->is_superadmin()){ ?>
+		<li role="presentation">
+			<a data-toggle="tab" href="#cashier_mod" title="Cashiers">Cashiers</a>
+		</li>
+	<?php } ?>
 </ul>
 
 <div class="tab-content">
@@ -32,6 +37,11 @@
 	<div class="tab-pane" id="bulk_mod">
 		<?php $this->load->view("manager/bulk_actions"); ?>
 	</div>
+	<?php if($this->Item->is_superadmin()){ ?>
+		<div class="tab-pane" id="cashier_mod">
+			<?php $this->load->view("manager/cashiers"); ?>
+		</div>
+	<?php } ?>
 </div>
 
 <?php $this->load->view("partial/footer"); ?>
