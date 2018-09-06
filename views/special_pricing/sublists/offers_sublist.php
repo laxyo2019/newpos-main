@@ -13,7 +13,7 @@
   </thead>
   <tbody>
   <?php foreach ($offers as $row): ?>
-    <tr id="<?php echo $row['id']; ?>" >
+    <tr id="<?php echo $row['id']; ?>">
       <td><?php echo $row['id']; ?></td>
       <td><?php echo $this->Stock_location->get_location_name2($row['locations']); ?></td>
       <td><?php echo $row['pointer']; ?></td>
@@ -36,10 +36,7 @@
 <script>
   $(document).ready( function () {
     dialog_support.init("a.modal-dlg-wide");
-
-    $(function() {
-      $('.offer_toggle').bootstrapToggle();
-    })
+    $('.offer_toggle').bootstrapToggle();
 
     $('.offer_toggle').on('change', function(){
       var id = $(this).closest('tr').attr('id');
@@ -48,6 +45,6 @@
 				console.log(data);
       });
     });
+    
   });
 </script>
-	

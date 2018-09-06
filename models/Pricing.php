@@ -47,19 +47,22 @@ class Pricing extends CI_Model
 		->get('custom_fields')
 		->result_array();
 	}
-
+	
 	public function pointer_search($plan, $info)
 	{
+		$now = date('Y-m-d H:i:s');
 		$array = array(
 			'status' => 'checked',
 			'plan' => $plan,
-			'locations' => $this->session->userdata('person_id')
+			'locations' => $this->session->userdata('person_id'),
+			'start_time <=' => $now,
+			'end_time >=' => $now
 		);
-		$this->db->where($array);
-		$results = $this->db->get('special_prices')->result_array();
+		$results = $this->db->where($array)->get('special_prices')->result_array();
+
 		foreach($results as $row)
 		{
-			$offer = ($plan == "mixed") ? json_decode($row['pointer']) : $row['pointer'];
+			$offer = ($plan == 'mixed' || $plan == 'mixed2') ? json_decode($row['pointer']) : $row['pointer'];
 			if($offer == $info)
 			{
 				return $row;
@@ -79,6 +82,7 @@ class Pricing extends CI_Model
 			'single' => $item_row->item_number,
 			// 'sublist' => $item_row->item_number,
 			'mixed' => [$item_row->category, $item_row->subcategory, $item_row->brand],
+			'mixed2' => [$item_row->category, $item_row->brand],
 			'brand' => $item_row->brand,
 			'subcategory' => $item_row->subcategory,
 			'category' => $item_row->category

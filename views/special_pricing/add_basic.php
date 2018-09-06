@@ -10,6 +10,26 @@
 </div>
 <hr>
 <div class="row">
+
+  <div class="col-md-4">
+    <div class="form-group">
+      <div class='input-group date datetimepicker' id='datetimepicker1'>
+          <input type='text' class="form-control" id="start_time" placeholder="Start Time" />
+          <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class='input-group date datetimepicker' id='datetimepicker2'>
+          <input type='text' class="form-control" id="end_time" placeholder="End Time" />
+          <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+      </div>
+    </div>
+  </div>
+
   <div class="col-md-4">
     <div class="form-group">
 
@@ -38,52 +58,11 @@
     </div>
   </div>
 
-  <!-- <div class="col-md-4">
-    <div class="form-group">
-      <div class='input-group date datetimepicker' id='datetimepicker1'>
-          <input type='text' class="form-control" id="start_time" placeholder="Start Time" />
-          <span class="input-group-addon">
-              <span class="glyphicon glyphicon-calendar"></span>
-          </span>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class='input-group date datetimepicker' id='datetimepicker2'>
-          <input type='text' class="form-control" id="end_time" placeholder="End Time" />
-          <span class="input-group-addon">
-              <span class="glyphicon glyphicon-calendar"></span>
-          </span>
-      </div>
-    </div>
-  </div> -->
 </div>
 
 <script>
 	$(document).ready( function () {
-    // $('.datetimepicker').datetimepicker({
-    //   // format: 'dd.mm.yyyy',
-    //   // minView: 2,
-    //   // maxView: 4,    
-    //   autoclose: true
-    // });
-  
-    var selected_plan = $('#select_plan').val();
-    var main = ["single"];
-    var main2 = ["category"];
-    var main3 = ["subcategory"];
-    var main4 = ["brand"];
 
-    $('#item_id, #price').toggle(main.includes(selected_plan));
-    $('#category').toggle(main2.includes(selected_plan));
-    $('#subcategory').toggle(main3.includes(selected_plan));
-    $('#brand').toggle(main4.includes(selected_plan));
-
-    if(selected_plan == 'mixed')
-    {
-      var main5 = ["mixed"];
-      $('#category, #subcategory, #brand').toggle(main5.includes(selected_plan));
-    }
-    
     $('#category').on('change', function(){
       var selected_plan = $('#select_plan').val();
       if(selected_plan = 'mixed')
@@ -100,19 +79,53 @@
       }
     });
 
+    $('.datetimepicker').datetimepicker({
+      // format: 'dd.mm.yyyy',
+      // minView: 2,
+      // maxView: 4,    
+      autoclose: true
+    });
+  
+    var selected_plan = $('#select_plan').val();
+    switch (selected_plan) { 
+      case 'single': 
+        $('#item_id, #price').toggle(["single"].includes(selected_plan));
+        break;
+      case 'category':
+        $('#category').toggle(["category"].includes(selected_plan));
+        break;
+      case 'subcategory':  
+        $('#subcategory').toggle(["subcategory"].includes(selected_plan));
+        break;		
+      case 'brand':  
+        $('#brand').toggle(["brand"].includes(selected_plan));
+        break;
+      case 'mixed':
+        $('#category, #subcategory, #brand').toggle(["mixed"].includes(selected_plan));
+        break;
+      case 'mixed2':
+        $('#category, #brand').toggle(["mixed2"].includes(selected_plan));
+        break;
+      default:
+        alert('Please select a plan first');
+    }
+
     $('#submit').on('click', function(){
       var locations = $('.locations').val();
       var plan = $('#select_plan').val();
+      var pointer = "";
       if(plan == 'mixed')
       {
-        var pointer = [$('#category').val(), $('#subcategory').val(), $('#brand').val()];
+        pointer = [$('#category').val(), $('#subcategory').val(), $('#brand').val()];
+      }else if(plan == 'mixed2'){
+        pointer = [$('#category').val(), $('#brand').val()];
       }else{
-        var pointer = $('.pointer:visible').val();
+        pointer = $('.pointer:visible').val();
       }
       var price = $('#price').val();
       var discount = $('#discount').val();
-      // var start_time = $('#start_time').val();
-      // var end_time = $('#end_time').val();
+      var start_time = $('#start_time').val();
+      var end_time = $('#end_time').val();
 
       console.log(pointer);
       $.post('<?php echo site_url($controller_name."/add_basic_save"); ?>', 
@@ -122,8 +135,8 @@
         'pointer':pointer,
         'price':price,
         'discount':discount,
-        // 'start_time':start_time,
-        // 'end_time':end_time
+        'start_time':start_time,
+        'end_time':end_time
       },
       function(data) {
         alert(data);

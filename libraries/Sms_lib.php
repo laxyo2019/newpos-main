@@ -42,15 +42,15 @@ class Sms_lib
 			// add call to send a message via 3rd party API here
 			// Some examples
 
-			/*
-			$url = "http://xxx.xxx.xxx.xxx/send_sms?username=$username&password=$password&src=$originator&dst=$phone&msg=$message&dr=1";
+			//$url = "http://xxx.xxx.xxx.xxx/send_sms?username=$username&password=$password&src=$originator&dst=$phone&msg=$message&dr=1";
+
+			$url = "http://smpp4.routesms.com:8000/bulksms/bulksms?username=$username&password=$password&type=5&dlr=0&destination=$phone&source=$originator&message=$message";
 
 			$c = curl_init();
 			curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($c, CURLOPT_URL, $url);
 			$response = curl_exec($c);
 			curl_close($c);
-			*/
 
 			// This is a textmarketer.co.uk API call, see: http://wiki.textmarketer.co.uk/display/DevDoc/Text+Marketer+Developer+Documentation+-+Wiki+Home
 			/*

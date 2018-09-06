@@ -122,7 +122,7 @@ class Sale extends CI_Model
 	{
 		$response = array();
 		$shop_id = $this->session->userdata('person_id');
-		foreach($this->db->get('cashiers')->result_array() as $row)
+		foreach($this->db->where('status', 'checked')->get('cashiers')->result_array() as $row)
 		{
 			if(in_array($shop_id, json_decode($row['shops'])))
 			{
@@ -1197,6 +1197,23 @@ class Sale extends CI_Model
 		}
 
 		return $payments;
+	}
+
+	/**
+	 * Check if total payable amount goes above 50k in retail
+	 */
+	public function check_50k_limit($amount)
+	{
+		if(empty($this->session->userdata('billtype')))
+		{
+			if($amount > 50000){
+				return TRUE;
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
 	}
 
 	/**

@@ -9,12 +9,17 @@
 	</thead>
 	<tbody>
 		<?php foreach ($cashiers as $row): ?>
-			<tr>
+			<tr id="<?php echo $row['id']; ?>">
 				<td><?php echo $row['id']; ?></td>
 				<td><?php echo $row['name']; ?></td>
 				<td><span><?php echo $this->Employee->get_info($row['shop_id'])->first_name; ?></span></td>
-				<!-- <span class="glyphicon glyphicon-edit"></span> -->
-				<td id="<?php echo $row['id']; ?>"><span style="padding-left: 20px" class="glyphicon glyphicon-trash"></span></td>
+				<td id="<?php echo $row['id']; ?>">
+					<style>
+						.toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
+						.toggle.ios .toggle-handle { border-radius: 20px; }
+					</style>
+					<input type="checkbox" class="cashier_toggle" <?php echo $row['status'] ?> data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-style="ios" data-size="mini" />
+				</td>
 			</tr>
 		<?php endforeach; ?>
 	</tbody>

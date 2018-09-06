@@ -16,4 +16,26 @@
         </span>Bulk Discounts
     </button>
 </div>
+<hr>
+<div id="bulk_table_area"></div>
+
+<script>
+	$(document).ready(function(){
+
+		$('#bulk_action_report').on('change', function(){
+			var report_type = $('#bulk_action_report').val();
+      $('#bulk_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+      $.post('<?php echo site_url($controller_name."/bulk_action_report") ?>', {'report_type': report_type}, function(data) {
+	        $('#bulk_table_area').html(data);
+          $('#bulk_action_list').DataTable({
+            "scrollX": true,
+            dom: 'Bfrtip',
+            buttons: [
+              'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+          });
+        });
+      });
+	});
+</script>
 

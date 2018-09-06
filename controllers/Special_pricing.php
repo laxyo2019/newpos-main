@@ -114,7 +114,7 @@ class Special_pricing extends Secure_Controller
 	{
 		$locations = $this->input->post('locations');
 		$plan = $this->input->post('plan');
-		$pointer = ($plan == 'mixed') ? json_encode($this->input->post('pointer')) : trim($this->input->post('pointer'));
+		$pointer = ($plan == 'mixed' || $plan == 'mixed2') ? json_encode($this->input->post('pointer')) : trim($this->input->post('pointer'));
 
 		$array = array(
 			'locations' => $locations,
@@ -128,27 +128,27 @@ class Special_pricing extends Secure_Controller
 		}
 		else
 		{
-			// $start_time = $this->input->post('start_time');
-			// $end_time = $this->input->post('end_time');
-			// if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
-			// {
+			$start_time = $this->input->post('start_time');
+			$end_time = $this->input->post('end_time');
+			if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
+			{
 				$data = array(
 					'plan' => $plan,
 					'locations' => $locations,
 					'pointer' => $pointer,
 					'price' => $this->input->post('price'),
 					'discount' => $this->input->post('discount'),
-					// 'start_time' => $start_time,
-					// 'end_time' => $end_time
+					'start_time' => $start_time,
+					'end_time' => $end_time
 				); 
 			
 				$this->db->insert('special_prices', $data);
 				echo "Created Successfully";
-			// }
-			// else
-			// {
-			// 	echo "Invalid Date Range";
-			// }
+			}
+			else
+			{
+				echo "Invalid Date Range";
+			}
 		}
 	}
 
@@ -166,7 +166,7 @@ class Special_pricing extends Secure_Controller
 	{
 		$data['offers'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
 
-		$this->load->view('special_pricing/offers_sublist', $data);
+		$this->load->view('special_pricing/sublists/offers_sublist', $data);
 	}
 
 	

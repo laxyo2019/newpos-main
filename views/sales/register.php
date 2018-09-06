@@ -16,7 +16,7 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-
+<?php //echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -148,7 +148,7 @@ if(isset($success))
 
 		<tbody id="cart_contents">
 			<?php
-				if($total > 50000)
+				if($this->Sale->check_50k_limit($total))
 				{
 			?>
 				<tr>
@@ -488,7 +488,7 @@ if(isset($success))
 					<?php echo form_close(); ?>
 						<?php
 						// Only show this part if the payment cover the total and in sale or return mode
-						if($pos_mode == '1' && $total <= 50000) 
+						if($pos_mode == '1' && !$this->Sale->check_50k_limit($total)) 
 						{
 						?>
 						<div class='btn btn-sm btn-success pull-right' id='finish_sale_button' tabindex='<?php echo ++$tabindex; ?>'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $this->lang->line('sales_complete_sale'); ?></div>
@@ -562,7 +562,7 @@ if(isset($success))
 					<!-- <div class='btn btn-sm btn-default pull-left' id='suspend_sale_button'><span class="glyphicon glyphicon-align-justify">&nbsp</span><?php //echo $this->lang->line('sales_suspend_sale'); ?></div> -->
 					<?php
 					// Only show this part if the payment covers the total
-					if(!$pos_mode && isset($customer) && $total < 50000)
+					if(!$pos_mode && isset($customer) && !$this->Sale->check_50k_limit($total))
 					{
 					?>
 						<div class='btn btn-sm btn-success' id='finish_invoice_quote_button'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $mode_label; ?></div>

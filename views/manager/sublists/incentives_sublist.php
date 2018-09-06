@@ -19,18 +19,18 @@
     { 
       foreach ($items as $item): 
   ?>
-      <tr>
-        <td><?php echo $item->item_id; ?></td>
-        <td><?php echo $item->barcode; ?></td>
-        <td><?php echo $item->name; ?></td>
-        <td><?php echo $item->category; ?></td>
-        <td><?php echo $item->subcategory; ?></td>
-        <td><?php echo $item->brand; ?></td>
-        <td><?php echo $item->size; ?></td>
-        <td><?php echo $item->color; ?></td>
-        <td><?php echo $item->price; ?></td>
-        <td><?php echo $item->quantity; ?></td>
-      </tr>
+    <tr>
+      <td><?php echo $item->item_id; ?></td>
+      <td><?php echo $item->barcode; ?></td>
+      <td><?php echo $item->name; ?></td>
+      <td><?php echo $item->category; ?></td>
+      <td><?php echo $item->subcategory; ?></td>
+      <td><?php echo $item->brand; ?></td>
+      <td><?php echo $item->size; ?></td>
+      <td><?php echo $item->color; ?></td>
+      <td><?php echo $item->price; ?></td>
+      <td><?php echo $item->quantity; ?></td>
+    </tr>
   <?php endforeach;
     }
   ?>

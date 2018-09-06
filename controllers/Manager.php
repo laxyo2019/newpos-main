@@ -12,6 +12,11 @@ class Manager extends Secure_Controller
   public function index()
   {
     $data['cashiers'] = $this->db->get('cashiers')->result_array();
+    foreach($this->Pricing->get_active_shops() as $row)
+		{
+			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
+		}
+		$data['active_shops'] = $active_shops;
     $data['stock_locations'] = $this->Stock_location->get_allowed_locations();
     $data['mci_data'] = $this->Item->get_mci_data('all');
     $this->load->view('manager/dashboard', $data);
@@ -103,6 +108,49 @@ class Manager extends Secure_Controller
     $this->db->where($array);
     $data['items'] = $this->db->get('items')->result_array();
     $this->load->view('manager/sublists/items_sublist', $data);
+  }
+
+  public function report_sales()
+  {
+    $data['locations'] = $this->input->post('locations');
+    $start_date = $this->input->post('start_date');
+    $end_date = $this->input->post('end_date');
+
+    $filter = $this->input->post('filter');
+    foreach($filter as $key=>$value)
+    {
+      if(!empty($value)){
+        $array[$key] = $value;
+      }
+    }
+
+    $this->db->where('deleted', 0);
+    $this->db->where($array);
+    $result = $this->db->get('items')->result_array();
+    foreach($result as $row)
+    {
+      $result_items[] = $row['item_id'];
+    }
+
+    $this->db->select('
+      sales.sale_time AS sale_time,
+      sales.customer_id AS customer_id,
+      sales.employee_id AS employee_id,
+      sales.invoice_number AS invoice_number,
+      sales.sale_id AS sale_id,
+      sales_items.item_id AS item_id,
+      sales_items.quantity_purchased AS quantity_purchased,
+      sales_items.item_unit_price AS item_unit_price,
+      sales_items.discount_percent AS discount_percent,
+      sales_items.item_location AS item_location,
+    ');
+    $this->db->from('sales');
+    $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+    $this->db->where('sale_time >=', date('Y-m-d H:i:s', strtotime($start_date)));
+    $this->db->where('sale_time <=', date('Y-m-d H:i:s', strtotime($end_date)));
+    $this->db->where_in('item_id', $result_items);
+    $data['report_results'] = $this->db->get()->result_array();
+    $this->load->view('manager/sublists/report_sales', $data);
   }
 
   public function fetch_stockup_items()
@@ -232,6 +280,16 @@ class Manager extends Secure_Controller
       echo "Duplicate Sale Code";
     }
   }
+
+  public function cashier_toggle()
+  {
+    $status = ($this->input->post('status') == 'true') ? 'checked' : '';
+    $data = array(
+      'status' => $status
+    );
+    $this->db->where('id', $this->input->post('id'));
+    echo ($this->db->update('cashiers', $data)) ? 'success' : 'failed';
+  }
   
   // public function get_incentive_report()
   // {
@@ -315,7 +373,21 @@ class Manager extends Secure_Controller
           }
 				}
 			}
-		}
+    }
+
+    $log_data = array(
+      'user_id' => $this->session->userdata('person_id'),
+      'method' => 'bulk_hsn',
+      'info' => json_encode(array(
+                  'category' => $category,
+                  'subcategory' => $subcategory,
+                  'hsn' => $hsn,
+                  'input_tax' => $input_tax
+                )),
+      'time' => date('Y-m-d H:i:s')          
+    );
+    $this->db->insert('bulk_actions', $log_data);
+
 		echo $count.' Items successfully processed';
 	}
 
@@ -356,7 +428,7 @@ class Manager extends Secure_Controller
 		{
       $array = array(
 				'category' => $key1,
-				$radio => $key2,
+				'subcategory' => $key2,
 				'deleted' => 0
 			);
 		}
@@ -382,8 +454,30 @@ class Manager extends Secure_Controller
       {
         $counter++;
       }
-		}
+    }
+
+    $log_data = array(
+      'user_id' => $this->session->userdata('person_id'),
+      'method' => 'bulk_discount',
+      'info' => json_encode(array(
+                  'type' => $radio,
+                  'category' => $key1,
+                  'subcategory' => $key2,
+                  'discount_type' => $dtype,
+                  'discount_value' => $dvalue
+                )),
+      'time' => date('Y-m-d H:i:s')          
+    );
+    $this->db->insert('bulk_actions', $log_data);
+
 		echo $counter.' Items successfully updated!';
-	}
+  }
+  
+  public function bulk_action_report()
+  {
+    $method = $this->input->post('report_type'); 
+    $data['bulk_actions'] = $this->db->where('method', $method)->get('bulk_actions')->result_array();
+    $this->load->view('manager/sublists/bulk_action_sublist', $data);
+  }
   
 }

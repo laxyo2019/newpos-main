@@ -22,6 +22,10 @@
 			<a data-toggle="tab" href="#cashier_mod" title="Cashiers">Cashiers</a>
 		</li>
 	<?php } ?>
+	<li role="presentation">
+		<a data-toggle="tab" href="#report_mod" title="Custom Reports">Reports</a>
+	</li>
+
 </ul>
 
 <div class="tab-content">
@@ -42,6 +46,9 @@
 			<?php $this->load->view("manager/cashiers"); ?>
 		</div>
 	<?php } ?>
+	<div class="tab-pane" id="report_mod">
+		<?php $this->load->view("manager/reports"); ?>
+	</div>
 </div>
 
 <?php $this->load->view("partial/footer"); ?>

@@ -15,7 +15,7 @@
   </span>
   <span class="col-md-2 pull-right">
     <div class="form-group">
-      <?php echo form_dropdown('shops', $stock_locations, '', array('class'=>'form-control shops','id'=>'shops')); ?>
+      <?php echo form_dropdown('shops', $active_shops, '', array('class'=>'form-control shops','id'=>'shops')); ?>
     </div>
   </span>
 </div>
@@ -34,7 +34,7 @@
     </thead>
     <tbody>
       <?php foreach($cashiers as $row): ?>
-        <tr>
+        <tr id="<?php echo $row['id']; ?>">
           <td><?php echo $row['id']; ?></td>
           <td><?php echo $row['name']; ?></td>
           <td>
@@ -45,8 +45,13 @@
             }
             ?>
           </td>
-          <!-- <span class="glyphicon glyphicon-edit"></span> -->
-          <td id="<?php echo $row['id']; ?>"><span style="padding-left: 20px" class="glyphicon glyphicon-trash"></span></td>
+          <td>
+            <style>
+              .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
+              .toggle.ios .toggle-handle { border-radius: 20px; }
+            </style>
+            <input type="checkbox" class="cashier_toggle" <?php echo $row['status'] ?> data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-style="ios" data-size="mini" />
+          </td>
         </tr>
       <?php endforeach; ?>
     </tbody>
@@ -64,12 +69,22 @@
         // ]
       });
 
-    $('#shops').on('change', function(){
-      var id = $(this).val();
-      // console.log(id);
-      $.post('<?php echo site_url($controller_name."/get_incentive_report"); ?>', {'id': id}, function(data) {
-          $('#incentive-list').html(data);
-        });
+//     $('#shops').on('change', function(){
+//       var id = $(this).val();
+//       // console.log(id);
+//       $.post('<?php //echo site_url($controller_name."/get_incentive_report"); ?>', {'id': id}, function(data) {
+//           $('#incentive-list').html(data);
+//         });
+//     });
+    $('.cashier_toggle').bootstrapToggle();
+
+    $('.cashier_toggle').on('change', function(){
+      var id = $(this).closest('tr').attr('id');
+      var status = $(this).prop('checked');
+      $.post('<?php echo site_url($controller_name."/cashier_toggle"); ?>', {'id': id, 'status': status}, function(data) {
+        console.log(data);
+      });
     });
+
   });
 </script>
