@@ -1,6 +1,7 @@
 <table id="list" class="display" style="width:100%">
   <thead>
     <tr>
+      <th>Delete</th>
       <th>Offer ID</th>
       <th>Location</th>
       <th>Pointer</th>
@@ -8,12 +9,13 @@
       <th>Discount</th>
       <th>Start Time</th>
       <th>End Time</th>
-      <th>Actions</th>
+      <th>Switch</th>
     </tr>
   </thead>
   <tbody>
   <?php foreach ($offers as $row): ?>
     <tr id="<?php echo $row['id']; ?>">
+      <td><span style="cursor:pointer" class="glyphicon glyphicon-trash delete-basic"></span></td>
       <td><?php echo $row['id']; ?></td>
       <td><?php echo $this->Stock_location->get_location_name2($row['locations']); ?></td>
       <td><?php echo $row['pointer']; ?></td>
@@ -44,6 +46,17 @@
       $.post('<?php echo site_url($controller_name."/offer_toggle"); ?>', {'id': id, 'status': status}, function(data) {
 				console.log(data);
       });
+    });
+
+    $('.delete-basic').on('click', function(){
+      if(confirm('Are you sure, you wish to delete this offer?')){
+        var id = $(this).closest('tr').attr('id');
+        var that = this;
+        $.post('<?php echo site_url($controller_name."/delete_basic"); ?>', {'id': id}, function(data) {
+          alert(data);
+          $(that).closest('tr').fadeOut();
+        });
+      }
     });
     
   });

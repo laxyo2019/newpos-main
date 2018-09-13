@@ -10,7 +10,7 @@
       ?>
 		</select>
 	</span>
-  <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/add_basic_form"); ?>'
+  <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/view_basic"); ?>'
             title='Add New Basic Offer'>
       Add New
   </button>
@@ -22,7 +22,7 @@
 
 <script>
 	$(document).ready( function () {
-    dialog_support.init("button.modal-dlg-wide");
+    dialog_support.init("button.modal-dlg-wide, a.modal-dlg-wide");
 
     $('#select_plan').on('change', function(){
 			var selected_plan = $(this).val();

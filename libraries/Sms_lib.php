@@ -44,7 +44,7 @@ class Sms_lib
 
 			//$url = "http://xxx.xxx.xxx.xxx/send_sms?username=$username&password=$password&src=$originator&dst=$phone&msg=$message&dr=1";
 
-			$url = "http://smpp4.routesms.com:8000/bulksms/bulksms?username=$username&password=$password&type=5&dlr=0&destination=$phone&source=$originator&message=$message";
+			$url = "http://smpp1.routesms.com:8080/bulksms/bulksms?username=$username&password=$password&type=5&dlr=0&destination=$phone&source=$originator&message=$message";
 
 			$c = curl_init();
 			curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);

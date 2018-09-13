@@ -87,24 +87,17 @@ class Sales extends Secure_Controller
 		$order = $this->input->get('order');
 
 		$filters = array(
-						 'sale_type' => 'all',
-						 'start_date' => $this->input->get('start_date'),
-						 'end_date' => $this->input->get('end_date'),
-						 'only_cash' => FALSE,
-						 'only_due' => FALSE,
-						 'only_check' => FALSE,
-						 'only_invoices' => $this->config->item('invoice_enable') && $this->input->get('only_invoices'),
-						 'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
-						);
+			'sale_type' => 'all',
+			'start_date' => $this->input->get('start_date'),
+			'end_date' => $this->input->get('end_date'),
+			'only_cash' => FALSE,
+			'only_due' => FALSE,
+			'only_check' => FALSE,
+			'only_invoices' => $this->config->item('invoice_enable') && $this->input->get('only_invoices'),
+			'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
+		);
 		
-		if($this->Item->is_accounts())
-		{
-			$filters['location_id'] = 'all';
-		}
-		else
-		{
-			$filters['location_id'] = $this->session->userdata('sales_location');
-		}
+		$filters['location_id'] = $this->session->userdata('sales_location');
 
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);

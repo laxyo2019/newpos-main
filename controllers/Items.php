@@ -1235,7 +1235,6 @@ class Items extends Secure_Controller
 							'quantity' => $new_quantity
 						);
 
-						$this->Item_quantity->save($location_detail, $item_id, $location_id);
 						if($this->Item_quantity->save($location_detail, $item_id, $location_id))
 						{
 							$inv_data = array(

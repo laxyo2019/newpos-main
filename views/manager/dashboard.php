@@ -25,6 +25,9 @@
 	<li role="presentation">
 		<a data-toggle="tab" href="#report_mod" title="Custom Reports">Reports</a>
 	</li>
+	<li role="presentation">
+		<a data-toggle="tab" href="#extras_mod" title="Extra Features">Extras</a>
+	</li>
 
 </ul>
 
@@ -48,6 +51,9 @@
 	<?php } ?>
 	<div class="tab-pane" id="report_mod">
 		<?php $this->load->view("manager/reports"); ?>
+	</div>
+	<div class="tab-pane" id="extras_mod">
+		<?php $this->load->view("manager/extras"); ?>
 	</div>
 </div>
 

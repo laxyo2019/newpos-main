@@ -2,17 +2,17 @@
 
 require_once("Secure_Controller.php");
 
-class Special_pricing extends Secure_Controller
+class Offers extends Secure_Controller
 {
   public function __construct()
 	{
-		parent::__construct('special_pricing');
+		parent::__construct('offers');
 	}
 
 	public function index()
 	{
 		$data['plans'] = $this->Pricing->get_core_plans();
-		$this->load->view('special_pricing/dashboard', $data);
+		$this->load->view('offers/dashboard', $data);
 	}
 
 	public function test($item_id)
@@ -26,7 +26,7 @@ class Special_pricing extends Secure_Controller
 
 	public function make_barcode_list()
 	{
-		$this->load->view('special_pricing/form_excel_barcodes');
+		$this->load->view('offers/form_excel_barcodes');
 	}
 
 	public function do_make_barcode_list()
@@ -75,9 +75,8 @@ class Special_pricing extends Secure_Controller
 		}
 	}
 
-	public function add_basic_form($id = -1)
+	public function view_basic()
 	{
-		$data['offer_data'] = ($id != -1) ? $this->db->get_where('special_prices', array('id' => $id))->row() : '';
 		$mci_data = $this->Item->get_mci_data('all');
 		$categories = array('' => $this->lang->line('items_none'));
 		foreach($mci_data['categories'] as $row)
@@ -107,30 +106,32 @@ class Special_pricing extends Secure_Controller
 		$data['active_shops'] = $active_shops;
 
 		$data['plans'] = $this->Pricing->get_core_plans();
-		$this->load->view('special_pricing/add_basic', $data);
+		$this->load->view('offers/view_basic_form', $data);
 	}
 
-	public function add_basic_save()
+	public function save_basic()
 	{
+		$response = array();
+		$valid_date_range = 0;
+
 		$locations = $this->input->post('locations');
 		$plan = $this->input->post('plan');
 		$pointer = ($plan == 'mixed' || $plan == 'mixed2') ? json_encode($this->input->post('pointer')) : trim($this->input->post('pointer'));
+		$start_time = $this->input->post('start_time');
+		$end_time = $this->input->post('end_time');
 
-		$array = array(
-			'locations' => $locations,
-			'pointer' => $pointer
-		);
-		$offer_count = $this->db->where($array)->count_all_results('special_prices');
-
-		if($offer_count != 0)
+		if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
 		{
-			echo "Offer Already Exists";
+			$valid_date_range = 1;
 		}
-		else
+
+		$this->db->where('locations', $locations);
+		$this->db->where('pointer', $pointer);
+		$offer_count = $this->db->count_all_results('special_prices');
+
+		if($offer_count == 0)
 		{
-			$start_time = $this->input->post('start_time');
-			$end_time = $this->input->post('end_time');
-			if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
+			if($valid_date_range == 1)
 			{
 				$data = array(
 					'plan' => $plan,
@@ -143,13 +144,68 @@ class Special_pricing extends Secure_Controller
 				); 
 			
 				$this->db->insert('special_prices', $data);
-				echo "Created Successfully";
+				$response['type'] = "success";
+				$response['message'] = "Created Successfully";
 			}
 			else
 			{
-				echo "Invalid Date Range";
+				$response['type'] = "error";
+				$response['message'] = "Invalid Date Range";
 			}
 		}
+		else
+		{
+			$response['type'] = 'update';
+			$this->db->where('locations', $locations);
+			$this->db->where('pointer', $pointer);
+			$response['offer_id'] = $this->db->get('special_prices')->row()->id;
+		}
+		echo json_encode($response);
+	}
+
+	public function update_basic()
+	{
+		$valid_date_range = 0;
+
+		$id = $this->input->post('id');
+		// $locations = $this->input->post('locations');
+		// $plan = $this->input->post('plan');
+		// $pointer = ($plan == 'mixed' || $plan == 'mixed2') ? json_encode($this->input->post('pointer')) : trim($this->input->post('pointer'));
+		$start_time = $this->input->post('start_time');
+		$end_time = $this->input->post('end_time');
+
+		if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
+		{
+			$valid_date_range = 1;
+		}
+
+		if($valid_date_range == 1)
+		{
+			$data = array(
+				// 'plan' => $plan,
+				// 'locations' => $locations,
+				// 'pointer' => $pointer,
+				'price' => $this->input->post('price'),
+				'discount' => $this->input->post('discount'),
+				'start_time' => $start_time,
+				'end_time' => $end_time
+			); 
+		
+			$this->db->where('id', $id);
+			$this->db->update('special_prices', $data);
+			echo "Updated Successfully";
+		}
+		else
+		{
+			echo "Invalid Date Range";
+		}
+	}
+
+	public function delete_basic()
+	{
+		$id = $this->input->post('id');
+		$this->db->delete('special_prices', array('id' => $id));
+		echo "Deleted Successfully";
 	}
 
 	public function offer_toggle()
@@ -166,8 +222,7 @@ class Special_pricing extends Secure_Controller
 	{
 		$data['offers'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
 
-		$this->load->view('special_pricing/sublists/offers_sublist', $data);
+		$this->load->view('offers/sublists/offers_sublist', $data);
 	}
-
 	
 }

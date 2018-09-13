@@ -128,7 +128,7 @@
       var end_time = $('#end_time').val();
 
       console.log(pointer);
-      $.post('<?php echo site_url($controller_name."/add_basic_save"); ?>', 
+      $.post('<?php echo site_url($controller_name."/save_basic"); ?>', 
       {
         'plan':plan,
         'locations':locations,
@@ -139,7 +139,28 @@
         'end_time':end_time
       },
       function(data) {
-        alert(data);
+        var obj = JSON.parse(data);
+        if(obj.type == "success" || obj.type == "error"){
+          alert(obj.message);
+        }else if(obj.type == "update"){
+          if(confirm('Do you wish to overwrite an existing offer?'))
+          {
+            $.post('<?php echo site_url($controller_name."/update_basic"); ?>', 
+            {
+              // 'plan':plan,
+              // 'locations':locations,
+              // 'pointer':pointer,
+              'id': obj.offer_id,
+              'price':price,
+              'discount':discount,
+              'start_time':start_time,
+              'end_time':end_time
+            },
+            function(data) {
+              alert(data);
+            });
+          }
+        }
 			});
     });
 

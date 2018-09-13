@@ -20,14 +20,23 @@ class Email_lib
 			'mailtype' => 'html',
 			'useragent' => 'OSPOS',
 			'validate' => TRUE,
-			'protocol' => $this->CI->config->item('protocol'),
-			'mailpath' => $this->CI->config->item('mailpath'),
-			'smtp_host' => $this->CI->config->item('smtp_host'),
-			'smtp_user' => $this->CI->config->item('smtp_user'),
-			'smtp_pass' => $this->CI->encryption->decrypt($this->CI->config->item('smtp_pass')),
-			'smtp_port' => $this->CI->config->item('smtp_port'),
-			'smtp_timeout' => $this->CI->config->item('smtp_timeout'),
-			'smtp_crypto' => $this->CI->config->item('smtp_crypto')
+			'protocol' => 'smtp',
+			'smtp_host'=>'smtp.mailtrap.io',
+			'smtp_user'=>'00f16402376b60',
+			'smtp_pass'=>'14e4a30ae7ecc2',
+			'smtp_port'=>'2525',
+			'smtp_crypto'=>'tls',
+			'crlf' => "\r\n",
+      'newline' => "\r\n",
+
+			// 'protocol' => $this->CI->config->item('protocol'),
+			// 'mailpath' => $this->CI->config->item('mailpath'),
+			// 'smtp_host' => $this->CI->config->item('smtp_host'), 
+			// 'smtp_user' => $this->CI->config->item('smtp_user'),
+			// 'smtp_pass' => $this->CI->encryption->decrypt($this->CI->config->item('smtp_pass')),
+			// 'smtp_port' => $this->CI->config->item('smtp_port'),
+			// 'smtp_timeout' => $this->CI->config->item('smtp_timeout'),
+			// 'smtp_crypto' => $this->CI->config->item('smtp_crypto')
 		);
 
 		$this->CI->email->initialize($config);
@@ -54,10 +63,11 @@ class Email_lib
 
 		if(!$result)
 		{
-			error_log($email->print_debugger());
+			//error_log($email->print_debugger());
+			echo $email->print_debugger();
 		}
-
 		return $result;
+		echo $result;
 	}
 }
 

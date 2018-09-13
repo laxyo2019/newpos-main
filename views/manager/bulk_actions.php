@@ -19,6 +19,10 @@
 <hr>
 <div id="bulk_table_area"></div>
 
+<footer>
+  <p class="text-danger">Please use this option cautiously. As the database is centralized, any bulk changes made in Tax, HSN and Discount will reflect on all active shops.</p>
+</footer>
+
 <script>
 	$(document).ready(function(){
 

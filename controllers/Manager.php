@@ -479,5 +479,91 @@ class Manager extends Secure_Controller
     $data['bulk_actions'] = $this->db->where('method', $method)->get('bulk_actions')->result_array();
     $this->load->view('manager/sublists/bulk_action_sublist', $data);
   }
+
+  public function excel_conversion()
+  {
+    $this->load->view('manager/modals/excel_uploader', NULL);
+  }
+
+  public function do_excel_conversion()
+  {
+    if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
+		{
+			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
+		}
+		else
+		{
+			if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
+			{
+				// Skip the first row as it's the table description
+				fgetcsv($handle);
+				$i = 1;
+
+				$failCodes = array();
+        $active_items = array();
+        $deleted_items = array();
+
+				while(($data = fgetcsv($handle)) !== FALSE)
+				{
+					// XSS file data sanity check
+					$data = $this->xss_clean($data);
+
+					$barcode = $data[0];
+					$location_id = $data[1];
+					$location_quantity = $data[2];
+
+					$count =$this->db->where('item_number', $barcode)->count_all_results('items');
+
+					if($count == 1)
+					{
+            for($x = 1; $x <= $location_quantity; $x++)
+            {
+              $active_items[] = $barcode;
+            }
+					}
+					else
+					{
+						$deleted_items[] = $barcode;
+					}
+
+					++$i;
+
+				} // while loop ends here
+
+				$extras_array = array(
+					'active_items' => json_encode($active_items),
+          'deleted_items' => json_encode($deleted_items),
+          'time' => date('Y-m-d H:i:s')
+				);
+				$this->db->insert('extras', $extras_array);
+
+				if(count($failCodes) > 0)
+				{
+					$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
+
+					echo json_encode(array('success' => FALSE, 'message' => $message));
+				}
+				else
+				{
+					echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
+				}
+			}
+			else
+			{
+				echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
+			}
+		}
+  }
+
+  public function get_processed_list()
+  {
+    $type = $this->input->post('type');
+    $data['items'] = $this->db->order_by('id',"desc")
+    ->limit(1)
+    ->get('extras')->row($type);
+
+    $this->load->view('manager/sublists/excel_processed', $data);
+  }
+
   
 }
