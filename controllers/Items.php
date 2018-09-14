@@ -982,7 +982,7 @@ class Items extends Secure_Controller
 							'custom1'				=> $data[1], // HSN Code
 							'custom2'				=> strtoupper(trim($data[22])), // Size
 							'custom3'				=> strtoupper(trim($data[21])), // Color
-							'custom4'				=> strtoupper($data[20]),	// Model
+							'custom4'				=> strtoupper(trim($data[20])),	// Model
 							// 'custom5'				=> $data[19],
 							// 'custom6'				=> $data[18],
 							// 'custom7'				=> $data[20],
@@ -1025,28 +1025,19 @@ class Items extends Secure_Controller
 
 						$su_data = $this->Item->get_info($redundant_item[0]['item_id']);
 						$su_data_array = array( // 10 fields
-											'item_id' =>  $su_data->item_id,
-											'barcode' => $su_data->item_number,
-											'name' => $su_data->name,
-											'category' => $su_data->category,
-											'subcategory' => $su_data->subcategory,
-											'brand' => $su_data->brand,
-											'size' => $su_data->custom2,
-											'color' => $su_data->custom3,
-											'quantity' => $data[26]
-											);
-
-						if($su_data->unit_price < 1)
-						{
-							$su_data_array['price'] = json_decode($su_data->cost_price)->retail;
-						}
-						else
-						{
-							$su_data_array['price'] = $su_data->unit_price;
-						}
+							'item_id' =>  $su_data->item_id,
+							'barcode' => $su_data->item_number,
+							'name' => $su_data->name,
+							'category' => $su_data->category,
+							'subcategory' => $su_data->subcategory,
+							'brand' => $su_data->brand,
+							'size' => $su_data->custom2,
+							'color' => $su_data->custom3,
+							'quantity' => $data[26],
+							'price' => ($su_data->unit_price < 1) ? json_decode($su_data->cost_price)->retail : $su_data->unit_price
+						);
 
 						$stock_up_items[] = $su_data_array;
-						// $stock_up_items[] = $redundant_item;
 					}
 					else if($redundancy_count > 1) // If more than 1 count for an item, then create entry in error log
 					{
@@ -1091,6 +1082,26 @@ class Items extends Secure_Controller
 							{
 								$this->Item_taxes->save($items_taxes_data, $item_data['item_id']);
 							}
+
+							$save_item = array('item_number' => $this->Item->barcode_factory($item_data['item_id']));
+							// update the item in the database in order to save the barcode field
+							$this->Item->save($save_item, $item_data['item_id']);
+
+							$new_sheet = $this->Item->get_info($item_data['item_id']);
+							$new_sheet_array = array( // 10 fields
+								'item_id' =>  $new_sheet->item_id,
+								'barcode' => $new_sheet->item_number,
+								'name' => $new_sheet->name,
+								'category' => $new_sheet->category,
+								'subcategory' => $new_sheet->subcategory,
+								'brand' => $new_sheet->brand,
+								'size' => $new_sheet->custom2,
+								'color' => $new_sheet->custom3,
+								'quantity' => $data[26],
+								'price' => ($new_sheet->unit_price < 1) ? json_decode($new_sheet->cost_price)->retail : $new_sheet->unit_price
+							);
+
+							$new_sheet_items[] = $new_sheet_array;
 
 							// quantities & inventory Info
 							$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
@@ -1159,15 +1170,15 @@ class Items extends Secure_Controller
 
 					++$i;
 
-
 				} // while loop ends here
 
 				// Insert stock up items in db
-				$barcode_items_array = array(
-					'items' => json_encode($stock_up_items),
+				$upload_items_array = array(
+					'stock_ups' => json_encode($stock_up_items),
+					'new_items' => json_encode($new_sheet_items),
 					'time' => date('Y-m-d H:i:s')
 				);
-				$this->db->insert('stock_up_items', $barcode_items_array);
+				$this->db->insert('upload_items', $upload_items_array);
 
 				if(count($failCodes) > 0)
 				{

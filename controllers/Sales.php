@@ -97,7 +97,9 @@ class Sales extends Secure_Controller
 			'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
 		);
 		
-		$filters['location_id'] = $this->session->userdata('sales_location');
+		$location_id = $this->Stock_location->get_location_id_2($this->session->userdata('person_id'));
+		$active_shops = array("6", "7", "8", "11");
+		$filters['location_id'] = (!in_array($location_id, $active_shops)) ? 'all' : $location_id;
 
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);

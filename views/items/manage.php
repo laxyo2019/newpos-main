@@ -41,6 +41,12 @@ $(document).ready(function()
         headers: <?php echo $table_headers; ?>,
         pageSize: <?php echo $this->config->item('lines_per_page'); ?>,
         uniqueId: 'items.item_id',
+        showRefresh: true,
+        cache: true,
+        sortName: 'items.item_id',
+        sortStable: true,
+        sortOrder: 'desc',
+        striped: true,
         queryParams: function() {
             return $.extend(arguments[0], {
                 start_date: start_date,
@@ -50,10 +56,10 @@ $(document).ready(function()
             });
         },
         onLoadSuccess: function(response) {
-            $('a.rollover').imgPreview({
-				imgCSS: { width: 200 },
-				distanceFromCursor: { top:10, left:-210 }
-			})
+            // $('a.rollover').imgPreview({
+			// 	imgCSS: { width: 200 },
+			// 	distanceFromCursor: { top:10, left:-210 }
+			// })
         }
     });
 });
@@ -114,6 +120,7 @@ $(document).ready(function()
 <div id="table_holder">
     <table id="table"></table>
 </div>
+
 <script>
 	$(document).ready(function(){
 		$("#table").on('click', '.qty_update', function(event){

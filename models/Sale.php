@@ -218,10 +218,10 @@ class Sale extends CI_Model
 	{
 		// Pick up only non-suspended records
 		$where = 'sales.sale_status = 0 AND ';
-		$emp_id = $this->session->userdata('person_id');
-		if(!$this->Item->is_accounts())
-		{ // show invoices for particular shop only with exception of accounts team
-			$where.= 'employee_id = '.$emp_id.' AND '; 
+
+		if($filters['location_id'] != 'all')
+		{ // show invoices for particular shop only with exception of accounts team(show them 'all')
+			$where.= 'employee_id = '.$this->session->userdata('person_id').' AND '; 
 		}
 		 
 		if(empty($this->config->item('date_or_time_format')))
@@ -403,10 +403,9 @@ class Sale extends CI_Model
 		$this->db->select('payment_type, COUNT(payment_amount) AS count, SUM(payment_amount) AS payment_amount');
 		$this->db->from('sales AS sales');
 
-		$emp_array = array("7", "8", "9", "15");
-		if(!in_array($filters['location_id'], $emp_array))
+		if($filters['location_id'] != 'all')
 		{	
-			$this->db->where('employee_id', $filters['location_id']); 
+			$this->db->where('employee_id', $this->session->userdata('person_id')); 
 		}
 
 		$this->db->join('sales_payments', 'sales_payments.sale_id = sales.sale_id');

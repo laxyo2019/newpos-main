@@ -391,22 +391,14 @@ function get_item_data_row($item)
 		}
 	}
 
-	$ai_barcode_color = "";
-	if((strlen($item->item_number)) >= 14 ){
-		$ai_barcode_color = "#18bc9c";
-	}else{
-		$ai_barcode_color = "#f44336";
-	}
+	$barcode_color = ((strlen($item->item_number)) >= 14 ) ? "#18bc9c" : "#f44336";
 
-	$barcode_with_anchor = '<a class="modal-dlg" style="color:'.$ai_barcode_color.'" data-href="'.site_url($controller_name."/display_discounts/".$item->item_id).'" title="Discounts">'.$item->item_number.'</a>';
+	$barcode_with_anchor = '<a class="modal-dlg" style="color:'.$barcode_color.'" data-href="'.site_url($controller_name."/display_discounts/".$item->item_id).'" title="Discounts">'.$item->item_number.'</a>';
 
 	$items_array = array (
 		'items.item_id' => $item->item_id,
 		'item_number' => $barcode_with_anchor,
 		'name' => $item->name,
-		// 'category' => $CI->Item->get_namebyid('categories', $item->category),
-		// 'subcategory' => $CI->Item->get_namebyid('subcategories', $item->subcategory),
-		// 'brand' => $CI->Item->get_namebyid('brands', $item->brand),
 		'category' => $item->category,
 		'subcategory' => $item->subcategory,
 		'brand' => $item->brand,
@@ -421,18 +413,11 @@ function get_item_data_row($item)
 			array('class' => 'modal-dlg', 'title' => $CI->lang->line($controller_name.'_details_count'))
 		));
 
-		if($item->unit_price < 1)
-		{
-			$items_array['unit_price'] = to_currency(json_decode($item->cost_price)->retail);
-		}
-		else
-		{
-			$items_array['unit_price'] = to_currency($item->unit_price);
-		}
+		$items_array['unit_price'] = ($item->unit_price < 1) ? to_currency(json_decode($item->cost_price)->retail) : to_currency($item->unit_price);
 
 		if($CI->Item->is_superadmin()) 
 		{
-			$items_array['qty_update'] = '<span style="cursor:pointer" id="'.to_quantity_decimals($item->quantity).'" class="qty_update glyphicon glyphicon-erase"></span>';
+			$items_array['qty_update'] = '<span style="cursor:pointer" id="'.to_quantity_decimals($item->quantity).'" title="Quick Quantity Update" class="qty_update glyphicon glyphicon-erase"></span>';
 
 			$items_array['inventory'] = anchor($controller_name."/inventory/$item->item_id", '<span class="glyphicon glyphicon-pushpin"></span>',
 			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_count')));	

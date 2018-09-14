@@ -155,14 +155,28 @@ class Manager extends Secure_Controller
 
   public function fetch_stockup_items()
   {
-    $items = $this->db->order_by('id',"desc")
+    $result = $this->db->order_by('id',"desc")
     ->limit(1)
-    ->get('stock_up_items')
-    ->row('items');
+    ->get('upload_items')
+    ->row();
     
-    $data['items'] = json_decode($items);
+    $data['items'] = json_decode($result->stock_ups);
+    $data['upload_time'] = $result->time;
 
-    $this->load->view('manager/sublists/stockup_sublist', $data);
+    $this->load->view('manager/sublists/uploadItems_sublist', $data);
+  }
+
+  public function fetch_new_items()
+  {
+    $result = $this->db->order_by('id',"desc")
+    ->limit(1)
+    ->get('upload_items')
+    ->row();
+    
+    $data['items'] = json_decode($result->new_items);
+    $data['upload_time'] = $result->time;
+
+    $this->load->view('manager/sublists/uploadItems_sublist', $data);
   }
 
   public function get_mci_list()

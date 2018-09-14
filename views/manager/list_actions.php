@@ -10,6 +10,7 @@
     <button class="btn btn-sm btn-info" id="allItems">All Items</button>
     <button class="btn btn-sm btn-warning" id="filterItems">Filter Items</button>
     <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button>
+    <button class="btn btn-sm btn-success" id="newItems">New Items</button>
   </span>
 </div>
 <hr>
@@ -153,6 +154,20 @@
     $('#stockupItems').on('click', function(){
       $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
       $.post('<?php echo site_url($controller_name."/fetch_stockup_items") ?>', {'test': 'test'}, function(data) {
+	        $('#table_area').html(data);
+          $('#list').DataTable({
+            "scrollX": true,
+            dom: 'Bfrtip',
+            buttons: [
+              'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+          });
+        });
+      });
+
+    $('#newItems').on('click', function(){
+      $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+      $.post('<?php echo site_url($controller_name."/fetch_new_items") ?>', {'test': 'test'}, function(data) {
 	        $('#table_area').html(data);
           $('#list').DataTable({
             "scrollX": true,
