@@ -220,8 +220,8 @@ class Sale extends CI_Model
 		$where = 'sales.sale_status = 0 AND ';
 
 		if($filters['location_id'] != 'all')
-		{ // show invoices for particular shop only with exception of accounts team(show them 'all')
-			$where.= 'employee_id = '.$this->session->userdata('person_id').' AND '; 
+		{ //show invoices for particular shop only with exception of accounts team(show them 'all')
+			$where.= 'employee_id = '.$this->Stock_location->get_owner_id($filters['location_id']).' AND ';
 		}
 		 
 		if(empty($this->config->item('date_or_time_format')))
@@ -399,13 +399,14 @@ class Sale extends CI_Model
 	 */
 	public function get_payments_summary($search, $filters)
 	{
+		$emp_id = $this->Stock_location->get_owner_id($filters['location_id']);
 		// get payment summary
 		$this->db->select('payment_type, COUNT(payment_amount) AS count, SUM(payment_amount) AS payment_amount');
 		$this->db->from('sales AS sales');
 
 		if($filters['location_id'] != 'all')
 		{	
-			$this->db->where('employee_id', $this->session->userdata('person_id')); 
+			$this->db->where('sales.employee_id', $emp_id);
 		}
 
 		$this->db->join('sales_payments', 'sales_payments.sale_id = sales.sale_id');

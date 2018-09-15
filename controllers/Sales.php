@@ -54,22 +54,6 @@ class Sales extends Secure_Controller
 		}
 	}
 
-	// public function tally_export()
-	// {
-	// 	$spreadsheet = new Spreadsheet();
-	// 	$sheet = $spreadsheet->getActiveSheet();
-	// 	$sheet->setCellValue('A1', 'Hello World !');
-
-	// 	$writer = new Xls($spreadsheet);
-
-	// 	$filename = 'TallyExport_'.date("d-m-Y", time());
-	// 	header('Content-Type: application/vnd.ms-excel');
-	// 	header('Content-Disposition: attachment;filename="'. $filename .'.xls"');
-	// 	header('Cache-Control: max-age=0');
-	// 	ob_end_clean();
-	// 	$writer->save('php://output', 'xls');
-	// }
-
 	public function get_row($row_id)
 	{
 		$sale_info = $this->Sale->get_info($row_id)->row();
@@ -97,9 +81,7 @@ class Sales extends Secure_Controller
 			'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
 		);
 		
-		$location_id = $this->Stock_location->get_location_id_2($this->session->userdata('person_id'));
-		$active_shops = array("6", "7", "8", "11");
-		$filters['location_id'] = (!in_array($location_id, $active_shops)) ? 'all' : $location_id;
+		$filters['location_id'] = ($this->Item->is_accounts()) ? "all" : $this->Stock_location->get_location_id_2($this->session->userdata('person_id'));
 
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);

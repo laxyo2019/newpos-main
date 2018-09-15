@@ -27,3 +27,7 @@
     </li>
   <?php } ?>
 </ul>
+
+<?php
+  echo '<h3 class="text-center text-success" style="font-weight:bold">'.$pointer.'</h3>';
+?>

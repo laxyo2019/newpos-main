@@ -53,7 +53,12 @@ if(isset($error_message))
             <td><?php echo $challan_id; ?></td>
             <td><?php echo $stock_transfer_id; ?></td>
             <td><input style="border:none;" value="LEL INDORE" type="text"></td>
-            <td><input style="border:none;" value="" type="text"></td>
+            <td><select>
+              <option value="">DBF MAHALAXMI</option>
+              <option value="">DBF BHANVARKUAN</option>
+              <option value="">DBF INDRAPRASTHA</option>
+              <option value="">LAXYO ANNAPURNA</option>
+            </select></td>
             <td><input style="border:none;" value="" type="text"></td>
             <td><input style="border:none;" value="MP.43.C.1596" type="text"></td>
             <td><?php echo date('d-m-Y H:i'); ?></td>

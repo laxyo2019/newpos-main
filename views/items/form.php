@@ -198,7 +198,7 @@
 		foreach($stock_locations as $key=>$location_detail)
 		{
 		?>
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm" style="display:none">
 				<?php echo form_label($this->lang->line('items_quantity').' '.$location_detail['location_name'], 'quantity_' . $key, array('class'=>'required control-label col-xs-3')); ?>
 				<div class='col-xs-4'>
 					<?php echo form_input(array(
@@ -267,29 +267,53 @@
 	<?php } ?>
 
 		<?php
-		for ($i = 1; $i <= 1; ++$i)
-		{
+		//for ($i = 1; $i <= 10; ++$i)
+		//{
 		?>
 			<?php
-			if($this->config->item('custom'.$i.'_name') != NULL)
-			{
-				$item_arr = (array)$item_info;
+			//if($this->config->item('custom'.$i.'_name') != NULL)
+			//{
+				//$item_arr = (array)$item_info;
 			?>
-				<div class="form-group form-group-sm">
-					<?php echo form_label($this->config->item('custom'.$i.'_name'), 'custom'.$i, array('class'=>'control-label col-xs-3')); ?>
-					<div class='col-xs-8'>
-						<?php echo form_input(array(
-								'name'=>'custom'.$i,
-								'id'=>'custom'.$i,
-								'class'=>'form-control input-sm',
-								'value'=>$item_arr['custom'.$i])
-								);?>
-					</div>
-				</div>
+				<!-- <div class="form-group form-group-sm"> -->
+					<?php //echo form_label($this->config->item('custom'.$i.'_name'), 'custom'.$i, array('class'=>'control-label col-xs-3')); ?>
+					<!-- <div class='col-xs-8'> -->
+						<?php //echo form_input(array(
+								//'name'=>'custom'.$i,
+								//'id'=>'custom'.$i,
+								//'class'=>'form-control input-sm',
+								//'value'=>$item_arr['custom'.$i])
+								//);?>
+					<!-- </div>
+				</div> -->
 		<?php
-			}
-		}
+			//}
+		//}
 		?>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label('HSN Code', 'custom1', array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-6'>
+				<?php echo form_input(array(
+						'name'=>'custom1',
+						'id'=>'custom1',
+						'class'=>'form-control input-sm',
+						'value'=>$item_info->custom1)
+						);?>
+			</div>
+		</div>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label('Pointer', 'custom5', array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-6'>
+				<?php echo form_input(array(
+						'name'=>'custom5',
+						'id'=>'custom5',
+						'class'=>'form-control input-sm',
+						'value'=>$item_info->custom5)
+						);?>
+			</div>
+		</div>
 
 		<hr>
 		<select name="custom_item_type" id="custom_item_type" class="form-control col-xs-4">

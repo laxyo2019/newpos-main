@@ -51,6 +51,17 @@
 				<?php echo form_dropdown('custom3', $colors, 'test', array('class'=>'form-control')); ?>
 			</div>
 		</div>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label('Pointer', 'custom5', array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-8'>
+				<?php echo form_input(array(
+						'name'=>'custom5',
+						'id'=>'custom5',
+						'class'=>'form-control input-sm')
+						);?>
+			</div>
+		</div>
 		<!-- Removed allow alt desc and serialize divs from here -->
 	</fieldset>
 <?php echo form_close(); ?>

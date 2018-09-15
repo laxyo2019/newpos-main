@@ -42,11 +42,8 @@ $(document).ready(function()
         pageSize: <?php echo $this->config->item('lines_per_page'); ?>,
         uniqueId: 'items.item_id',
         showRefresh: true,
-        cache: true,
         sortName: 'items.item_id',
-        sortStable: true,
         sortOrder: 'desc',
-        striped: true,
         queryParams: function() {
             return $.extend(arguments[0], {
                 start_date: start_date,

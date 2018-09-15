@@ -31,10 +31,10 @@ class MailSender extends CI_Controller
 		);
 
 		$reporting_locations = array(
-			'IP' => 4,
-			'AP' => 10,
-			'BK' => 11,
-			'MH' => 13
+			'IP' => 6,
+			'BK' => 7,
+			'AP' => 8,
+			'MH' => 11
 		);
 
 		foreach($reporting_locations as $key=>$value)
@@ -68,8 +68,8 @@ class MailSender extends CI_Controller
 		}
 
 		$data['payment_summary'] = $payment_summary;
-		$to = 'abc@xyz.com';
-		$subject = 'Test Mail';
+		$to = 'alikhar@laxyosolutionsoft.com';
+		$subject = "Today's Sales: (".date('d-m-Y').")";
 		$message = $this->load->view('messages/mail/daily_sales', $data, TRUE);
 		$result = $this->email_lib->sendEmail($to, $subject, $message);
 		// echo $result;	

@@ -478,23 +478,13 @@ class Item extends CI_Model
 			if($this->db->insert('items', $item_data))
 			{
 				$item_data['item_id'] = $this->db->insert_id();
-
-				$save_item = array('item_number' => $this->barcode_factory($item['item_id']) );
-				$this->db->where('item_id', $item_data['item_id']);
-				$this->db->update('items', $save_item);
-
 				return TRUE;
 			}
-
 			return FALSE;
 		}
 
-		$item_data['item_number'] = $this->barcode_factory($item_id);
-
 		$this->db->where('item_id', $item_id);
 		return $this->db->update('items', $item_data);
-
-		
 	}
 
 	public function get_master_classification_index($name, $table)

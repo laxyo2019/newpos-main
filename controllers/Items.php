@@ -42,15 +42,17 @@ class Items extends Secure_Controller
 
 		$this->item_lib->set_item_location($this->input->get('stock_location'));
 
-		$filters = array('start_date' => $this->input->get('start_date'),
-						'end_date' => $this->input->get('end_date'),
-						'stock_location_id' => $this->item_lib->get_item_location(),
-						'empty_upc' => FALSE,
-						'low_inventory' => FALSE,
-						'is_serialized' => FALSE,
-						'no_description' => FALSE,
-						'search_custom' => FALSE,
-						'is_deleted' => FALSE);
+		$filters = array(
+			'start_date' => $this->input->get('start_date'),
+			'end_date' => $this->input->get('end_date'),
+			'stock_location_id' => $this->item_lib->get_item_location(),
+			'empty_upc' => FALSE,
+			'low_inventory' => FALSE,
+			'is_serialized' => FALSE,
+			'no_description' => FALSE,
+			'search_custom' => FALSE,
+			'is_deleted' => FALSE
+		);
 
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);
@@ -65,10 +67,10 @@ class Items extends Secure_Controller
 		{
 			// $data_rows[] = $this->xss_clean(get_item_data_row($item));
 			$data_rows[] = get_item_data_row($item);
-			if($item->pic_filename!='')
-			{
-				$this->_update_pic_filename($item);
-			}
+			// if($item->pic_filename!='')
+			// {
+			// 	$this->_update_pic_filename($item);
+			// }
 		}
 
 		echo json_encode(array('total' => $total_rows, 'rows' => $data_rows));
@@ -532,14 +534,13 @@ class Items extends Secure_Controller
 	}
 
 	public function display_discounts($item_id){
-		$this->db->where('item_id', $item_id);
-		$query = $this->db->get('items');
+		$item = $this->Item->get_info($item_id);
 
-		$data['item_data_type'] = ($query->row('unit_price') < 1) ? 'FIXED PRICE' : 'DISCOUNTED';
-		$data['item_data'] = ($query->row('unit_price') < 1) ? $query->row('cost_price') : $query->row('discounts');
-
-		$data['item_name'] = $query->row('name');
-		$data['barcode'] = $query->row('item_number');
+		$data['item_data_type'] = ($item->unit_price < 1) ? 'FIXED PRICE' : 'DISCOUNTED';
+		$data['item_data'] = ($item->unit_price < 1) ? $item->cost_price : $item->discounts;
+		$data['item_name'] = $item->name;
+		$data['barcode'] = $item->item_number;
+		$data['pointer'] = $item->custom5;
 
 		$this->load->view('items/discount_tooltip', $data);
 	}
@@ -574,7 +575,7 @@ class Items extends Secure_Controller
 			'custom2' => $this->input->post('custom2') == NULL ? '' : $this->input->post('custom2'),
 			'custom3' => $this->input->post('custom3') == NULL ? '' : $this->input->post('custom3'),
 			'custom4' => $this->input->post('custom4') == NULL ? '' : $this->input->post('custom4'),
-			// 'custom5' => $this->input->post('custom5') == NULL ? '' : $this->input->post('custom5'),
+			'custom5' => $this->input->post('custom5') == NULL ? '' : $this->input->post('custom5'),
 			// 'custom6' => $this->input->post('custom6') == NULL ? '' : $this->input->post('custom6'),
 			// 'custom7' => $this->input->post('custom7') == NULL ? '' : $this->input->post('custom7'),
 			// 'custom8' => $this->input->post('custom8') == NULL ? '' : $this->input->post('custom8'),
@@ -636,6 +637,9 @@ class Items extends Secure_Controller
 					$item_id = $item_data['item_id'];
 					$new_item = TRUE;
 				}
+
+				$item_barcode = array('item_number' => $this->Item->barcode_factory($item_id));
+				$this->db->where('item_id', $item_id)->update('items', $item_barcode);
 
 				// Allows more than 2 taxes to be set on the item using [] on form input name
 				$items_taxes_data = array();
@@ -943,6 +947,8 @@ class Items extends Secure_Controller
 				$i = 1;
 
 				$failCodes = array();
+				$stock_up_items = array();
+				$new_sheet_items = array();
 
 				while(($data = fgetcsv($handle)) !== FALSE)
 				{
@@ -983,7 +989,7 @@ class Items extends Secure_Controller
 							'custom2'				=> strtoupper(trim($data[22])), // Size
 							'custom3'				=> strtoupper(trim($data[21])), // Color
 							'custom4'				=> strtoupper(trim($data[20])),	// Model
-							// 'custom5'				=> $data[19],
+							'custom5'				=> strtoupper(trim($data[19])), // Pointer
 							// 'custom6'				=> $data[18],
 							// 'custom7'				=> $data[20],
 							// 'custom8'				=> $data[21],
@@ -1228,15 +1234,14 @@ class Items extends Secure_Controller
 					$barcode = $data[0];
 					$location_id = $data[1];
 					$location_quantity = $data[2];
+					$pointer = strtoupper(trim($data[3]));
 
 					$this->db->where('item_number', $barcode);
 					$count = $this->db->count_all_results('items');
 
 					if($count == 1)
 					{
-						$this->db->where('item_number', $barcode);
-						$item_id = $this->db->get('items')->row()->item_id;
-
+						$item_id = $this->Item->get_info_by_id_or_number($barcode)->item_id;
 						$new_quantity = $this->Item_quantity->get_item_quantity($item_id, $location_id)->quantity;
 						$new_quantity += $location_quantity;
 
@@ -1245,6 +1250,9 @@ class Items extends Secure_Controller
 							'location_id' => $location_id,
 							'quantity' => $new_quantity
 						);
+
+						$item_pointer = array('custom5' => $pointer);
+						$this->db->where('item_id', $item_id)->update('items', $item_pointer);
 
 						if($this->Item_quantity->save($location_detail, $item_id, $location_id))
 						{
