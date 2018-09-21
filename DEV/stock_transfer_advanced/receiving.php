@@ -30,14 +30,12 @@ if (isset($msg))
 	<?php echo form_open($controller_name."/change_mode", array('id'=>'mode_form', 'class'=>'form-horizontal panel panel-default')); ?>
 		<div class="panel-body form-group">
 			<ul>
-			<?php if($this->Item->is_both() || $this->Item->is_dewasnaka()) { ?>
 				<li class="pull-left first_li">
 					<label class="control-label"><?php echo $this->lang->line('receivings_mode'); ?></label>
 				</li>
 				<li class="pull-left">
 					<?php echo form_dropdown('mode', $modes, $mode, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
 				</li>
-			<?php } ?>
 
 				<?php 
 				if ($show_stock_locations)
@@ -50,14 +48,7 @@ if (isset($msg))
 						<?php //echo form_dropdown('stock_source', $stock_locations, $stock_source, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
 					</li> -->
 					<?php
-						if($this->Item->is_dewasnaka())
-						{
-							echo form_hidden('stock_source', '5'); //Dewasnaka location ID
-						}
-						else
-						{
-							 echo form_hidden('stock_source', '4'); //DBF Mahalaxmi location ID
-						}
+						echo form_hidden('stock_source', '4'); //DBF Mahalaxmi location ID
 					?>
 					
 					<?php
@@ -69,15 +60,7 @@ if (isset($msg))
 						</li>
 						<li class="pull-left">
 							<?php 
-								if($this->Item->is_dewasnaka())
-								{
-									echo form_hidden('stock_destination', '4'); //Dewasnaka can only transfer to Laxyo Godown
-									echo '<h5 style="color:#18bc9c;font-weight:bold">Laxyo Godown</h5>';
-								}
-								else
-								{
-									echo form_dropdown('stock_destination', $stock_locations, $stock_destination, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
-								}
+								echo form_dropdown('stock_destination', $stock_locations, $stock_destination, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
 							?>
 						</li>
 				<?php
@@ -117,9 +100,7 @@ if (isset($msg))
 				<li class="pull-left">
 				
 				<?php
-				if($this->Item->is_both() || $this->Item->is_dewasnaka()) { //search item input box
 					echo form_input(array('name'=>'item', 'id'=>'item', 'class'=>'form-control input-sm', 'size'=>'50', 'tabindex'=>'1'));
-				} 
 				?>
 				</li>
 				<!-- Add New Item Button Removed -->

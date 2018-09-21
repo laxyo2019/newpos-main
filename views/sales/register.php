@@ -24,7 +24,7 @@ if(isset($success))
 
 		<div class="panel-body form-group">
 			<ul>
-				<?php if($this->session->userdata('person_id') == 13 || $this->session->userdata('person_id') == 1090) { ?>
+				<?php if(in_array($this->session->userdata('person_id'), array(7, 13))) { ?>
 					<li class="pull-left">
 						<?php echo form_dropdown('billtype', $billings, $selected_bill, array('class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit', 'id'=>'billType')); ?>
 					</li>
@@ -37,7 +37,7 @@ if(isset($success))
 
 				<?php if(empty($this->session->userdata('sales_payments'))) { ?>
 				<li class="pull-right">
-					<?php echo form_dropdown('cashier', $cashiers, $cashier, array('class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit', 'id'=>'selectCashier')); ?>
+					<?php echo form_dropdown('cashier', $cashiers, $cashier, array('class'=>'selectpicker show-menu-arrow text-success', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit', 'id'=>'selectCashier')); ?>
 				</li>
 				<?php } ?>
 			</ul>
@@ -668,18 +668,31 @@ $(document).ready(function()
 		$.post('<?php echo site_url($controller_name."/set_invoice_number_enabled");?>', {sales_invoice_number_enabled: true});
 		$.post('<?php echo site_url($controller_name."/set_invoice_number");?>', {sales_invoice_number: $('#sales_invoice_number').val()});
 
-		<?php if($this->session->userdata('billtype') == 'franchise'){ ?>
-			$('#sales_invoice_number').keyup(function()
-			{
-				$.post("<?php echo site_url($controller_name."/set_invoice_number");?>", {sales_invoice_number: $('#sales_invoice_number').val()});
-			});
-		<?php } ?>
+		<?php //if($this->session->userdata('billtype') == 'franchise'){ ?>
+			// $('#sales_invoice_number').keyup(function()
+			// {
+			// 	$.post("<?php //echo site_url($controller_name."/set_invoice_number"); ?>", {sales_invoice_number: $('#sales_invoice_number').val()});
+			// });
+		<?php //} ?>
 
 		console.log('Invoicing Enabled');
 	<?php } ?>
-	
+
 	$('#selectCashier').on('change', function(){
-		$.post('<?php echo site_url($controller_name."/set_cashier");?>', {cashier_id: $(this).val()});
+		var cashier_id = $(this).val();
+		var webkey = prompt("Enter your secure webkey:");
+
+		$.post('<?php echo site_url($controller_name."/cashier_auth");?>', {'cashier_id': cashier_id, 'webkey': webkey}, function(data) {
+				if(data == "success")
+				{
+					$.post('<?php echo site_url($controller_name."/set_cashier");?>', {'cashier_id': cashier_id});
+					window.location.href = "sales";
+				}
+				else
+				{
+					alert("Incorrect Webkey");
+				}
+      });
 	});
 
   $('#billType').on('change', function(){
@@ -820,15 +833,32 @@ $(document).ready(function()
 
 	$("#add_payment_button").click(function()
 	{
-		<?php if($this->session->userdata('sales_customer') !== -1){ ?>
-			if($('#selectCashier').val() != ""){
+		<?php 
+		if($this->session->userdata('sales_customer') !== -1)
+		{ 
+			if(!empty($this->session->userdata('cashier_id')))
+			{ 
+		?>
 				$('#add_payment_form').submit();
-			}else{
-				alert('Please select a cashier');
+			<?php
 			}
-		<?php }else{ ?>
+			else
+			{ 
+			?>
+				alert('Please select a cashier');
+			<?php 
+			} 
+			?>
+
+		<?php
+		}
+		else
+		{ 
+		?>
 			alert('Please select or add a customer');
-		<?php } ?>
+		<?php 
+		} 
+		?>
 	});
 
 	$("#payment_types").change(check_payment_type).ready(check_payment_type);

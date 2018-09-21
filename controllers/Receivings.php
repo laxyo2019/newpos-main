@@ -627,14 +627,7 @@ class Receivings extends Secure_Controller
 		{
 			$data['modes']['requisition'] = $this->lang->line('receivings_requisition');
 			$data['stock_source'] = $this->receiving_lib->get_stock_source();
-			if($this->Item->is_dewasnaka())
-			{
-				$data['stock_destination'] = $this->receiving_lib->get_stock_destination(4);
-			}
-			else
-			{
-				$data['stock_destination'] = $this->receiving_lib->get_stock_destination();
-			}
+			$data['stock_destination'] = $this->receiving_lib->get_stock_destination();
 		}
 
 		$data['total'] = $this->receiving_lib->get_total();

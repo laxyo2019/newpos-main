@@ -8,7 +8,7 @@
     RETAIL
   </li>
 
-  <?php if($this->Item->is_both()){ ?>
+  <?php if($this->Item->check_auth(array('admin', 'superadmin'))){ ?>
     <li class="list-group-item">
       <span class="badge"><?php echo json_decode($item_data)->wholesale; ?></span>
       WHOLESALE
@@ -20,12 +20,10 @@
     FRANCHISE
   </li>
 
-  <?php if(!$this->Item->is_franchise()){ ?>
-    <li class="list-group-item">
-      <span class="badge"><?php echo json_decode($item_data)->ys; ?></span>
-      SPECIAL APPROVAL
-    </li>
-  <?php } ?>
+  <li class="list-group-item">
+    <span class="badge"><?php echo json_decode($item_data)->ys; ?></span>
+    SPECIAL APPROVAL
+  </li>
 </ul>
 
 <?php

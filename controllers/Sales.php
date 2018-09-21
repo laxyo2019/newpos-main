@@ -81,7 +81,7 @@ class Sales extends Secure_Controller
 			'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
 		);
 		
-		$filters['location_id'] = ($this->Item->is_accounts()) ? "all" : $this->Stock_location->get_location_id_2($this->session->userdata('person_id'));
+		$filters['location_id'] = ($this->Item->check_auth(array('admin', 'superadmin', 'accounts'))) ? "all" : $this->Stock_location->get_location_id_2($this->session->userdata('person_id'));
 
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);
@@ -206,6 +206,17 @@ class Sales extends Secure_Controller
 		}
 
 		$this->_reload();
+	}
+
+	public function cashier_auth()
+	{
+		$cashier_id = $this->input->post('cashier_id');
+		$webkey = $this->input->post('webkey');
+		$db_webkey = $this->db->where('id', $cashier_id)->get('cashiers')->row()->webkey;
+		if($webkey == $db_webkey)
+		{
+			echo "success";
+		}
 	}
 
 	public function set_cashier()
@@ -549,9 +560,14 @@ class Sales extends Secure_Controller
 		$sale_id = $this->sale_lib->get_sale_id();
 		$sale_type = $this->sale_lib->get_sale_type();
 		$data = array();
+
 		$cashier_id = $this->session->userdata('cashier_id');
 		$data['cashier_name'] = $this->get_cashier_detail($cashier_id, 'name');
 		$data['cashier_sale_code'] = $this->get_cashier_detail($cashier_id, 'id');
+
+		$tally_number = $this->Sale->tally_number_factory();
+		$data['tally_number'] = $tally_number;
+
 		$data['dinner_table'] = $this->sale_lib->get_dinner_table();
 		$data['cart'] = $this->sale_lib->get_cart();
 		$data['transaction_time'] = date($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'));
@@ -676,7 +692,7 @@ class Sales extends Secure_Controller
 				$sale_type = SALE_TYPE_INVOICE;
 
 				// Save the data to the sales table
-				$data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $cashier_id, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $data['taxes']);
+				$data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $tally_number, $cashier_id, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $data['taxes']);
 				$data['sale_id'] = 'POS ' . $data['sale_id_num'];
 
 				if(!empty($this->session->userdata('applied_credit_note'))) //check in session if credit note is already applied
@@ -811,7 +827,7 @@ class Sales extends Secure_Controller
 			$data['credit_note_number'] = $credit_note_number;
 			$return_sale_id = $this->session->userdata('return_sale_id');
 			
-			$data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $credit_note_number, $cashier_id, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $data['taxes']);
+			$data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $credit_note_number, $tally_number, $cashier_id, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $data['taxes']);
 
 			$data['ref_invoice_number'] = $this->Sale->get_ref_invoice_number($return_sale_id);
 
@@ -848,7 +864,7 @@ class Sales extends Secure_Controller
 			}
 		}
 	}
-	
+
 	public function send_pdf($sale_id, $type = 'invoice')
 	{
 		$sale_data = $this->_load_sale_data($sale_id);
@@ -1056,6 +1072,7 @@ class Sales extends Secure_Controller
 		$data['sale_id'] = 'POS ' . $sale_id;
 		$data['comments'] = $sale_info['comment'];
 		$data['invoice_number'] = $sale_info['invoice_number'];
+		$data['tally_invoice'] = $sale_info['tally_number'].'/'.$sale_info['invoice_number'];
 		$data['cashier_name'] = $this->get_cashier_detail($sale_info['cashier_id'], 'name');
 		$data['cashier_sale_code'] = $this->get_cashier_detail($sale_info['cashier_id'], 'id');
 		$data['quote_number'] = $sale_info['quote_number'];

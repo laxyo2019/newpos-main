@@ -199,7 +199,7 @@ class Config extends Secure_Controller
 		$this->db->from('employees');
 		$this->db->join('people', 'people.person_id = employees.person_id');
 
-		$shop_types = array('dbf', 'shop');
+		$shop_types = array('dbf', 'shop', 'hub');
 		$this->db->where_in('login_type', $shop_types);
 		$this->db->where('deleted !=', 1);
 		$query = $this->db->get();

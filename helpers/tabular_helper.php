@@ -100,7 +100,7 @@ function get_sale_data_row($sale)
 
 	if($CI->config->item('invoice_enable'))
 	{
-		$row['invoice_number'] = $sale->invoice_number;
+		$row['invoice_number'] = $sale->tally_number.'/'.$sale->invoice_number;
 		$row['invoice'] = empty($sale->invoice_number) ? '' : anchor($controller_name."/invoice/$sale->sale_id", '<span class="glyphicon glyphicon-list-alt"></span>',
 			array('title'=>$CI->lang->line('sales_show_invoice'), 'target' => '_blank')
 		);
@@ -348,7 +348,8 @@ function get_items_manage_table_headers()
 		// array('item_pic' => $CI->lang->line('items_image'), 'sortable' => FALSE),
 		array('qty_update' => ''),
 		array('inventory' => ''),
-		array('stock' => '')
+		array('stock' => ''),
+		array('request_item' => '')
 	);
 
 	return transform_headers($headers);
@@ -428,6 +429,12 @@ function get_item_data_row($item)
 			$items_array['edit'] = anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-edit"></span>',
 					array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update')));
 		}
+
+		if($CI->Item->check_auth(array('shop', 'dbf')))
+		{
+			$items_array['request_item'] = '<span style="cursor:pointer" id="'.to_quantity_decimals($item->quantity).'" title="Item Requirement" class="request_item glyphicon glyphicon-shopping-cart"></span>';
+		}
+
 		return $items_array;
 }
 

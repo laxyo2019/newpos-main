@@ -112,15 +112,23 @@ class Manager extends Secure_Controller
 
   public function report_sales()
   {
-    $data['locations'] = $this->input->post('locations');
+    // $data['locations'] = $this->input->post('locations');
     $start_date = $this->input->post('start_date');
     $end_date = $this->input->post('end_date');
 
     $filter = $this->input->post('filter');
-    foreach($filter as $key=>$value)
+
+    if($filter == 'all')
     {
-      if(!empty($value)){
-        $array[$key] = $value;
+      $array = array();
+    }
+    else
+    {
+      foreach($filter as $key=>$value)
+      {
+        if(!empty($value)){
+          $array[$key] = $value;
+        }
       }
     }
 
@@ -579,5 +587,4 @@ class Manager extends Secure_Controller
     $this->load->view('manager/sublists/excel_processed', $data);
   }
 
-  
 }

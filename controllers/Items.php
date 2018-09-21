@@ -29,6 +29,11 @@ class Items extends Secure_Controller
 		$this->load->view('items/manage', $data);
 	}
 
+	public function test_auth($input)
+	{
+		echo $this->Item->check_auth($input);
+	}
+
 	/*
 	Returns Items table data rows. This will be called with AJAX.
 	*/
@@ -737,9 +742,62 @@ class Items extends Secure_Controller
 		}else{
 			echo "Same Value : Not Updated";
 		}
+	 }
 
+	public function request_item_show()
+	{
+		$shop_id = $this->session->userdata('person_id');
+		$data['items'] = $this->db->where('requester', $shop_id)->get('item_requests')->result_array(); 
+		$this->load->view('items/my_item_requests', $data);
+	}
+	 
+	public function request_item_add()
+	{
+		$item_id = $this->input->post('item_id');
+		$request_qty = $this->input->post('request_qty');
+		$employee_id = $this->session->userdata('person_id');
 
- 	}
+		$request_detail = array(
+			'item_id' => $item_id,
+			'barcode' => $this->Item->get_info($item_id)->item_number,
+			'quantity' => $request_qty,
+			'requester' => $employee_id,
+			'time' => date('Y-m-d H:i:s')
+		);
+
+		$this->db->insert('item_requests', $request_detail);
+		echo "Request Success";
+	 }
+	 
+	public function request_item_delete()
+	{
+		$id = $this->input->post('id');
+		$this->db->delete('item_requests', array('id' => $id));
+		echo "Request Cancelled";
+	}
+
+	public function request_item_complete()
+	{
+		$id = $this->input->post('id');
+		$this->db->where('id', $id)->update('item_requests', array('status' => 1));
+		echo "Request Completed";
+	}
+
+	public function request_deck()
+	{
+		$data['items'] = $this->db->get('item_requests')->result_array();
+		$this->load->view('items/requests_deck', $data);
+	}
+
+	public function switch_deck()
+	{
+		$shop_id = $this->input->post('shop_id');
+
+		$data['items'] = (empty($shop_id)) ? $this->db->get('item_requests')->result_array() : $this->db->where('requester', $shop_id)->get('item_requests')->result_array();
+	
+		$this->load->view('items/sublists/deck_sublist', $data);
+	}
+
 
 	// CODE FOR CUSTOM SAVE FUNCTIONS ENDS
 
@@ -1234,7 +1292,8 @@ class Items extends Secure_Controller
 					$barcode = $data[0];
 					$location_id = $data[1];
 					$location_quantity = $data[2];
-					$pointer = strtoupper(trim($data[3]));
+					$pointer1 = strtoupper(trim($data[3]));
+					$pointer2 = strtoupper(trim($data[4]));
 
 					$this->db->where('item_number', $barcode);
 					$count = $this->db->count_all_results('items');
@@ -1251,9 +1310,22 @@ class Items extends Secure_Controller
 							'quantity' => $new_quantity
 						);
 
-						$item_pointer = array('custom5' => $pointer);
-						$this->db->where('item_id', $item_id)->update('items', $item_pointer);
+						$db_pointer1 = $this->db->where('item_id', $item_id)->get('items')->row()->custom5;
+						$db_pointer2 = $this->db->where('item_id', $item_id)->get('items')->row()->custom6;
 
+						if($pointer1 != $db_pointer1)
+						{
+							$new_pointer1 = array('custom5' => $db_pointer1.' + '.$pointer1);
+							$this->db->where('item_id', $item_id)->update('items', $new_pointer1);
+						}
+
+						if($pointer2 != $db_pointer2)
+						{
+							$new_pointer2 = array('custom6' => $db_pointer2.' + '.$pointer2);
+							$this->db->where('item_id', $item_id)->update('items', $new_pointer2);
+						}
+
+				
 						if($this->Item_quantity->save($location_detail, $item_id, $location_id))
 						{
 							$inv_data = array(

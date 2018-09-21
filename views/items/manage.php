@@ -63,23 +63,40 @@ $(document).ready(function()
 </script>
 
 <div id="title_bar" class="btn-toolbar print_hide">
-    
+<?php if($this->Item->check_auth(array('dbf', 'shop'))) { ?>
+
+	<button class='btn btn-info btn-sm modal-dlg-wide' data-href='<?php echo site_url($controller_name."/request_item_show"); ?>'
+					title='My Item Requests'>
+			<span class="glyphicon glyphicon-shopping-cart">&nbsp</span>My Item Requests
+	</button>
+
+<?php } ?>
+
+<?php if($this->Item->check_auth('hub')) { ?>
+
+	<button class='btn btn-info btn-sm modal-dlg-wide' data-href='<?php echo site_url($controller_name."/request_deck"); ?>'
+					title='Requirements Deck'>
+			<span class="glyphicon glyphicon-shopping-cart">&nbsp</span>Requirements Deck
+	</button>
+
+<?php } ?>
+
 <?php if($this->Item->is_both()) { ?>
 
-    <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_stock_up"); ?>'
-            title='<?php echo $this->lang->line('items_update_items_excel'); ?>'>
-        <span class="glyphicon glyphicon-import">&nbsp</span><?php echo $this->lang->line('common_update_excel'); ?>
-    </button>
+	<button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_stock_up"); ?>'
+					title='<?php echo $this->lang->line('items_update_items_excel'); ?>'>
+			<span class="glyphicon glyphicon-import">&nbsp</span><?php echo $this->lang->line('common_update_excel'); ?>
+	</button>
 
-    <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_import"); ?>'
-            title='<?php echo $this->lang->line('items_import_items_excel'); ?>'>
-        <span class="glyphicon glyphicon-import">&nbsp</span><?php echo $this->lang->line('common_import_excel'); ?>
-    </button>
+	<button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_import"); ?>'
+					title='<?php echo $this->lang->line('items_import_items_excel'); ?>'>
+			<span class="glyphicon glyphicon-import">&nbsp</span><?php echo $this->lang->line('common_import_excel'); ?>
+	</button>
 
-    <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('common_new') ?>' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/view"); ?>'
-            title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
-        <span class="glyphicon glyphicon-tag">&nbsp</span><?php echo $this->lang->line($controller_name. '_new'); ?>
-    </button>
+	<button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('common_new') ?>' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/view"); ?>'
+					title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
+			<span class="glyphicon glyphicon-tag">&nbsp</span><?php echo $this->lang->line($controller_name. '_new'); ?>
+	</button>
     
 <?php } ?>
 
@@ -88,29 +105,29 @@ $(document).ready(function()
 <div id="toolbar">
     <div class="pull-left form-inline" role="toolbar">
 
-      <?php if($this->Item->is_both()) { ?>
-        <?php if($this->Item->is_superadmin()) { ?>
-          <button id="delete" class="btn btn-default btn-sm print_hide">
-              <span class="glyphicon glyphicon-trash">&nbsp</span><?php echo $this->lang->line("common_delete"); ?>
-          </button>
-        <?php } ?>   
-        <button id="bulk_edit" class="btn btn-default btn-sm modal-dlg print_hide", data-btn-submit='<?php echo $this->lang->line('common_submit') ?>', data-href='<?php echo site_url($controller_name."/bulk_edit"); ?>'
+			<?php if($this->Item->is_both()) { ?>
+				<?php if($this->Item->is_superadmin()) { ?>
+					<button id="delete" class="btn btn-default btn-sm print_hide">
+							<span class="glyphicon glyphicon-trash">&nbsp</span><?php echo $this->lang->line("common_delete"); ?>
+					</button>
+				<?php } ?>   
+				<button id="bulk_edit" class="btn btn-default btn-sm modal-dlg print_hide", data-btn-submit='<?php echo $this->lang->line('common_submit') ?>', data-href='<?php echo site_url($controller_name."/bulk_edit"); ?>'
 				title='<?php echo $this->lang->line('items_edit_multiple_items'); ?>'>
-            <span class="glyphicon glyphicon-edit">&nbsp</span><?php echo $this->lang->line("items_bulk_edit"); ?>
-        </button>
-        <button id="generate_barcodes" class="btn btn-default btn-sm print_hide" data-href='<?php echo site_url($controller_name."/generate_barcodes"); ?>' title='<?php echo $this->lang->line('items_generate_barcodes');?>'>
-            <span class="glyphicon glyphicon-barcode">&nbsp</span><?php echo $this->lang->line("items_generate_barcodes"); ?>
-        </button>
-      <?php } ?>
+						<span class="glyphicon glyphicon-edit">&nbsp</span><?php echo $this->lang->line("items_bulk_edit"); ?>
+				</button>
+				<button id="generate_barcodes" class="btn btn-default btn-sm print_hide" data-href='<?php echo site_url($controller_name."/generate_barcodes"); ?>' title='<?php echo $this->lang->line('items_generate_barcodes');?>'>
+						<span class="glyphicon glyphicon-barcode">&nbsp</span><?php echo $this->lang->line("items_generate_barcodes"); ?>
+				</button>
+			<?php } ?>
 
-        <?php echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input-sm', 'id'=>'daterangepicker')); ?>
-        <?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
-        <?php
-        if (count($stock_locations) > 1)
-        {
-            echo form_dropdown('stock_location', $stock_locations, $stock_location, array('id'=>'stock_location', 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
-        }
-        ?>
+			<?php echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input-sm', 'id'=>'daterangepicker')); ?>
+			<?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
+			<?php
+			if (count($stock_locations) > 1)
+			{
+				echo form_dropdown('stock_location', $stock_locations, $stock_location, array('id'=>'stock_location', 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
+			}
+			?>
     </div>
 </div>
 
@@ -121,35 +138,61 @@ $(document).ready(function()
 <script>
 	$(document).ready(function(){
 		$("#table").on('click', '.qty_update', function(event){
-		var item_id = $(this).parent().parent().attr('data-uniqueid');
-		var item_qty = this.id;
-		console.log('item_id: '+item_id);
-		console.log('item_quantity: '+item_qty);
-		var new_qty = prompt("Please enter value", item_qty);
-		if(new_qty)
-		{
-			new_qty = new_qty.trim();
-			new_qty = parseInt(new_qty, 10);
-			if(Number.isInteger(new_qty))
+			var item_id = $(this).parent().parent().attr('data-uniqueid');
+			var item_qty = this.id;
+			console.log('item_id: '+item_id);
+			console.log('item_quantity: '+item_qty);
+			var new_qty = prompt("Please enter value", item_qty);
+			if(new_qty)
 			{
-				new_qty = Math.abs(new_qty);
-				console.log(new_qty);
-				$.post('<?php echo site_url($controller_name."/quick_item_quantity_update"); ?>', {'item_id': item_id, 'new_qty': new_qty}, function(data) {
+				new_qty = new_qty.trim();
+				new_qty = parseInt(new_qty, 10);
+				if(Number.isInteger(new_qty))
+				{
+						new_qty = Math.abs(new_qty);
+						console.log(new_qty);
+						$.post('<?php echo site_url($controller_name."/quick_item_quantity_update"); ?>', {'item_id': item_id, 'new_qty': new_qty}, function(data) {
         	    alert(data);
-					// location.reload();
+								// location.reload();
       	        });
+				}
+				else
+				{
+					console.log('invalid');
+				} 
 			}
 			else
 			{
-				console.log('invalid');
-			} 
-		}
-		else
-		{
-			console.log("empty");
-		}
+				console.log("empty");
+			}
 		});
 
+		$("#table").on('click', '.request_item', function(event){
+			var item_id = $(this).parent().parent().attr('data-uniqueid');
+			var req_qty = prompt("Please enter value");
+			if(req_qty)
+			{
+				req_qty = req_qty.trim();
+				req_qty = parseInt(req_qty, 10);
+				if(Number.isInteger(req_qty))
+				{
+					req_qty = Math.abs(req_qty);
+					console.log(req_qty);
+					$.post('<?php echo site_url($controller_name."/request_item_add"); ?>', {'item_id': item_id, 'request_qty': req_qty}, function(data) {
+        	    alert(data);
+							// location.reload();
+      	        });
+				}
+				else
+				{
+					console.log('invalid');
+				} 
+			}
+			else
+			{
+				console.log("empty");
+			}
+		});
 	});
     
 </script>

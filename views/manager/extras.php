@@ -6,6 +6,7 @@
 
   <span class="col-md-2">
     <select id="extSwitch" class="form-control">
+      <option value="">Select an Option</option>
       <option value="active_items">Active Items</option>
       <option value="deleted_items">Deleted Items</option>
     </select>
@@ -23,7 +24,7 @@
       var extSwitch = $(this).val();
       $.post('<?php echo site_url($controller_name."/get_processed_list");?>', {'type': extSwitch}, function(data) {
           $('#extras_table_area').html(data);
-      $('#extras_list').DataTable({
+          $('#extras_sublist').DataTable({
             "scrollX": true,
             dom: 'Bfrtip',
             buttons: [

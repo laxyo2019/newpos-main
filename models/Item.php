@@ -29,14 +29,30 @@ define('PRICE_OPTION_KIT_STOCK', 2);
 
 class Item extends CI_Model
 {
-	public function check_login_type()
+	public function check_login_type($person_id = -1)
 	{
-		$person_id = $this->session->userdata('person_id');
-		// if(empty($person_id))
-		// {
-		// 	$person_id = 15;
-		// }
-		return $this->db->where('person_id', $person_id)->get('employees')->row()->login_type;
+		return ($person_id != -1) ? $this->db->where('person_id', $person_id)->get('employees')->row()->login_type : $this->db->where('person_id', $this->session->userdata('person_id'))->get('employees')->row()->login_type;
+	}
+
+	public function check_auth($input)
+	{
+		$type = $this->check_login_type();
+		if(gettype($input) == 'array')
+		{
+			if(in_array($type, $input))
+			{
+				return TRUE;
+			}
+		}
+		else
+		{
+			if($type == $input)
+			{
+				return TRUE;
+			}
+		}
+
+		return FALSE;
 	}
 
 	public function is_admin()
@@ -57,28 +73,6 @@ class Item extends CI_Model
 	{
 		$type = $this->check_login_type();
 		if($type == 'admin' || $type == 'superadmin'){
-      return true;
-    }
-	}
-
-	public function is_dewasnaka()
-	{
-		if($this->check_login_type() == 'main_warehouse'){
-      return true;
-    }
-	}
-
-	public function is_franchise()
-	{
-		if($this->check_login_type() == 'franchise'){
-      return true;
-    }
-	}
-
-	public function is_accounts()
-	{
-		$type = $this->check_login_type();
-		if($type == 'admin' || $type == 'superadmin' || $type == 'accounts'){
       return true;
     }
 	}

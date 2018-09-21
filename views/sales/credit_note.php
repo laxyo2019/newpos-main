@@ -60,8 +60,8 @@ $(document).ready(function()
 				<section style="padding-left: 5px;">
 					<div class="row">
 						<h4 style="text-align:center">CREDIT CUM PURCHASE RETURN NOTE</h4>
-						<div style="width:55%; float: left; padding-left: 20px ">
-						<?php if($this->Sale->get_invoice_details($sale_id_num)['login_type'] == 'dbf'){ ?>
+						<div style="width:50%; float: left; padding-left: 20px ">
+						<?php if(in_array($this->Sale->get_invoice_details($sale_id_num)['login_type'], array('dbf', 'hub'))){ ?>
 							<img id="image" height="60" width="100" src="<?php echo base_url('uploads/' . $this->Appconfig->get('company_logo')); ?>" alt="company_logo" />
 						<?php } ?>
 
@@ -70,7 +70,7 @@ $(document).ready(function()
 							</h6>
 						</div>
 	
-						<div style="width:40%; float: left;">
+						<div style="width:45%; float: left;">
 							<p id="inv_cp" style="text-align:center; font-size: 0.8em">Seller Copy</p>
 							<table class="table table-bordered" style="margin: 0px; border-right: 0px; font-size: 10px">
 								<tr>
@@ -218,7 +218,7 @@ $(document).ready(function()
 				<section style="font-size: 10px;">
 					<div class="text-center" style="width: 50%;float: left;border: 1px solid #ddd;border-left: 0px;border-right: 0px; padding: 5px;">
 						Seller's Signature<br><br>
-						<img id="image" style="position:absolute" height="64" width="64" src="<?php echo base_url('images/lel_stamp.png'); ?>" alt="company_stamp" /><br>
+						<img id="image" style="position:absolute; transform: rotate(-18deg)" height="64" width="64" src="<?php echo base_url('images/lel_stamp.png'); ?>" alt="company_stamp" /><br>
 						_______________
 					</div>
 					<div class="text-center" style="width: 50%;float: left;border: 1px solid #ddd;border-right: 0px; padding: 5px;">

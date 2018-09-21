@@ -11,7 +11,7 @@ class Pricing extends CI_Model
 		$this->db->from('employees');
 		$this->db->join('people', 'people.person_id = employees.person_id');
 
-		$shop_types = array('dbf', 'shop', 'franchise');
+		$shop_types = array('dbf', 'shop', 'hub');
 		$this->db->where_in('login_type', $shop_types);
 		$this->db->where('deleted', 0);
 		return $this->db->get()->result_array();

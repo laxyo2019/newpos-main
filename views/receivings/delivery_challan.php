@@ -15,6 +15,7 @@ if(isset($error_message))
 	exit;
 }
 ?>
+
 <div class="print_hide pull-right">
   <a href="javascript:void(0);" onclick="window.print()"><div class="btn btn-info btn-sm", id="show_print_button"><?php echo '<span class="glyphicon glyphicon-print">&nbsp</span>' . $this->lang->line('common_print'); ?></div></a>
 </div>
@@ -54,6 +55,8 @@ if(isset($error_message))
             <td><?php echo $stock_transfer_id; ?></td>
             <td><input style="border:none;" value="LEL INDORE" type="text"></td>
             <td><select>
+              <option value=""></option>
+              <option value="">LAXYOHOUSE</option>
               <option value="">DBF MAHALAXMI</option>
               <option value="">DBF BHANVARKUAN</option>
               <option value="">DBF INDRAPRASTHA</option>
@@ -102,7 +105,7 @@ if(isset($error_message))
     </div>
     <div class="col-md-12">
       <p class="text-center small">(BEING THE GOODS TRANSFER FROM WAREHOUSE TO SHOP/SHOP TO WAREHOUSE HENCE NO COMMERCIAL VALUE)</p><br><br><br>
-      <img id="image" style="position:absolute; bottom:10px" height="90" width="90" src="<?php echo base_url('images/lel_stamp.png'); ?>" alt="company_stamp" />
+      <img id="image" style="position:absolute; bottom:10px; transform: rotate(-18deg)" height="90" width="90" src="<?php echo base_url('images/lel_stamp.png'); ?>" alt="company_stamp" />
         <p>FOR LAXYO ENERGY LTD.</p>
         <p>AUTHORISED SIGNATORY</p>
       </span>
@@ -110,6 +113,5 @@ if(isset($error_message))
 
   </div>
 </div>
-
 
 <?php $this->load->view("partial/footer"); ?>

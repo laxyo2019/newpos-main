@@ -77,6 +77,7 @@ class Sale extends CI_Model
 				MAX(sales.sale_status) AS sale_status,
 				MAX(sales.bill_type) AS bill_type,
 				MAX(sales.invoice_number) AS invoice_number,
+				MAX(sales.tally_number) AS tally_number,
 				MAX(sales.cashier_id) AS cashier_id,
 				MAX(sales.quote_number) AS quote_number,
 				MAX(sales.employee_id) AS employee_id,
@@ -190,12 +191,20 @@ class Sale extends CI_Model
 	public function get_credit_note_details($sale_id)
 	{
 		$this->db->where('cn_sale_id', $sale_id);
-		$query = $this->db->get('sales_returns');;
-		$credit_note_number = $query->row('cn_number');
+		$query = $this->db->get('sales_returns');
 		$ref_sale_id = $query->row('return_sale_id');
 
-		$this->db->where('sale_id', $ref_sale_id);
-		$ref_invoice_number = $this->db->get('sales')->row()->invoice_number;
+		$ref_sale_info = $this->db->where('sale_id', $ref_sale_id)->get('sales')->row();
+
+		$ref_inv = $ref_sale_info->invoice_number;
+		$ref_tally = $ref_sale_info->tally_number;
+		$ref_invoice_number = $ref_tally.'/'.$ref_inv;
+
+		$sale_info = $this->db->where('sale_id', $sale_id)->get('sales')->row();
+
+		$cr_inv = $sale_info->invoice_number;
+		$cr_tally = $sale_info->tally_number;
+		$credit_note_number = $cr_tally.'/'.$cr_inv;
 
 		return array(
 			'ref_invoice_number' => $ref_invoice_number,
@@ -296,6 +305,7 @@ class Sale extends CI_Model
 					MAX(DATE(sales.sale_time)) AS sale_date,
 					MAX(sales.sale_time) AS sale_time,
 					MAX(sales.invoice_number) AS invoice_number,
+					MAX(sales.tally_number) AS tally_number,
 					MAX(sales.quote_number) AS quote_number,
 					SUM(sales_items.quantity_purchased) AS items_purchased,
 					MAX(CONCAT(customer_p.first_name, " ", customer_p.last_name)) AS customer_name,
@@ -731,7 +741,7 @@ class Sale extends CI_Model
 	 * Save the sale information after the sales is complete but before the final document is printed
 	 * The sales_taxes variable needs to be initialized to an empty array before calling
 	 */
-	public function save($sale_id, &$sale_status, &$items, $customer_id, $employee_id, $comment, $invoice_number, $cashier_id = -1, $work_order_number, $quote_number, $sale_type, $payments, $dinner_table, &$sales_taxes)
+	public function save($sale_id, &$sale_status, &$items, $customer_id, $employee_id, $comment, $invoice_number, $tally_number = -1, $cashier_id = -1, $work_order_number, $quote_number, $sale_type, $payments, $dinner_table, &$sales_taxes)
 	{
 		if($sale_id != -1)
 		{
@@ -754,6 +764,7 @@ class Sale extends CI_Model
 			'comment'			=> $comment,
 			'sale_status'		=> $sale_status,
 			'invoice_number'	=> $invoice_number,
+			'tally_number'	=> $tally_number,
 			'cashier_id'	=> $cashier_id,
 			'quote_number'		=> $quote_number,
 			'work_order_number'	=> $work_order_number,
@@ -1178,8 +1189,8 @@ class Sale extends CI_Model
 			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
 		}
 
-		// $payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
-		// $payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');
+		$payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
+		$payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');
 
 		// if($giftcard)
 		// {
@@ -1265,26 +1276,36 @@ class Sale extends CI_Model
 
 		$prefix = $this->db->where('person_id', $person_id)->get('employees')->row()->inv_prefix;
 
-		return $prefix.'/'.$person_id.'/'.$count;
+		return $prefix.'-'.$person_id.'-'.$count;
 	}
 
 	public function credit_note_factory()
 	{
-		$array = array(
-			'sale_type' => 4,
-			// 'sale_status' => 0, 
-			'bill_type' => 'retail'
-		);
-		$this->db->where($array);
+		$this->db->where('sale_type', 4);
+		$this->db->where_in('bill_type', array('retail', 'wholesale', 'franchise'));
 		$returns_count = $this->db->count_all_results('sales');
 
-		return 'CN/RETAIL/'.($returns_count+1);
+		return 'CN-'.($returns_count+1);
+	}
+
+	public function tally_number_factory()
+	{
+		$tally_number = $this->db->order_by('sale_id',"desc")
+    ->limit(1)
+    ->get('sales')
+		->row()->tally_number;
+		
+		return $tally_number+1;
 	}
 
 	public function get_ref_invoice_number($sale_id)
 	{
-		$this->db->where('sale_id', $sale_id);
-		return $this->db->get('sales')->row()->invoice_number;
+		$ref_sale_info = $this->db->where('sale_id', $sale_id)->get('sales')->result_array();
+
+		$ref_inv = $ref_sale_info['invoice_number'];
+		$ref_tally = $ref_sale_info['tally_number'];
+		
+		return $ref_tally.'/'.$ref_inv;
 	}
 
 	/**
