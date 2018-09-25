@@ -52,6 +52,10 @@ class Secure_Controller extends CI_Controller
 		}
 
 		$data['user_info'] = $logged_in_employee_info;
+		if($this->Receiving->get_transfers($this->session->userdata('person_id'), 'count') > 0)
+		{
+			$data['pending_transfers1'] = TRUE;
+		}
 		$data['controller_name'] = $module_id;
 
 		$this->load->vars($data);

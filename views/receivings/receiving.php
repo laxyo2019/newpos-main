@@ -21,29 +21,40 @@ if (isset($msg))
 	echo "<div class='alert alert-dismissible alert-warning'>".$msg."</div>";
 }
 ?>
-<?php //echo json_encode($this->session->userdata('recv_cart')); ?>
+<?php //echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 <!-- Top register controls -->
 
-		<button class='btn btn-info btn-sm pull-left modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_transfer"); ?>'
+		<button class='btn btn-sm btn-primary pull-left modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_transfer"); ?>'
 				title='Quick Excel Stock Transfer'>
 			Quick Transfer
 		</button>
 		
-		<button id="transfer_status" class="btn btn-sm pull-left modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_transfer_status"); ?>'
+		<button id="transfer_status" class="btn btn-sm btn-default pull-left modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_transfer_status"); ?>'
 		title='Pending Transfers'>
 			Pending Transfers
 		</button>
 
-		<button id="challan_list" class="btn btn-warning btn-sm pull-right modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_all_challans"); ?>'
+		<button id="challan_list" class="btn btn-sm btn-danger pull-right modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_all_challans"); ?>'
 		title='Challan List'>
-			Print DC
+			Transfer Log
 		</button>
+
+		<?php 
+		if($pending_transfers2)
+		{
+			echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
+			array('class'=>'print_hide', $button_key => $button_label, 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
+		} 
+		?>	
 	<br><br>
 
 	<?php echo form_open($controller_name."/change_mode", array('id'=>'mode_form', 'class'=>'form-horizontal panel panel-default')); ?>
 		<div class="panel-body form-group">
 			<ul>
+				<li class="pull-right">
+					<?php echo form_dropdown('dispatchers', $dispatchers, $dispatcher, array('class'=>'selectpicker show-menu-arrow text-success', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit', 'id'=>'selectDispatcher')); ?>
+				</li>
 				<li class="pull-left first_li">
 					<label class="control-label"><?php echo $this->lang->line('receivings_mode'); ?></label>
 				</li>
@@ -76,13 +87,7 @@ if (isset($msg))
 				<?php
 					}
 				}
-				?>
-				<li class="pull-right">
-					<?php if($transfers > 0){ ?>
-						<button class="btn btn-sm btn-success modal-dlg-wide animated flash infinite" data-href='<?php echo site_url("receivings/st_view"); ?>'
-								title='New Stock Transfer'>Items Received</button>
-					<?php } ?>
-				</li>			
+				?>	
 			</ul>
 		</div>
 	<?php echo form_close(); ?>
@@ -392,6 +397,23 @@ $(document).ready(function()
 	}
 	});
 
+	$('#selectDispatcher').on('change', function(){
+		var dispatcher_id = $(this).val();
+		var webkey = prompt("Enter your secure webkey:");
+
+		$.post('<?php echo site_url($controller_name."/dispatcher_auth");?>', {'dispatcher_id': dispatcher_id, 'webkey': webkey}, function(data) {
+			if(data == "success")
+			{
+				$.post('<?php echo site_url($controller_name."/set_dispatcher");?>', {'dispatcher_id': dispatcher_id});
+				window.location.href = "receivings";
+			}
+			else
+			{
+				alert("Incorrect Webkey");
+			}
+    });
+	});
+
 	$('#item').focus();
 
 	$('#item').keypress(function (e) {
@@ -451,7 +473,11 @@ $(document).ready(function()
 
     $("#finish_receiving_button").click(function()
     {
-   		$('#finish_receiving_form').submit();
+			<?php if(!empty($this->session->userdata('dispatcher_id'))){ ?> 
+   			$('#finish_receiving_form').submit();
+			<?php }else{ ?>	
+				alert('Please select a Dispatcher');
+			<?php } ?>		 
     });
 
     $("#cancel_receiving_button").click(function()

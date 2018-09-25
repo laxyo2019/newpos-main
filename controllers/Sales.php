@@ -208,6 +208,11 @@ class Sales extends Secure_Controller
 		$this->_reload();
 	}
 
+	public function get_cashier_id($sale_id)
+	{
+		return $this->db->where('sale_id', $sale_id)->get('sales')->row('cashier_id');
+	}
+
 	public function cashier_auth()
 	{
 		$cashier_id = $this->input->post('cashier_id');
@@ -550,11 +555,6 @@ class Sales extends Secure_Controller
 		$this->_reload();
 	}
 
-	public function get_cashier_detail($id, $type)
-	{
-		return $this->db->where('id', $id)->get('cashiers')->row()->$type;
-	}
-
 	public function complete()
 	{
 		$sale_id = $this->sale_lib->get_sale_id();
@@ -562,8 +562,8 @@ class Sales extends Secure_Controller
 		$data = array();
 
 		$cashier_id = $this->session->userdata('cashier_id');
-		$data['cashier_name'] = $this->get_cashier_detail($cashier_id, 'name');
-		$data['cashier_sale_code'] = $this->get_cashier_detail($cashier_id, 'id');
+		$data['cashier_name'] = $this->Sale->get_cashier_detail($cashier_id, 'name');
+		$data['cashier_sale_code'] = $this->Sale->get_cashier_detail($cashier_id, 'id');
 
 		$tally_number = $this->Sale->tally_number_factory();
 		$data['tally_number'] = $tally_number;
@@ -1073,8 +1073,8 @@ class Sales extends Secure_Controller
 		$data['comments'] = $sale_info['comment'];
 		$data['invoice_number'] = $sale_info['invoice_number'];
 		$data['tally_invoice'] = $sale_info['tally_number'].'/'.$sale_info['invoice_number'];
-		$data['cashier_name'] = $this->get_cashier_detail($sale_info['cashier_id'], 'name');
-		$data['cashier_sale_code'] = $this->get_cashier_detail($sale_info['cashier_id'], 'id');
+		$data['cashier_name'] = $this->Sale->get_cashier_detail($sale_info['cashier_id'], 'name');
+		$data['cashier_sale_code'] = $this->Sale->get_cashier_detail($sale_info['cashier_id'], 'id');
 		$data['quote_number'] = $sale_info['quote_number'];
 		$data['sale_status'] = $sale_info['sale_status'];
 		$data['company_info'] = implode("\n", array(
@@ -1463,13 +1463,6 @@ class Sales extends Secure_Controller
 		$this->sale_lib->clear_all();
 		$this->Sale->delete_suspended_sale($suspended_id);
 		$this->_reload();
-	}
-
-	public function get_cashier_id($sale_id)
-	{
-		$this->db->where('sale_id', $sale_id);
-		$query = $this->db->get('sales');
-		return $query->row('cashier_id');
 	}
 
 	/**

@@ -12,7 +12,7 @@ class Manager extends Secure_Controller
   public function index()
   {
     $data['cashiers'] = $this->db->get('cashiers')->result_array();
-    foreach($this->Pricing->get_active_shops() as $row)
+    foreach($this->Pricing->get_active_shops(array('dbf', 'shop', 'hub')) as $row)
 		{
 			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}
@@ -272,7 +272,7 @@ class Manager extends Secure_Controller
 
   public function cashier_add()
   {
-    foreach($this->Pricing->get_active_shops() as $row)
+    foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
 		{
 			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}

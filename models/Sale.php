@@ -572,6 +572,14 @@ class Sale extends CI_Model
 	}
 
 	/**
+	 * Gets cashier details
+	 */
+	public function get_cashier_detail($id, $type)
+	{
+		return $this->db->where('id', $id)->get('cashiers')->row()->$type;
+	}
+
+	/**
 	 * Gets sale by invoice number
 	 */
 	public function get_sale_by_invoice_number($invoice_number)

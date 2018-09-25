@@ -1,26 +1,24 @@
 <table id="list" class="display" style="width:100%">
   <thead>
-      <tr class="text-center">
-        <th>Action</th>
-        <th>Barcode</th>
-        <th>Item Name</th>
-				<th>Dispatch Quantity</th>
-				<th>Actual Received</th>
-        <th>Return Quantity</th>
+      <tr>
+        <th class="text-center">Action</th>
+        <th class="text-center">Barcode</th>
+        <th class="text-center">Item Name</th>
+				<th class="text-center">Dispatched Qty</th>
+				<th class="text-center">Accept Qty</th>
       </tr>
   </thead>
   <tbody>
-  Items Left: <span id="itemsCount"><?php echo sizeof($items); ?></span>
   <?php foreach ($items as $item): ?>
-    <tr class="itemrow text-center" id="<?php echo $item['item_id']; ?>">
+    <tr class="itemrow" id="<?php echo $item['item_id']; ?>">
       <input type="hidden" id="receiving_id" value="<?php echo $item['receiving_id']; ?>">
       <input type="hidden" id="item_id" value="<?php echo $item['item_id']; ?>">
       <td style="font-size:1.5em; text-align:center"><span class="save glyphicon glyphicon-save"></span></td>
-      <td style="text-align:center"><?php echo $this->Item->get_info($item['item_id'])->item_number; ?></td>
-      <td style="text-align:center"><?php echo $this->Item->get_info($item['item_id'])->name; ?></td>
-      <td><input type="number" class="inputz" id="quantity" readonly="true" value="<?php echo $item['quantity']; ?>" min="0" style="width:70px"></td>
-      <td><input type="number" class="inputz" id="takeIn" value="<?php echo $item['quantity']; ?>" min="0" style="width:70px"></td>
-      <td><input type="text" class="inputz" id="good" value="0" min="0" style="width:70px"></td>
+      <td class="text-center"><?php echo $this->Item->get_info($item['item_id'])->item_number; ?></td>
+      <td class="text-center"><?php echo $this->Item->get_info($item['item_id'])->name; ?></td>
+      <td class="text-center"><input type="number" class="form-control inputz" id="quantity" readonly="true" value="<?php echo $item['quantity']; ?>" min="0"></td>
+      <td class="text-center"><input type="number" class="form-control inputz" id="takeIn" value="<?php echo $item['quantity']; ?>" min="0"></td>
+      <input type="hidden" class="inputz" id="good" value="0" min="0" style="width:70px">
       <input type="hidden" class="inputz" id="bad" value="0" min="0" style="width:70px">
       <input type="hidden" class="inputz" id="scrap" value="0" min="0" style="width:70px">
     </tr>
@@ -44,19 +42,15 @@
     var good = eval($('#'+rowId).find('#good').val());
     var bad = eval($('#'+rowId).find('#bad').val());
     var scrap = eval($('#'+rowId).find('#scrap').val());
-    if(quantity == accept+good){
+    var that = this;
+    if(quantity == accept)
+    {
       $.post('<?php echo site_url($controller_name."/st_process");?>', {'receiving_id': receiving_id, 'item_id': item_id, 'accept': accept, 'good': good, 'bad': bad, 'scrap': scrap}, function(data) {
-        if(data){
-          $('#itemsCount').text($('#itemsCount').text() - 1);
-          console.log(data);
-        }else{
-          alert('Server Down!');
-        }
+        $(that).parent().parent().remove();
       });
-      $('#itemsCount').val();
-      $(this).removeClass('glyphicon-save').addClass('glyphicon-saved');
-      $(this).parent().parent().remove();
-    }else{
+    }
+    else
+    {
       alert('Invalid Entry!');
     }
 	});

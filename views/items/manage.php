@@ -170,28 +170,10 @@ $(document).ready(function()
 		$("#table").on('click', '.request_item', function(event){
 			var item_id = $(this).parent().parent().attr('data-uniqueid');
 			var req_qty = prompt("Please enter value");
-			if(req_qty)
-			{
-				req_qty = req_qty.trim();
-				req_qty = parseInt(req_qty, 10);
-				if(Number.isInteger(req_qty))
-				{
-					req_qty = Math.abs(req_qty);
-					console.log(req_qty);
-					$.post('<?php echo site_url($controller_name."/request_item_add"); ?>', {'item_id': item_id, 'request_qty': req_qty}, function(data) {
-        	    alert(data);
-							// location.reload();
-      	        });
-				}
-				else
-				{
-					console.log('invalid');
-				} 
-			}
-			else
-			{
-				console.log("empty");
-			}
+
+			$.post('<?php echo site_url($controller_name."/request_item_add"); ?>', {'item_id': item_id, 'request_qty': req_qty}, function(data) {
+        	alert(data);
+      });
 		});
 	});
     

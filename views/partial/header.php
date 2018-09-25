@@ -107,6 +107,13 @@
 	<!-- DATATABLE CDN -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			<?php if($pending_transfers1){ ?>
+				$('#menuicon_receivings').toggleClass('animated rubberBand infinite');
+			<?php } ?>
+		});
+	</script>
 </head>
 
 <body>
@@ -139,15 +146,18 @@
 						<span class="icon-bar"></span>
 					</button>
 			
-					<a class="navbar-brand hidden-sm" href="<?php echo site_url(); ?>"><img height="45" width="75" src="<?php echo base_url();?>/images/dbflogo.png"></a>
+					<a class="navbar-brand hidden-sm" href="<?php echo site_url(); ?>">
+						<img height="45" width="75" src="<?php echo base_url();?>/images/dbflogo.png">
+					</a>
 				</div>
 
 				<div class="navbar-collapse collapse">
+				<?php echo $any_pending_transfer; ?>
 					<ul class="nav navbar-nav navbar-right">
 						<?php foreach($allowed_modules as $module): ?>
 							<li class="<?php echo $module->module_id == $this->uri->segment(1) ? 'active' : ''; ?>">
 								<a href="<?php echo site_url("$module->module_id"); ?>" title="<?php echo $this->lang->line("module_" . $module->module_id); ?>" class="menu-icon">
-									<img src="<?php echo base_url() . 'images/menubar/' . $module->module_id . '.png'; ?>" border="0" alt="Module Icon"/><br/>
+									<img id="menuicon_<?php echo $module->module_id; ?>" src="<?php echo base_url() . 'images/menubar/' . $module->module_id . '.png'; ?>" border="0" alt="Module Icon"/><br/>
 									<?php echo $this->lang->line("module_" . $module->module_id) ?>
 								</a>
 							</li>

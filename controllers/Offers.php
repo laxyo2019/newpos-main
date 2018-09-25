@@ -99,7 +99,7 @@ class Offers extends Secure_Controller
 		}
 		$data['brands'] = $brands;
 
-		foreach($this->Pricing->get_active_shops() as $row)
+		foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
 		{
 			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}

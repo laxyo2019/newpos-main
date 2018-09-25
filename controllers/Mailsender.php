@@ -37,9 +37,9 @@ class MailSender extends CI_Controller
 			'MH' => 11
 		);
 
-		foreach($reporting_locations as $key=>$value)
+		foreach($reporting_locations as $key1=>$value1)
 		{
-			$filters['location_id'] = $value;
+			$filters['location_id'] = $value1;
 			// check if any filter is set in the multiselect dropdown
 			$filledup = array_fill_keys($filtr, TRUE);
 			$filters = array_merge($filters, $filledup);
@@ -54,7 +54,7 @@ class MailSender extends CI_Controller
     
         // WARNING: the strong assumption here is that if a change is due it was a cash transaction always
         // therefore we remove from the total cash amount any change due
-        if( $payment['payment_type'] == $CI->lang->line('sales_cash') )
+        if( $payment['payment_type'] == 'Cash' )
         {
           foreach($sales->result_array() as $key=>$sale)
           {
@@ -64,7 +64,7 @@ class MailSender extends CI_Controller
         $table .= '<div class="summary_row">' . $payment['payment_type'] . ': ' . to_currency($amount) . '</div>';
       }
       $table .= '</div>';
-			$payment_summary[$key] = $table;
+			$payment_summary[$key1] = $table;
 		}
 
 		$data['payment_summary'] = $payment_summary;

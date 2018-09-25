@@ -1,12 +1,12 @@
 <div class="row">
   <span class="col-md-6">
-    <div class="form-group" style="padding-top:10px;">
+    <!-- <div class="form-group" style="padding-top:10px;">
       <select class="form-control" multiple="multiple" id="report_locations">
-        <?php foreach($stock_locations as $key=>$value): ?>
-          <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
-        <?php endforeach; ?>
+        <?php //foreach($stock_locations as $key=>$value): ?>
+          <option value="<?php //echo $key; ?>"><?php //echo strtoupper($value); ?></option>
+        <?php //endforeach; ?>
       </select>
-    </div>
+    </div> -->
     <button class="btn btn-sm btn-info" id="allSold">All Sold</button>
     <button class="btn btn-sm btn-warning" id="getReport">Get Report</button>
     <!-- <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button> -->

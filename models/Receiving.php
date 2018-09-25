@@ -74,6 +74,39 @@ class Receiving extends CI_Model
 		}
 	}
 
+	public function get_transfers($id, $type)
+	{
+		$this->db->from('receivings');
+		$array = array(
+			'destination' => $id,
+			'completed' => 0
+		);
+		$this->db->where($array);
+		if($type == 'count')
+		{
+			return $this->db->count_all_results();
+		}
+		else if($type == 'rows')
+		{
+			return $this->db->get();
+		}
+
+	}
+
+	public function get_dispatchers()
+	{
+		$response = array();
+		$shop_id = $this->session->userdata('person_id');
+		foreach($this->db->where('status', 'checked')->get('cashiers')->result_array() as $row)
+		{
+			if(in_array($shop_id, json_decode($row['shops'])))
+			{
+				$response[$row['id']] = $row['name'];
+			}
+		}
+		return $response;
+	}
+
 	public function is_valid_receipt($receipt_receiving_id)
 	{
 		if(!empty($receipt_receiving_id))
@@ -109,7 +142,7 @@ class Receiving extends CI_Model
 		return $this->db->update('receivings', $receiving_data);
 	}
 
-	public function save($owner_id, $items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE)
+	public function save($owner_id, $items, $supplier_id, $employee_id, $dispatcher_id = -1, $comment, $reference, $payment_type, $receiving_id = FALSE)
 	{
 		if(count($items) == 0)
 		{
@@ -120,6 +153,7 @@ class Receiving extends CI_Model
 			'receiving_time' => date('Y-m-d H:i:s'),
 			'supplier_id' => $this->Supplier->exists($supplier_id) ? $supplier_id : NULL,
 			'employee_id' => $employee_id,
+			'dispatcher_id' => $dispatcher_id,
 			'payment_type' => $payment_type,
 			'comment' => $comment,
 			'reference' => $reference,
@@ -262,8 +296,13 @@ class Receiving extends CI_Model
 
 		// delete all items
 		$this->db->delete('receivings_items', array('receiving_id' => $receiving_id));
+
+		$this->db->delete('stock_movement', array('receiving_id' => $receiving_id));
+		$this->db->delete('stock_transfers', array('receiving_id' => $receiving_id));
+		
 		// delete sale itself
 		$this->db->delete('receivings', array('receiving_id' => $receiving_id));
+		
 
 		// execute transaction
 		$this->db->trans_complete();

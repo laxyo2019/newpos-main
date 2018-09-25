@@ -253,6 +253,27 @@ class Receivings extends Secure_Controller
 		$this->_reload();
 	}
 
+	public function get_dispatcher_id($receiving_id)
+	{
+		return $this->db->where('receiving_id', $receiving_id)->get('receivings')->row()->dispatcher_id;
+	}
+
+	public function dispatcher_auth()
+	{
+		$dispatcher_id = $this->input->post('dispatcher_id');
+		$webkey = $this->input->post('webkey');
+		$db_webkey = $this->db->where('id', $dispatcher_id)->get('cashiers')->row()->webkey;
+		if($webkey == $db_webkey)
+		{
+			echo "success";
+		}
+	}
+
+	public function set_dispatcher()
+	{
+		$this->session->set_userdata('dispatcher_id', $this->input->post('dispatcher_id'));
+	}
+
 	public function get_all_challans()
 	{
 		$data['challans'] = $this->db->get('receivings')->result_array();
@@ -281,6 +302,7 @@ class Receivings extends Secure_Controller
 			->row('receiving_id');
 
 			$data['stock_transfer_id'] = $this->db->where('employee_id', $this->session->userdata('person_id'))->count_all_results('receivings');
+			$data['datetime'] = date('Y-m-d H:i:s');
 		}
 
 		$moving_items = $this->db->where('receiving_id', $last_receiving_id)
@@ -297,12 +319,13 @@ class Receivings extends Secure_Controller
 
 		$data['total_quantity'] = $totalQty;
 		$data['challan_id'] = $last_receiving_id;
+		$data['datetime'] = $this->db->where('receiving_id', $last_receiving_id)->get('receivings')->row()->receiving_time;
 
 		$data['items'] = $items_sub_array;
 		$this->load->view('receivings/delivery_challan', $data);
 	}
 
-	public function st_view()
+	public function stock_in()
 	{
 		$transfers = $this->get_transfers($this->session->userdata('person_id'), 'rows');
 		$receivings = array('' => $this->lang->line('items_none'));
@@ -315,7 +338,7 @@ class Receivings extends Secure_Controller
 		}
 		$data['receivings'] = $receivings;
 
-		$this->load->view('receivings/st_view', $data);
+		$this->load->view('receivings/stock_in', $data);
 	}
 
 	public function st_fetch_instance() // to fetch a particular transfer
@@ -462,8 +485,6 @@ class Receivings extends Secure_Controller
 		{
 			echo 'Already Processed';
 		}
-
-
 	}
 
 	public function complete($owner_id = -1)
@@ -484,6 +505,9 @@ class Receivings extends Secure_Controller
 			$data['amount_tendered'] = $this->input->post('amount_tendered');
 			$data['amount_change'] = to_currency($data['amount_tendered'] - $data['total']);
 		}
+
+		$dispatcher_id = $this->session->userdata('dispatcher_id');
+		$data['dispatcher_name'] = $this->db->where('id', $dispatcher_id)->get('cashiers')->row()->name;
 
 		$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
 		$employee_info = $this->Employee->get_info($employee_id);
@@ -510,7 +534,7 @@ class Receivings extends Secure_Controller
 		}
 
 		//SAVE receiving to database (ospos_receivings)
-		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($owner_id, $data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $data['stock_location']);
+		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($owner_id, $data['cart'], $supplier_id, $employee_id, $dispatcher_id, $data['comment'], $data['reference'], $data['payment_type'], $data['stock_location']);
 
 		$data = $this->xss_clean($data);
 
@@ -617,7 +641,10 @@ class Receivings extends Secure_Controller
 
 	private function _reload($data = array())
 	{
-		$data['transfers'] = $this->get_transfers($this->session->userdata('person_id'), 'count');
+		if($this->Receiving->get_transfers($this->session->userdata('person_id'), 'count') > 0)
+		{
+			$data['pending_transfers2'] = TRUE;
+		}
 		$data['cart'] = $this->receiving_lib->get_cart();
 		// $data['modes'] = array('receive' => $this->lang->line('receivings_receiving'), 'return' => $this->lang->line('receivings_return'));
 		$data['mode'] = $this->receiving_lib->get_mode();
@@ -629,6 +656,14 @@ class Receivings extends Secure_Controller
 			$data['stock_source'] = $this->receiving_lib->get_stock_source();
 			$data['stock_destination'] = $this->receiving_lib->get_stock_destination();
 		}
+
+		$dispatchers = array('' => 'Select Dispatcher');
+		foreach($this->Receiving->get_dispatchers() as $key=>$value)
+		{
+			$dispatchers[$this->xss_clean($key)] = $this->xss_clean($value);
+		}
+		$data['dispatchers'] = $dispatchers;
+		$data['dispatcher'] = $this->session->userdata('dispatcher_id');
 
 		$data['total'] = $this->receiving_lib->get_total();
 		$data['items_module_allowed'] = $this->Employee->has_grant('items', $this->Employee->get_logged_in_employee_info()->person_id);

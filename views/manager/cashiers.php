@@ -5,7 +5,7 @@
         </span>Add Cashier
     </button>
   </span>
-  <span class="col-md-2 pull-right">
+  <!-- <span class="col-md-2 pull-right">
     <div class="form-group">
       <select class="form-control" id="creport_mode">
         <option value="cashiers">Cashiers</option>
@@ -15,9 +15,9 @@
   </span>
   <span class="col-md-2 pull-right">
     <div class="form-group">
-      <?php echo form_dropdown('shops', $active_shops, '', array('class'=>'form-control shops','id'=>'shops')); ?>
+      <?php //echo form_dropdown('shops', $active_shops, '', array('class'=>'form-control shops','id'=>'shops')); ?>
     </div>
-  </span>
+  </span> -->
 </div>
 
 <hr>
@@ -62,11 +62,11 @@
     dialog_support.init("button.modal-dlg");
 
     $('#cashier_list').DataTable({
-        // "scrollX": true,
-        // dom: 'Bfrtip',
-        // buttons: [
-        //   'copy', 'csv', 'excel', 'pdf', 'print'
-        // ]
+        "scrollX": true,
+        dom: 'Bfrtip',
+        buttons: [
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
       });
 
 //     $('#shops').on('change', function(){

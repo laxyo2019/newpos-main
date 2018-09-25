@@ -17,12 +17,13 @@ class Detailed_receivings extends Report
 				array('id' => $this->lang->line('reports_receiving_id')),
 				array('receiving_date' => $this->lang->line('reports_date'), 'sortable' => FALSE),
 				array('quantity' => $this->lang->line('reports_quantity')),
-				array('employee_name' => $this->lang->line('reports_received_by')),
-				array('supplier_name' => $this->lang->line('reports_supplied_by')),
-				array('total' => $this->lang->line('reports_total'), 'sorter' => 'number_sorter'),
-				array('payment_type' => $this->lang->line('reports_payment_type')),
+				array('employee_name' => 'Origin'), //$this->lang->line('reports_received_by')
+				// array('supplier_name' => $this->lang->line('reports_supplied_by')),
+				// array('total' => $this->lang->line('reports_total'), 'sorter' => 'number_sorter'),
+				// array('payment_type' => $this->lang->line('reports_payment_type')),
 				array('comment' => $this->lang->line('reports_comments')),
-				array('reference' => $this->lang->line('receivings_reference'))),
+				// array('reference' => $this->lang->line('receivings_reference'))
+			),
 			'details' => array(
 				$this->lang->line('reports_item_number'),
 				$this->lang->line('reports_name'),
@@ -41,16 +42,16 @@ class Detailed_receivings extends Report
 			MAX(receiving_date) as receiving_date,
 			SUM(quantity_purchased) AS items_purchased,
 			MAX(CONCAT(employee.first_name, " ", employee.last_name)) AS employee_name,
-			MAX(supplier.company_name) AS supplier_name,
-			SUM(subtotal) AS subtotal,
-			SUM(total) AS total,
-			SUM(profit) AS profit,
-			MAX(payment_type) as payment_type,
-			MAX(comment) as comment,
-			MAX(reference) as reference');
+			MAX(comment) as comment');
+			// MAX(reference) as reference
+			// MAX(supplier.company_name) AS supplier_name,
+			// SUM(subtotal) AS subtotal,
+			// SUM(total) AS total,
+			// SUM(profit) AS profit,
+			// MAX(payment_type) as payment_type,
 		$this->db->from('receivings_items_temp');
 		$this->db->join('people AS employee', 'receivings_items_temp.employee_id = employee.person_id');
-		$this->db->join('suppliers AS supplier', 'receivings_items_temp.supplier_id = supplier.person_id', 'left');
+		// $this->db->join('suppliers AS supplier', 'receivings_items_temp.supplier_id = supplier.person_id', 'left');
 		$this->db->where('receiving_id', $receiving_id);
 		$this->db->group_by('receiving_id');
 
@@ -63,15 +64,15 @@ class Detailed_receivings extends Report
 			MAX(receiving_date) as receiving_date,
 			SUM(quantity_purchased) AS items_purchased,
 			MAX(CONCAT(employee.first_name," ",employee.last_name)) AS employee_name,
-			MAX(supplier.company_name) AS supplier_name,
-			SUM(total) AS total,
-			SUM(profit) AS profit,
-			MAX(payment_type) AS payment_type,
-			MAX(comment) AS comment,
-			MAX(reference) AS reference');
+			MAX(comment) AS comment');
+			// MAX(reference) AS reference
+			// MAX(supplier.company_name) AS supplier_name,
+			// SUM(total) AS total,
+			// SUM(profit) AS profit,
+			// MAX(payment_type) AS payment_type,
 		$this->db->from('receivings_items_temp AS receivings_items_temp');
 		$this->db->join('people AS employee', 'receivings_items_temp.employee_id = employee.person_id');
-		$this->db->join('suppliers AS supplier', 'receivings_items_temp.supplier_id = supplier.person_id', 'left');
+		// $this->db->join('suppliers AS supplier', 'receivings_items_temp.supplier_id = supplier.person_id', 'left');
 
 		if($inputs['location_id'] != 'all')
 		{

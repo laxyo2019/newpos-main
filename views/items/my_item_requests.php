@@ -4,7 +4,6 @@
       <th>Cancel</th>
       <th>Barcode</th>
       <th>Item Name</th>
-      <th>Price</th>
       <th>Quantity</th>
       <th>Time</th>
     </tr>
@@ -17,7 +16,6 @@
       <td><span style="cursor:pointer" class="glyphicon glyphicon-trash cancel-request"></span></td>
       <td><?php echo $item_info->item_number; ?></td>
       <td><?php echo $item_info->name; ?></td>
-      <td><?php echo ($item_info->unit_price < 1) ? json_decode($item_info->cost_price)->retail : $item_info->unit_price; ?></td>
       <td><?php echo $row['quantity']; ?></td>
       <td><?php echo $row['created_at']; ?></td>
     </tr>
@@ -29,7 +27,6 @@
   $(document).ready( function () {
 
     $('#req_list').DataTable({
-      "scrollX": true,
       dom: 'Bfrtip',
       buttons: [
         'copy', 'csv', 'excel', 'pdf', 'print'

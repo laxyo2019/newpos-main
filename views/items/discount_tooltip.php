@@ -8,7 +8,7 @@
     RETAIL
   </li>
 
-  <?php if($this->Item->check_auth(array('admin', 'superadmin'))){ ?>
+  <?php if($this->Item->check_auth(array('admin', 'superadmin', 'hub'))){ ?>
     <li class="list-group-item">
       <span class="badge"><?php echo json_decode($item_data)->wholesale; ?></span>
       WHOLESALE
@@ -27,5 +27,8 @@
 </ul>
 
 <?php
-  echo '<h3 class="text-center text-success" style="font-weight:bold">'.$pointer.'</h3>';
+  foreach(json_decode($pointer) as $row)
+  {
+    echo '<h3 class="text-center text-success" style="font-weight:bold">'.$row.'</h3>';
+  }
 ?>

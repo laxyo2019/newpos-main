@@ -747,7 +747,10 @@ class Items extends Secure_Controller
 	public function request_item_show()
 	{
 		$shop_id = $this->session->userdata('person_id');
-		$data['items'] = $this->db->where('requester', $shop_id)->get('item_requests')->result_array(); 
+		$data['items'] = $this->db->where('requester', $shop_id)
+															->where('status', 0)
+															->get('item_requests')
+															->result_array(); 
 		$this->load->view('items/my_item_requests', $data);
 	}
 	 
@@ -762,7 +765,7 @@ class Items extends Secure_Controller
 			'barcode' => $this->Item->get_info($item_id)->item_number,
 			'quantity' => $request_qty,
 			'requester' => $employee_id,
-			'time' => date('Y-m-d H:i:s')
+			'created_at' => date('Y-m-d H:i:s')
 		);
 
 		$this->db->insert('item_requests', $request_detail);
@@ -776,11 +779,18 @@ class Items extends Secure_Controller
 		echo "Request Cancelled";
 	}
 
-	public function request_item_complete()
+	public function request_item_accept()
 	{
 		$id = $this->input->post('id');
 		$this->db->where('id', $id)->update('item_requests', array('status' => 1));
-		echo "Request Completed";
+		echo "Request Accepted";
+	}
+
+	public function request_item_decline()
+	{
+		$id = $this->input->post('id');
+		$this->db->where('id', $id)->update('item_requests', array('status' => 2));
+		echo "Request Declined";
 	}
 
 	public function request_deck()
