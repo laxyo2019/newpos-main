@@ -193,50 +193,50 @@ class Items extends Secure_Controller
 		echo json_encode($result);
 	}
 
-	public function custom_script()
-	{
-		$str = '32A,
-		32B,
-		32C,
-		32D,
-		32DD,
-		32E,
-		34A,
-		34B,
-		34C,
-		34D ,
-		34DD,
-		34E,
-		36A,
-		36B,
-		36C,
-		36D,
-		36DD,
-		36E,
-		36F,
-		38B,
-		38D ,
-		38DD,
-		38E,
-		38F,
-		40B';
-		$array = explode(',', $str);
-		$count = 0;
-		foreach($array as $row)
-		{
-			$data = array(
-				'name' => strtoupper(trim($row))
-			);
-			$query = $this->db->insert('master_sizes', $data);
-			if($query)
-			{
-				echo 'Successfully Created';
-				echo '<br>';
-				$count++;
-			}
-		}
-		echo $count;
-	}
+	// public function custom_script()
+	// {
+	// 	$str = '32A,
+	// 	32B,
+	// 	32C,
+	// 	32D,
+	// 	32DD,
+	// 	32E,
+	// 	34A,
+	// 	34B,
+	// 	34C,
+	// 	34D ,
+	// 	34DD,
+	// 	34E,
+	// 	36A,
+	// 	36B,
+	// 	36C,
+	// 	36D,
+	// 	36DD,
+	// 	36E,
+	// 	36F,
+	// 	38B,
+	// 	38D ,
+	// 	38DD,
+	// 	38E,
+	// 	38F,
+	// 	40B';
+	// 	$array = explode(',', $str);
+	// 	$count = 0;
+	// 	foreach($array as $row)
+	// 	{
+	// 		$data = array(
+	// 			'name' => strtoupper(trim($row))
+	// 		);
+	// 		$query = $this->db->insert('master_sizes', $data);
+	// 		if($query)
+	// 		{
+	// 			echo 'Successfully Created';
+	// 			echo '<br>';
+	// 			$count++;
+	// 		}
+	// 	}
+	// 	echo $count;
+	// }
 
 	public function view($item_id = -1) #view-method
 	{
@@ -576,7 +576,7 @@ class Items extends Secure_Controller
 			'allow_alt_description' => $this->input->post('allow_alt_description') != NULL,
 			'is_serialized' => $this->input->post('is_serialized') != NULL,
 			'deleted' => $this->input->post('is_deleted') != NULL,
-			'custom1' => $this->input->post('custom1') == NULL ? '' : $this->input->post('custom1'),
+			'custom1' => $this->input->post('custom1') == NULL ? $this->Item->hsn_factory(strtoupper($this->input->post('subcategory'))) : $this->input->post('custom1'),
 			'custom2' => $this->input->post('custom2') == NULL ? '' : $this->input->post('custom2'),
 			'custom3' => $this->input->post('custom3') == NULL ? '' : $this->input->post('custom3'),
 			'custom4' => $this->input->post('custom4') == NULL ? '' : $this->input->post('custom4'),
@@ -643,6 +643,7 @@ class Items extends Secure_Controller
 					$new_item = TRUE;
 				}
 
+				// AUTOMATED BARCODING
 				$item_barcode = array('item_number' => $this->Item->barcode_factory($item_id));
 				$this->db->where('item_id', $item_id)->update('items', $item_barcode);
 
@@ -650,6 +651,7 @@ class Items extends Secure_Controller
 				$items_taxes_data = array();
 				$tax_names = $this->input->post('tax_names');
 				$tax_percents = $this->input->post('tax_percents');
+
 				$count = count($tax_percents);
 				for ($k = 0; $k < $count; ++$k)
 				{
@@ -659,6 +661,11 @@ class Items extends Secure_Controller
 						$items_taxes_data[] = array('name' => $tax_names[$k], 'percent' => $tax_percentage);
 					}
 				}
+
+				if(empty($items_taxes_data)){
+					$items_taxes_data = $this->Item->tax_factory($item_id);
+				}
+				
 				$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
 
 				//Save item quantity
@@ -1053,7 +1060,7 @@ class Items extends Secure_Controller
 							// 'supplier_id'			=> $this->Supplier->exists($data[3]) ? $data[3] : NULL,
 							// 'allow_alt_description'	=> $data[12] != '' ? '1' : '0',
 							// 'is_serialized'			=> $data[13] != '' ? '1' : '0',
-							'custom1'				=> $data[1], // HSN Code
+							'custom1'				=> ($data[1] == NULL) ? $this->Item->hsn_factory(strtoupper(trim($data[3]))) : $data[1], // HSN Code
 							'custom2'				=> strtoupper(trim($data[22])), // Size
 							'custom3'				=> strtoupper(trim($data[21])), // Color
 							'custom4'				=> strtoupper(trim($data[20])),	// Model
@@ -1152,11 +1159,11 @@ class Items extends Secure_Controller
 							}
 
 							// save tax values
-							if(count($items_taxes_data) > 0)
-							{
-								$this->Item_taxes->save($items_taxes_data, $item_data['item_id']);
-							}
+							$items_taxes_data1 = (count($items_taxes_data) > 0) ? $items_taxes_data : $this->Item->tax_factory($item_data['item_id']);
 
+							$this->Item_taxes->save($items_taxes_data1, $item_data['item_id']);
+
+							// AUTOMATED BARCODING
 							$save_item = array('item_number' => $this->Item->barcode_factory($item_data['item_id']));
 							// update the item in the database in order to save the barcode field
 							$this->Item->save($save_item, $item_data['item_id']);

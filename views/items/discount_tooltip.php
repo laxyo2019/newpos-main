@@ -8,7 +8,7 @@
     RETAIL
   </li>
 
-  <?php if($this->Item->check_auth(array('admin', 'superadmin', 'hub'))){ ?>
+  <?php if($this->Item->check_auth(array('admin', 'superadmin', 'hub', 'accounts'))){ ?>
     <li class="list-group-item">
       <span class="badge"><?php echo json_decode($item_data)->wholesale; ?></span>
       WHOLESALE

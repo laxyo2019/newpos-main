@@ -1197,9 +1197,14 @@ class Sale extends CI_Model
 			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
 		}
 
-		$payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
-		$payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');
-
+		if($this->Item->check_auth(array('hub')))
+		{
+			$payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
+			$payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');
+			$payments[$this->lang->line('sales_neft')] = $this->lang->line('sales_neft');
+			$payments[$this->lang->line('sales_rtgs')] = $this->lang->line('sales_rtgs');
+		}
+		
 		// if($giftcard)
 		// {
 		// 	$payments[$this->lang->line('sales_giftcard')] = $this->lang->line('sales_giftcard');

@@ -356,9 +356,9 @@ class Item extends CI_Model
 	public function get_info($item_id)
 	{
 		$this->db->select('items.*');
-		$this->db->select('suppliers.company_name');
+		// $this->db->select('suppliers.company_name');
 		$this->db->from('items');
-		$this->db->join('suppliers', 'suppliers.person_id = items.supplier_id', 'left');
+		// $this->db->join('suppliers', 'suppliers.person_id = items.supplier_id', 'left');
 		$this->db->where('item_id', $item_id);
 
 		$query = $this->db->get();
@@ -455,13 +455,6 @@ class Item extends CI_Model
 		return $this->db->get();
 	}
 
-	public function get_namebyid($type, $id){
-		$this->db->from($type);
-		$this->db->where('id', $id);
-		$query = $this->db->get();
-		return $query->row('name');
-	}
-
 	/*
 	Inserts or updates a item
 	*/
@@ -481,37 +474,35 @@ class Item extends CI_Model
 		return $this->db->update('items', $item_data);
 	}
 
-	public function get_master_classification_index($name, $table)
+	public function get_mci_id($name, $table)
 	{
-		$this->db->where('name', $name);
-		$query = $this->db->get($table);
-		return $query->row('id');
+		return $this->db->where('name', $name)->get($table)->row()->id;
 	}
 
 	public function barcode_factory($item_id)
 	{
-		$this->db->where('item_id', $item_id);
-		$query = $this->db->get('items');
-		$category = $query->row('category');
-		$subcategory = $query->row('subcategory');
-		$brand = $query->row('brand');
-		$size = $query->row('custom2');
-		$color = $query->row('custom3');
+		$item_info = $this->get_info($item_id);
+
+		$category = $item_info->category;
+		$subcategory = $item_info->subcategory;
+		$brand = $item_info->brand;
+		$size = $item_info->custom2;
+		$color = $item_info->custom3;
 
 		$main_array = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
 
 		if(in_array($category, $main_array)) // 14 or 15 digit barcode
 		{
-			$category_mci = $this->get_master_classification_index($category, 'master_categories');
-			$subcategory_mci = $this->get_master_classification_index($subcategory, 'master_subcategories');
-			$size_mci = $this->get_master_classification_index($size, 'master_sizes');
-			$color_mci = $this->get_master_classification_index($color, 'master_colors');
+			$category_mci = $this->get_mci_id($category, 'master_categories');
+			$subcategory_mci = $this->get_mci_id($subcategory, 'master_subcategories');
+			$size_mci = $this->get_mci_id($size, 'master_sizes');
+			$color_mci = $this->get_mci_id($color, 'master_colors');
 		}
 		else
 		{
-			$category_mci = $this->get_master_classification_index($category, 'master_categories');
-			$subcategory_mci = $this->get_master_classification_index($subcategory, 'master_subcategories');
-			$brand_mci = $this->get_master_classification_index($brand, 'master_brands');
+			$category_mci = $this->get_mci_id($category, 'master_categories');
+			$subcategory_mci = $this->get_mci_id($subcategory, 'master_subcategories');
+			$brand_mci = $this->get_mci_id($brand, 'master_brands');
 			$size_mci = "";
 			$color_mci = "";
 		}
@@ -522,6 +513,30 @@ class Item extends CI_Model
 		$barcode = $category_mci.$subcategory_mci.$brand_mci.$size_mci.$color_mci.$item_index;
 
 		return (string)$barcode;
+	}
+
+	public function hsn_factory($subcategory)
+	{
+		return $this->db->where('name', $subcategory)->get('master_subcategories')->row()->master_hsn;
+	}
+
+	public function tax_factory($item_id)
+	{
+		$items_taxes_data = array();
+
+		$subcategory = $this->get_info($item_id)->subcategory;
+		$item_tax = $this->db->where('name', $subcategory)->get('master_subcategories')->row()->master_tax;
+
+		//tax 1 (CGST)
+		$items_taxes_data[] = array('name' => 'CGST', 'percent' => $item_tax/2 );
+
+		//tax 2 (SGST)
+		$items_taxes_data[] = array('name' => 'SGST', 'percent' => $item_tax/2 );
+
+		//tax 3 (IGST)
+		$items_taxes_data[] = array('name' => 'IGST', 'percent' => $item_tax );
+
+		return $items_taxes_data;
 	}
 
 	/*
