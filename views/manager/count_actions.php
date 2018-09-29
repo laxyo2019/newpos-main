@@ -1,8 +1,9 @@
+<hr>
 <div class="row">
   <span class="col-md-6">
-    <div class="form-group" style="padding-top:10px;">
+    <div class="form-group">
       <select class="form-control" multiple="multiple" id="count_locations">
-        <?php foreach($stock_locations as $key=>$value):?>
+        <?php foreach($stock_locations as $key=>$value): ?>
           <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
         <?php endforeach; ?>
       </select>
@@ -29,7 +30,7 @@
 <div class="row">
   <div class="col-md-4">
     <div class="form-group">
-      <select name="category" id="category">
+      <select name="category" id="category" class="form-control">
         <option value="">Select Category</option>
         <?php foreach($mci_data['categories'] as $row)
         {
@@ -41,13 +42,12 @@
   </div>
   <div class="col-md-4">
     <div class="form-group">
-      <select name="subcategory" id="subcategory">
-      </select>
+      <select name="subcategory" id="subcategory" class="form-control"></select>
     </div>
   </div>
   <div class="col-md-4">
     <div class="form-group">
-      <select name="brand" id="brand">
+      <select name="brand" id="brand" class="form-control">
         <option value="">Select Brand</option>
         <?php foreach($mci_data['brands'] as $row)
         {
@@ -62,7 +62,7 @@
 <div class="row" id="extraMci" style="display:none">
   <div class="col-md-3 col-md-offset-3">
     <div class="form-group">
-      <select name="size" id="size">
+      <select name="size" id="size" class="form-control">
         <option value="">Select Size</option>
         <?php foreach($mci_data['sizes'] as $row)
         {
@@ -74,7 +74,7 @@
   </div>
   <div class="col-md-3">
     <div class="form-group">
-      <select name="color" id="color">
+      <select name="color" id="color" class="form-control">
         <option value="">Select Color</option>
         <?php foreach($mci_data['colors'] as $row)
         {
@@ -89,6 +89,7 @@
 <script>
   $(document).ready(function(){
     $('#count_locations').select2();
+    
     $('#category').on('change',function(){
       var level1 = $(this).val();
       var wearables = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];

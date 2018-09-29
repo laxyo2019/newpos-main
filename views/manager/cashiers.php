@@ -1,3 +1,4 @@
+<hr>
 <div class="row">
   <span class="col-md-2">
     <button class='btn btn-info modal-dlg' data-href='<?php echo site_url($controller_name."/cashier_add"); ?>'

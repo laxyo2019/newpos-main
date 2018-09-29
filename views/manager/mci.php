@@ -1,3 +1,4 @@
+<hr>
 <div class="row">
 	<span class="col-md-2 pull-right">
 		<select id="select_mci" class="form-control">

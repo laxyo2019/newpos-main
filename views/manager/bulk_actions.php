@@ -1,3 +1,4 @@
+<hr>
 <div class="row">
   <span class="col-md-3">
 		<select id="bulk_action_report" class="form-control">

@@ -57,6 +57,7 @@ if(isset($error_message))
             <td><select>
               <option value=""></option>
               <option value="">LEL INDORE</option>
+              <option value="">DEWASNAKA</option>
               <option value="">DBF MAHALAXMI</option>
               <option value="">DBF BHANVARKUAN</option>
               <option value="">DBF INDRAPRASTHA</option>
@@ -66,6 +67,7 @@ if(isset($error_message))
             <td><select>
               <option value=""></option>
               <option value="">LEL INDORE</option>
+              <option value="">DEWASNAKA</option>
               <option value="">DBF MAHALAXMI</option>
               <option value="">DBF BHANVARKUAN</option>
               <option value="">DBF INDRAPRASTHA</option>
@@ -85,7 +87,7 @@ if(isset($error_message))
             <th>Sn.</th>
             <th>Barcode</th>
             <th>Name of goods</th>
-            <!-- <th>Category</th> -->
+            <th>Category</th>
             <th>Subcategory</th>
             <th>Quantity</th>
             <th>Remark</th>
@@ -98,7 +100,7 @@ if(isset($error_message))
               <td><?php echo $i; ?></td>
               <td><?php echo $row->item_number; ?></td>
               <td><?php echo $row->name; ?></td>
-              <!-- <td><?php //echo $row->category; ?></td> -->
+              <td><?php echo $row->category; ?></td>
               <td><?php echo $row->subcategory; ?></td>
               <td><?php echo $row->quantity; ?></td>
               <td></td>

@@ -171,9 +171,16 @@ $(document).ready(function()
 			var item_id = $(this).parent().parent().attr('data-uniqueid');
 			var req_qty = prompt("Please enter value");
 
-			$.post('<?php echo site_url($controller_name."/request_item_add"); ?>', {'item_id': item_id, 'request_qty': req_qty}, function(data) {
-        	alert(data);
-      });
+			if(req_qty)
+			{
+				$.post('<?php echo site_url($controller_name."/request_item_add"); ?>', {'item_id': item_id, 'request_qty': req_qty}, function(data) {
+	        	alert(data);
+	      });
+			}
+			else
+			{
+				console.log("empty");
+			}
 		});
 	});
     

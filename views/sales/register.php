@@ -24,6 +24,13 @@ if(isset($success))
 
 		<div class="panel-body form-group">
 			<ul>
+				<?php if(($this->Item->check_auth(array('hub')))) { ?>
+					<button class='btn btn-sm btn-primary pull-left modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_billing"); ?>'
+						title='Quick Excel Billing'>
+					Quick Billing
+					</button>
+				<?php } ?>
+
 				<?php if(in_array($this->session->userdata('person_id'), array(7, 13))) { ?>
 					<li class="pull-left">
 						<?php echo form_dropdown('billtype', $billings, $selected_bill, array('class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit', 'id'=>'billType')); ?>

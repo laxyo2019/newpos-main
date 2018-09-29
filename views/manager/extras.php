@@ -1,3 +1,4 @@
+<hr>
 <div class="row">
   <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_conversion"); ?>'
             title='Excel Conversion'>

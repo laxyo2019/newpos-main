@@ -18,7 +18,11 @@
         <td><?php echo $this->Stock_location->get_location_name2($row['destination']) ?></td>
         <td><?php echo (empty($row['dispatcher_id'])) ? "" : $this->Sale->get_cashier_detail($row['dispatcher_id'], 'name'); ?></td>
         <td><?php echo $row['receiving_time']; ?></td>
-        <td><a href="receivings/delivery_challan/<?php echo $row['receiving_id'] ?>"><span class="glyphicon glyphicon-list-alt"></span></a></td>
+        <td>
+          <a href="receivings/delivery_challan/<?php echo $row['receiving_id'] ?>"><span title="Show DC" class="glyphicon glyphicon-list-alt"></span></a>
+          &nbsp;&nbsp;&nbsp;
+          <a href="receivings/challan_excel/<?php echo $row['receiving_id'] ?>"><span title="Show Excel" class="glyphicon glyphicon glyphicon-barcode"></span></a>
+        </td>
       </tr>
     <?php endforeach; ?>  
     </tbody>

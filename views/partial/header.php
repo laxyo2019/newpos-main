@@ -152,7 +152,6 @@
 				</div>
 
 				<div class="navbar-collapse collapse">
-				<?php echo $any_pending_transfer; ?>
 					<ul class="nav navbar-nav navbar-right">
 						<?php foreach($allowed_modules as $module): ?>
 							<li class="<?php echo $module->module_id == $this->uri->segment(1) ? 'active' : ''; ?>">

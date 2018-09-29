@@ -1,3 +1,4 @@
+<hr>
 <div class="row">
   <span class="col-md-6">
     <!-- <div class="form-group" style="padding-top:10px;">

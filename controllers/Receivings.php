@@ -325,6 +325,35 @@ class Receivings extends Secure_Controller
 		$this->load->view('receivings/delivery_challan', $data);
 	}
 
+	public function challan_excel($last_receiving_id = -1)
+	{
+		$items_sub_array = array();
+		if($last_receiving_id == -1)
+		{
+			$last_receiving_id = $this->db->order_by('receiving_id',"desc")
+			->limit(1)
+			->get('receivings')
+			->row('receiving_id');
+
+			$data['stock_transfer_id'] = $this->db->where('employee_id', $this->session->userdata('person_id'))->count_all_results('receivings');
+			$data['datetime'] = date('Y-m-d H:i:s');
+		}
+
+		$moving_items = $this->db->where('receiving_id', $last_receiving_id)
+		->get('stock_movement')->result_array();
+
+		foreach($moving_items as $row)
+		{
+			$item_info = $this->Item->get_info($row['item_id']);
+			$item_info->quantity = $row['quantity'];
+			$totalQty += $row['quantity'];
+			$items_sub_array[] = $item_info;
+		}
+
+		$data['items'] = $items_sub_array;
+		$this->load->view('receivings/challan_excel', $data);
+	}
+
 	public function stock_in()
 	{
 		$transfers = $this->get_transfers($this->session->userdata('person_id'), 'rows');
@@ -332,7 +361,7 @@ class Receivings extends Secure_Controller
 
 		foreach($transfers->result_array() as $row)
 		{
-			$receiving_detail = $this->Stock_location->get_location_name2($row['employee_id']).' '.$row['receiving_time'];
+			$receiving_detail = $this->Stock_location->get_location_name2($row['employee_id']).' | '.$row['receiving_time'].' | Challan ID- '.$row['receiving_id'];
 			// to be continued...
 			$receivings[$this->xss_clean($row['receiving_id'])] = $this->xss_clean($receiving_detail);
 		}

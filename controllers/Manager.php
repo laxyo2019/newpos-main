@@ -88,7 +88,8 @@ class Manager extends Secure_Controller
   public function list_all_items()
   {
     $data['locations'] = $this->input->post('locations');
-    $data['items'] = $this->Item->get_all()->result_array();
+    $this->db->where('deleted', 0);
+    $data['items'] = $this->db->get('items')->result_array();
     $this->load->view('manager/sublists/items_sublist', $data);
   }
 

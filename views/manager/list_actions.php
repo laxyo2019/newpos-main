@@ -1,6 +1,7 @@
+<hr>
 <div class="row">
-  <span class="col-md-6">
-    <div class="form-group" style="padding-top:10px;">
+  <span class="col-md-12">
+    <div class="form-group">
       <select class="form-control" multiple="multiple" id="list_locations">
         <?php foreach($stock_locations as $key=>$value): ?>
           <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
@@ -10,14 +11,29 @@
     <button class="btn btn-sm btn-info" id="allItems">All Items</button>
     <button class="btn btn-sm btn-warning" id="filterItems">Filter Items</button>
     <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button>
-    <button class="btn btn-sm btn-success" id="newItems">New Items</button>
+    <button class="btn btn-sm btn-success" id="ne2wItems">New Items</button>
+    <!-- <span class="pull-right">
+      <label class="checkbox-inline">
+        <input type="checkbox" value="mci">MCI
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" value="taxes">HSN + GST
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" value="discounted">Discounts
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" value="fixed">Fixed Prices
+      </label>
+    </span> -->
   </span>
+  
 </div>
 <hr>
 <div class="row">
   <div class="col-md-4">
     <div class="form-group">
-      <select name="category2" id="category2">
+      <select name="category2" id="category2" class="form-control">
         <option value="">Select Category</option>
         <?php foreach($mci_data['categories'] as $row)
         {
@@ -29,12 +45,12 @@
   </div>
   <div class="col-md-4">
     <div class="form-group">
-      <select name="subcategory2" id="subcategory2"></select>
+      <select name="subcategory2" id="subcategory2" class="form-control"></select>
     </div>
   </div>
   <div class="col-md-4">
     <div class="form-group">
-      <select name="brand2" id="brand2">
+      <select name="brand2" id="brand2" class="form-control">
         <option value="">Select Brand</option>
         <?php foreach($mci_data['brands'] as $row)
         {
@@ -49,7 +65,7 @@
 <div class="row" id="extraMci2" style="display:none">
   <div class="col-md-3 col-md-offset-3">
     <div class="form-group">
-      <select name="size2" id="size2">
+      <select name="size2" id="size2" class="form-control">
         <option value="">Select Size</option>
         <?php foreach($mci_data['sizes'] as $row)
         {
@@ -61,7 +77,7 @@
   </div>
   <div class="col-md-3">
     <div class="form-group">
-      <select name="color2" id="color2">
+      <select name="color2" id="color2" class="form-control">
         <option value="">Select Color</option>
         <?php foreach($mci_data['colors'] as $row)
         {
@@ -86,9 +102,9 @@
       $('#extraMci2').toggle(wearables.includes(level1));
       // console.log(val);
       if(level1){
-          $.post('<?php echo site_url("items/ajax_fetch_subcategories");?>', {'category': level1}, function(data) {
-            $('#subcategory2').html(data);
-          });
+        $.post('<?php echo site_url("items/ajax_fetch_subcategories");?>', {'category': level1}, function(data) {
+          $('#subcategory2').html(data);
+        });
       }
     });
     
@@ -99,15 +115,15 @@
       {
         $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
         $.post('<?php echo site_url($controller_name."/list_all_items");?>', {'locations': locations}, function(data){
-              $('#table_area').html(data);
-              $('#list').DataTable({
-                    "scrollX": true,
-                    dom: 'Bfrtip',
-                    buttons: [
-                      'copy', 'csv', 'excel', 'pdf', 'print'
-                    ]
-                });
-              });
+          $('#table_area').html(data);
+          $('#list').DataTable({
+                "scrollX": true,
+                dom: 'Bfrtip',
+                buttons: [
+                  'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+          });
       }
       else
       {
@@ -134,15 +150,15 @@
           'custom3': color
         };
         $.post('<?php echo site_url($controller_name."/list_filtered_items");?>', {'filter': filterData, 'locations': locations}, function(data) {
-              $('#table_area').html(data);
-              $('#list').DataTable({
-                    "scrollX": true,
-                    dom: 'Bfrtip',
-                    buttons: [
-                      'copy', 'csv', 'excel', 'pdf', 'print'
-                    ]
-                });
-              });
+        $('#table_area').html(data);
+          $('#list').DataTable({
+                "scrollX": true,
+                dom: 'Bfrtip',
+                buttons: [
+                  'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+          });
       }
       else
       {

@@ -779,7 +779,7 @@ class Items extends Secure_Controller
 		echo "Request Success";
 	 }
 	 
-	public function request_item_delete()
+	public function request_item_cancel()
 	{
 		$id = $this->input->post('id');
 		$this->db->delete('item_requests', array('id' => $id));

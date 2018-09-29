@@ -3,29 +3,43 @@
     <tr>
       <th>ID</th>
       <th>Barcode</th>
-      <th>HSN</th>
       <th>Item Name</th>
-      <th>Category</th>
-      <th>SubCategory</th>
-      <th>Brand</th>
-      <th>Size</th>
-      <th>Color</th>
+
+      <?php //if($options['mci'] == 1){ ?>
+        <th>Category</th>
+        <th>SubCategory</th>
+        <th>Brand</th>
+        <th>Size</th>
+        <th>Color</th>
+      <?php //} ?>
+
       <th>Model</th>
       <th>MRP</th>
-      <th>CGST %</th>
-      <th>SGST %</th>
-      <th>IGST %</th>
-      <th>Discount(Retail)</th>
-      <th>Discount(Wholesale)</th>
-      <th>Discount(Franchise)</th>
-      <th>Discount(Special)</th>
-      <th>Fixed Price(Retail)</th>
-      <th>Fixed Price(Wholesale)</th>
-      <th>Fixed Price(Franchise)</th>
-      <th>Fixed Price(Special)</th>
+
+      <?php //if($options['taxes'] == 1){ ?>
+        <th>HSN</th>
+        <th>CGST %</th>
+        <th>SGST %</th>
+        <th>IGST %</th>
+      <?php //} ?>
+
+      <?php //if($options['discounted'] == 1){ ?>  
+        <th>Disc % (Retail)</th>
+        <th>Disc % (Wholesale)</th>
+        <th>Disc % (Franchise)</th>
+        <th>Disc % (Special)</th>
+      <?php //} ?>
+
+      <?php //if($options['fixed'] == 1){ ?>  
+        <th>FP (Retail)</th>
+        <th>FP (Wholesale)</th>
+        <th>FP (Franchise)</th>
+        <th>FP (Special)</th>
+      <?php //} ?>
+
       <?php foreach ($locations as $row)
       {
-        echo '<th>Quantity('.$this->Stock_location->get_location_name($row).')</th>';
+        echo '<th>Qty('.$this->Stock_location->get_location_name($row).')</th>';
       }
       ?>
     </tr>
@@ -38,30 +52,45 @@
     <tr style="text-align: center;">
       <td><?php echo $item['item_id']; ?></td>
       <td><?php echo $item['item_number']; ?></td>
-      <td><?php echo $item['custom1']; ?></td>
       <td><?php echo $item['name']; ?></td>
-      <td><?php echo $item['category']; ?></td>
-      <td><?php echo $item['subcategory']; ?></td>
-      <td><?php echo $item['brand']; ?></td>
-      <td><?php echo $item['custom2']; ?></td>
-      <td><?php echo $item['custom3']; ?></td>
+
+      <?php //if($options['mci'] == 1){ ?>
+        <td><?php echo $item['category']; ?></td>
+        <td><?php echo $item['subcategory']; ?></td>
+        <td><?php echo $item['brand']; ?></td>
+        <td><?php echo $item['custom2']; ?></td>
+        <td><?php echo $item['custom3']; ?></td>
+      <?php //} ?>
+
       <td><?php echo $item['custom4']; ?></td>
       <td><?php echo $item['unit_price']; ?></td>
-      <td><?php echo $taxes['CGST']; ?></td>
-      <td><?php echo $taxes['SGST']; ?></td>
-      <td><?php echo $taxes['IGST']; ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->retail); ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->wholesale); ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->franchise); ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->ys); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->retail); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->wholesale); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->franchise); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->ys); ?></td>
-      <?php foreach ($locations as $row)
-      {
-        echo '<td>'.$multiqty[$row].'</td>';
-      }
+
+      <?php //if($options['taxes'] == 1){ ?>
+        <td><?php echo $item['custom1']; ?></td>
+        <td><?php echo $taxes['CGST']; ?></td>
+        <td><?php echo $taxes['SGST']; ?></td>
+        <td><?php echo $taxes['IGST']; ?></td>
+      <?php //} ?>
+
+      <?php //if($options['discounted'] == 1){ ?>
+        <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->retail); ?></td>
+        <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->wholesale); ?></td>
+        <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->franchise); ?></td>
+        <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->ys); ?></td>
+      <?php //} ?>
+
+      <?php //if($options['fixed'] == 1){ ?>
+        <td><?php echo to_currency(json_decode($item['cost_price'])->retail); ?></td>
+        <td><?php echo to_currency(json_decode($item['cost_price'])->wholesale); ?></td>
+        <td><?php echo to_currency(json_decode($item['cost_price'])->franchise); ?></td>
+        <td><?php echo to_currency(json_decode($item['cost_price'])->ys); ?></td>
+      <?php //} ?>
+
+      <?php 
+        foreach ($locations as $row)
+        {
+          echo '<td>'.$multiqty[$row].'</td>';
+        }
       ?>
     </tr>
   <?php endforeach; ?>

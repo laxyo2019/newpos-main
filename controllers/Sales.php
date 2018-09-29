@@ -164,6 +164,65 @@ class Sales extends Secure_Controller
 		$this->_reload();
 	}
 
+	public function quick_billing()
+	{
+		$this->load->view('sales/form_quick_billing', NULL);
+	}
+
+	public function do_quick_billing()
+	{
+		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
+		{
+			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
+		}
+		else
+		{
+			if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
+			{
+				// Skip the first row as it's the table description
+				fgetcsv($handle);
+				$i = 1;
+
+				$failCodes = array();
+
+				while(($data = fgetcsv($handle)) !== FALSE)
+				{
+					// XSS file data sanity check
+					$data = $this->xss_clean($data);
+
+					$discount = 0;
+					$customer_id = $this->sale_lib->get_customer();
+			
+					$item_id_or_number_or_item_kit_or_receipt = $data[0];
+					$this->barcode_lib->parse_barcode_fields($quantity, $item_id_or_number_or_item_kit_or_receipt);
+					$mode = $this->sale_lib->get_mode();
+					$quantity = ($mode == 'return') ? -$quantity : $quantity;
+					$item_location = $this->sale_lib->get_sale_location();
+
+					$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, PRICE_MODE_STANDARD);
+
+					++$i;
+
+				} // while loop ends here
+
+				if(count($failCodes) > 0)
+				{
+					$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
+
+					echo json_encode(array('success' => FALSE, 'message' => $message));
+				}
+				else
+				{
+					echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
+				}
+			}
+			else
+			{
+				echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
+			}
+		}
+	}
+
 	public function change_mode()
 	{
 		$mode = $this->input->post('mode');
