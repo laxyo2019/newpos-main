@@ -213,6 +213,18 @@ $(document).ready(function()
 									?>
 								</td>
               </tr>
+							<?php if($this->Item->check_auth('apnagps')){?>
+								<tr>
+									<td style="text-align:right;"><b>Bank Details:</b></td>
+									<td colspan="7">Laxyo Energy Limited<br>
+									HDFC Bank Account number = 04048710000035<br>
+									RTGS/NEFT/IFSC Code = HDFC0000404</td>
+								</tr>
+								<tr>
+									<td style="text-align:right;"><b>Remark:</b></td>
+									<td colspan="7"><?php echo $comments; ?></td>
+								</tr>
+							<?php } ?>
             </tbody>
 					</table>
 				</section>

@@ -50,22 +50,22 @@ class Item_taxes extends CI_Model
 			{
 				if($taxtype) //IGST
 				{
-					return ($amt >= 1000) ? $this->create_igst_array($item_id, 12) : $this->create_igst_array($item_id, 5);
+					return ($amt > 1000) ? $this->create_igst_array($item_id, 12) : $this->create_igst_array($item_id, 5);
 				}
 				else //CSGT+SGST
 				{
-					return ($amt >= 1000) ? $this->create_array($item_id, 6) : $this->create_array($item_id, 2.5);
+					return ($amt > 1000) ? $this->create_array($item_id, 6) : $this->create_array($item_id, 2.5);
 				}
 			}
 			else if(in_array($category, $footwear_array)) //FOOTWEARS
 			{
 				if($taxtype) //IGST
 				{
-					return ($amt >= 500) ? $this->create_igst_array($item_id, 18) : $this->create_igst_array($item_id, 5);
+					return ($amt > 1000) ? $this->create_igst_array($item_id, 18) : $this->create_igst_array($item_id, 5);
 				}
 				else //CSGT+SGST
 				{
-					return ($amt >= 500) ? $this->create_array($item_id, 9) : $this->create_array($item_id, 2.5);
+					return ($amt > 1000) ? $this->create_array($item_id, 9) : $this->create_array($item_id, 2.5);
 				}
 			}
 		}
@@ -90,14 +90,39 @@ class Item_taxes extends CI_Model
 
 	public function get_specific_tax($item_id)
 	{
-		$taxes = array();
-		$this->db->where('item_id', $item_id);
-		$query = $this->db->get('items_taxes');
-		foreach($query->result_array() as $row)
+		$response = array();
+		$tax_data = $this->db->where('item_id', $item_id)->get('items_taxes');
+		foreach($tax_data as $row)
 		{
-			$taxes[$row['name']] = $row['percent'];
+			$response[$row['name']] = $row['percent'];
 		}
-		return $taxes;
+		return $response;
+	}
+
+	public function get_sales_tax($sale_id, $item_id)
+	{
+		$tax_percents = array();
+		$tax_amounts = array();
+		$array = array(
+			'sale_id' => $sale_id,
+			'item_id' => $item_id
+		);
+		$tax_data = $this->db->where($array)->get('sales_items_taxes')->result_array();
+
+		foreach($tax_data as $row)
+		{
+			$response1[$row['name']] = $row['percent'];
+		}
+
+		foreach($tax_data as $row)
+		{
+			$response2[$row['name']] = $row['item_tax_amount'];
+		}
+
+		return array(
+			'tax_percents' => $response1,
+			'tax_amounts' => $response2
+		);
 	}
 
 	public function get_taxes_for_item_form($item_id)

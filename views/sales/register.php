@@ -196,7 +196,18 @@ if(isset($success))
 							if($items_module_allowed)
 							{
 							?>
-								<td><?php echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'readonly'=>'true', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));?></td>
+								<td>
+									<?php
+									if($this->Item->check_auth('apnagps')) //allowing to edit price
+									{
+										echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									}
+									else
+									{
+										echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'readonly' => 'true', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									}
+									?>
+								</td>
 							<?php
 							}
 							else
@@ -223,7 +234,18 @@ if(isset($success))
 								}
 								?>
 							</td>
-							<td><?php echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'readonly'=>'true', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));?></td>
+							<td>
+								<?php 
+									if($this->Item->check_auth('apnagps')) //allowing to edit discount
+									{
+										echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									}
+									else
+									{
+										echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'readonly'=>'true', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									}
+								?>
+							</td>
 							
 							<td>
 								<?php

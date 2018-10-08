@@ -1184,7 +1184,6 @@ class Sale_lib
 
 		$this->CI->tax_lib->round_sales_taxes($sales_taxes);
 		
-
 		return $sales_taxes;
 	}
 

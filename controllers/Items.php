@@ -59,6 +59,11 @@ class Items extends Secure_Controller
 			'is_deleted' => FALSE
 		);
 
+		if($this->Item->check_auth('apnagps'))
+		{
+			$filters['priority'] = "APNAGPS";
+		}
+
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);
 		$filters = array_merge($filters, $filledup);
@@ -1327,18 +1332,21 @@ class Items extends Secure_Controller
 							'quantity' => $new_quantity
 						);
 
-						$db_pointer1 = $this->db->where('item_id', $item_id)->get('items')->row()->custom5;
-						$db_pointer2 = $this->db->where('item_id', $item_id)->get('items')->row()->custom6;
+						$db_pointer1 = json_decode($this->db->where('item_id', $item_id)->get('items')->row()->custom5);
+						
+						$db_pointer2 = json_decode($this->db->where('item_id', $item_id)->get('items')->row()->custom6);
 
-						if($pointer1 != $db_pointer1)
+						if(!in_array($pointer1, $db_pointer1))
 						{
-							$new_pointer1 = array('custom5' => $db_pointer1.' + '.$pointer1);
+							$db_pointer1[] = $pointer1;
+							$new_pointer1 = array('custom5' => json_encode($db_pointer1));
 							$this->db->where('item_id', $item_id)->update('items', $new_pointer1);
 						}
 
-						if($pointer2 != $db_pointer2)
+						if(!in_array($pointer2, $db_pointer2))
 						{
-							$new_pointer2 = array('custom6' => $db_pointer2.' + '.$pointer2);
+							$db_pointer2[] = $pointer2;
+							$new_pointer2 = array('custom6' => json_encode($db_pointer2));
 							$this->db->where('item_id', $item_id)->update('items', $new_pointer2);
 						}
 

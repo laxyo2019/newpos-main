@@ -8,6 +8,8 @@
         <?php //endforeach; ?>
       </select>
     </div> -->
+    
+    <button class="btn btn-sm btn-primary" id="tallyFormat">Tally Format</button>
     <button class="btn btn-sm btn-info" id="allSold">All Sold</button>
     <button class="btn btn-sm btn-warning" id="getReport">Get Report</button>
     <!-- <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button> -->
@@ -20,7 +22,7 @@
 <div class="row">
   <div class="col-md-4">
     <div class="form-group">
-      <select name="category3" id="category3">
+      <select class="form-control" name="category3" id="category3">
         <option value="">Select Category</option>
         <?php foreach($mci_data['categories'] as $row)
         {
@@ -37,7 +39,7 @@
   </div>
   <div class="col-md-4">
     <div class="form-group">
-      <select name="brand3" id="brand3">
+      <select class="form-control" name="brand3" id="brand3">
         <option value="">Select Brand</option>
         <?php foreach($mci_data['brands'] as $row)
         {
@@ -52,7 +54,7 @@
 <div class="row" id="extraMci3" style="display:none">
   <div class="col-md-3 col-md-offset-3">
     <div class="form-group">
-      <select name="size3" id="size3">
+      <select class="form-control" name="size3" id="size3">
         <option value="">Select Size</option>
         <?php foreach($mci_data['sizes'] as $row)
         {
@@ -134,6 +136,21 @@
       $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
 
       $.post('<?php echo site_url($controller_name."/report_sales");?>', {'filter': 'all', 'start_date': start_date, 'end_date': end_date}, function(data) {
+          $('#report_table_area').html(data);
+          $('#report_list').DataTable({
+                "scrollX": true,
+                dom: 'Bfrtip',
+                buttons: [
+                  'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+          });
+    });
+
+    $('#tallyFormat').on('click', function(){
+      $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+
+      $.post('<?php echo site_url($controller_name."/tally_format");?>', {'start_date': start_date, 'end_date': end_date}, function(data) {
           $('#report_table_area').html(data);
           $('#report_list').DataTable({
                 "scrollX": true,

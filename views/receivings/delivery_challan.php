@@ -109,7 +109,7 @@ if(isset($error_message))
           <?php endforeach; ?>
             <tr>
               <td><b>Total Quantity</b></td>
-              <td colspan="3"></td>
+              <td colspan="4"></td>
               <td><?php echo $total_quantity; ?></td>
               <td></td>
             </tr>

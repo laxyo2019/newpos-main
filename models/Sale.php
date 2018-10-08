@@ -1041,7 +1041,7 @@ class Sale extends CI_Model
 	{
 		foreach($sale_ids as $sale_id)
 		{
-            $this->update_sale_status($sale_id, SUSPENDED);
+      $this->update_sale_status($sale_id, SUSPENDED);
 		}
 
 		return TRUE;

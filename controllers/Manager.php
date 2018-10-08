@@ -12,7 +12,7 @@ class Manager extends Secure_Controller
   public function index()
   {
     $data['cashiers'] = $this->db->get('cashiers')->result_array();
-    foreach($this->Pricing->get_active_shops(array('dbf', 'shop', 'hub')) as $row)
+    foreach($this->Pricing->get_active_shops(array('dbf', 'shop', 'hub', 'apnagps')) as $row)
 		{
 			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}
@@ -111,55 +111,81 @@ class Manager extends Secure_Controller
     $this->load->view('manager/sublists/items_sublist', $data);
   }
 
-  public function report_sales()
+  // public function report_sales()
+  // {
+  //   // $data['locations'] = $this->input->post('locations');
+  //   $start_date = $this->input->post('start_date');
+  //   $end_date = $this->input->post('end_date');
+
+  //   $filter = $this->input->post('filter');
+
+  //   if($filter == 'all')
+  //   {
+  //     $array = array();
+  //   }
+  //   else
+  //   {
+  //     foreach($filter as $key=>$value)
+  //     {
+  //       if(!empty($value)){
+  //         $array[$key] = $value;
+  //       }
+  //     }
+  //   }
+
+  //   $this->db->where('deleted', 0);
+  //   $this->db->where($array);
+  //   $result = $this->db->get('items')->result_array();
+  //   foreach($result as $row)
+  //   {
+  //     $result_items[] = $row['item_id'];
+  //   }
+
+  //   $this->db->select('
+  //     sales.sale_time AS sale_time,
+  //     sales.customer_id AS customer_id,
+  //     sales.employee_id AS employee_id,
+  //     sales.invoice_number AS invoice_number,
+  //     sales.sale_id AS sale_id,
+  //     sales_items.item_id AS item_id,
+  //     sales_items.quantity_purchased AS quantity,
+  //     sales_items.item_unit_price AS item_price,
+  //     sales_items.discount_percent AS item_discount,
+  //     sales_items.item_location AS item_location,
+  //   ');
+  //   $this->db->from('sales');
+  //   $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+  //   $this->db->where('sale_time >=', date('Y-m-d H:i:s', strtotime($start_date)));
+  //   $this->db->where('sale_time <=', date('Y-m-d H:i:s', strtotime($end_date)));
+  //   $this->db->where_in('item_id', $result_items);
+  //   $data['report_results'] = $this->db->get()->result_array();
+  //   $this->load->view('manager/sublists/report_sales', $data);
+  // }
+
+  public function tally_format()
   {
-    // $data['locations'] = $this->input->post('locations');
     $start_date = $this->input->post('start_date');
     $end_date = $this->input->post('end_date');
-
-    $filter = $this->input->post('filter');
-
-    if($filter == 'all')
-    {
-      $array = array();
-    }
-    else
-    {
-      foreach($filter as $key=>$value)
-      {
-        if(!empty($value)){
-          $array[$key] = $value;
-        }
-      }
-    }
-
-    $this->db->where('deleted', 0);
-    $this->db->where($array);
-    $result = $this->db->get('items')->result_array();
-    foreach($result as $row)
-    {
-      $result_items[] = $row['item_id'];
-    }
+    $result_items = array();
 
     $this->db->select('
+      sales.sale_id AS sale_id,
       sales.sale_time AS sale_time,
       sales.customer_id AS customer_id,
+      sales.tally_number AS tally_number,
       sales.employee_id AS employee_id,
-      sales.invoice_number AS invoice_number,
-      sales.sale_id AS sale_id,
       sales_items.item_id AS item_id,
-      sales_items.quantity_purchased AS quantity_purchased,
-      sales_items.item_unit_price AS item_unit_price,
-      sales_items.discount_percent AS discount_percent,
-      sales_items.item_location AS item_location,
+      sales_items.quantity_purchased AS quantity,
+      sales_items.item_unit_price AS item_price,
+      sales_items.discount_percent AS item_discount
     ');
     $this->db->from('sales');
     $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+    // $this->db->join('sales_items_taxes', 'sales_items.sale_id = sales_items_taxes.sale_id');
     $this->db->where('sale_time >=', date('Y-m-d H:i:s', strtotime($start_date)));
     $this->db->where('sale_time <=', date('Y-m-d H:i:s', strtotime($end_date)));
-    $this->db->where_in('item_id', $result_items);
     $data['report_results'] = $this->db->get()->result_array();
-    $this->load->view('manager/sublists/report_sales', $data);
+    $this->load->view('manager/sublists/tally_format', $data);
   }
 
   public function fetch_stockup_items()
@@ -273,7 +299,7 @@ class Manager extends Secure_Controller
 
   public function cashier_add()
   {
-    foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
+    foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub', 'apnagps')) as $row)
 		{
 			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}

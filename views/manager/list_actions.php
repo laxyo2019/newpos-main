@@ -11,7 +11,7 @@
     <button class="btn btn-sm btn-info" id="allItems">All Items</button>
     <button class="btn btn-sm btn-warning" id="filterItems">Filter Items</button>
     <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button>
-    <button class="btn btn-sm btn-success" id="ne2wItems">New Items</button>
+    <button class="btn btn-sm btn-success" id="newItems">New Items</button>
     <!-- <span class="pull-right">
       <label class="checkbox-inline">
         <input type="checkbox" value="mci">MCI

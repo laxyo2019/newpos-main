@@ -48,6 +48,14 @@ class Login extends CI_Controller
 			return FALSE;
 		}
 
+		// Custom session data grab
+		// $c_sess = array(
+		// 	'ip_address' => $this->input->ip_address(),
+		// 	'employee_id' => $this->session->userdata('person_id'),
+		// 	'time' => date('Y-m-d H:i:s')
+		// );
+		// $this->db->insert('sessions_custom', $c_sess);
+
 		// trigger any required upgrade before starting the application
 		$this->load->library('migration');
 		$this->migration->latest();
