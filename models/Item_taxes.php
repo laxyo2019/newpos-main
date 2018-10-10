@@ -31,7 +31,6 @@ class Item_taxes extends CI_Model
 		);
 	}
 
-	
 	/*
 	Gets tax info for a particular item
 	*/
@@ -91,7 +90,7 @@ class Item_taxes extends CI_Model
 	public function get_specific_tax($item_id)
 	{
 		$response = array();
-		$tax_data = $this->db->where('item_id', $item_id)->get('items_taxes');
+		$tax_data = $this->db->where('item_id', $item_id)->get('items_taxes')->result_array();
 		foreach($tax_data as $row)
 		{
 			$response[$row['name']] = $row['percent'];

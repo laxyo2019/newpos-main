@@ -174,6 +174,8 @@ class Manager extends Secure_Controller
       sales.customer_id AS customer_id,
       sales.tally_number AS tally_number,
       sales.employee_id AS employee_id,
+      sales.sale_status AS sale_status,
+      sales.sale_type AS sale_type,
       sales_items.item_id AS item_id,
       sales_items.quantity_purchased AS quantity,
       sales_items.item_unit_price AS item_price,

@@ -10,8 +10,8 @@
     </div> -->
     
     <button class="btn btn-sm btn-primary" id="tallyFormat">Tally Format</button>
-    <button class="btn btn-sm btn-info" id="allSold">All Sold</button>
-    <button class="btn btn-sm btn-warning" id="getReport">Get Report</button>
+    <!-- <button class="btn btn-sm btn-info" id="allSold">All Sold</button>
+    <button class="btn btn-sm btn-warning" id="getReport">Get Report</button> -->
     <!-- <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button> -->
   </span>
   <span class="pull-right">
@@ -34,7 +34,7 @@
   </div>
   <div class="col-md-4">
     <div class="form-group">
-      <select name="subcategory3" id="subcategory3"></select>
+      <select class="form-control" name="subcategory3" id="subcategory3"></select>
     </div>
   </div>
   <div class="col-md-4">
@@ -98,54 +98,54 @@
       }
     });
     
-    $('#getReport').on('click', function(){
-      // var locations = $('#report_locations').val();
-      var category = $('#category3').val();
-      if(category != "")
-      {
-        $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
-        var subcategory = $('#subcategory3').val();
-        var brand = $('#brand3').val();
-        var size = $('#size3').val();
-        var color = $('#color3').val();
-        var filterData = {
-          'category': category,
-          'subcategory': subcategory,
-          'brand': brand,
-          'custom2': size,
-          'custom3': color
-        };
-        $.post('<?php echo site_url($controller_name."/report_sales");?>', {'filter': filterData, 'start_date': start_date, 'end_date': end_date}, function(data) {
-            $('#report_table_area').html(data);
-            $('#report_list').DataTable({
-                  "scrollX": true,
-                  dom: 'Bfrtip',
-                  buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                  ]
-              });
-            });
-      }
-      else
-      {
-        alert('Please select a category');
-      }
-    });
+  //   $('#getReport').on('click', function(){
+  //     // var locations = $('#report_locations').val();
+  //     var category = $('#category3').val();
+  //     if(category != "")
+  //     {
+  //       $('#report_table_area').html('<img src="<?php //echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+  //       var subcategory = $('#subcategory3').val();
+  //       var brand = $('#brand3').val();
+  //       var size = $('#size3').val();
+  //       var color = $('#color3').val();
+  //       var filterData = {
+  //         'category': category,
+  //         'subcategory': subcategory,
+  //         'brand': brand,
+  //         'custom2': size,
+  //         'custom3': color
+  //       };
+  //       $.post('<?php //echo site_url($controller_name."/report_sales");?>', {'filter': filterData, 'start_date': start_date, 'end_date': end_date}, function(data) {
+  //           $('#report_table_area').html(data);
+  //           $('#report_list').DataTable({
+  //                 "scrollX": true,
+  //                 dom: 'Bfrtip',
+  //                 buttons: [
+  //                   'copy', 'csv', 'excel', 'pdf', 'print'
+  //                 ]
+  //             });
+  //           });
+  //     }
+  //     else
+  //     {
+  //       alert('Please select a category');
+  //     }
+  //   });
 
-    $('#allSold').on('click', function(){
-      $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+//     $('#allSold').on('click', function(){
+//       $('#report_table_area').html('<img src="<?php //echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
 
-      $.post('<?php echo site_url($controller_name."/report_sales");?>', {'filter': 'all', 'start_date': start_date, 'end_date': end_date}, function(data) {
-          $('#report_table_area').html(data);
-          $('#report_list').DataTable({
-                "scrollX": true,
-                dom: 'Bfrtip',
-                buttons: [
-                  'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
-            });
-          });
-    });
+//       $.post('<?php //echo site_url($controller_name."/report_sales");?>', {'filter': 'all', 'start_date': start_date, 'end_date': end_date}, function(data) {
+//           $('#report_table_area').html(data);
+//           $('#report_list').DataTable({
+//                 "scrollX": true,
+//                 dom: 'Bfrtip',
+//                 buttons: [
+//                   'copy', 'csv', 'excel', 'pdf', 'print'
+//                 ]
+//             });
+//           });
+//     });
 
     $('#tallyFormat').on('click', function(){
       $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');

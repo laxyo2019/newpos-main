@@ -4,6 +4,7 @@
       <th>Sale ID</th>
       <th>Sale Time</th>
       <th>Customer Name</th>
+      <th>Customer GST No.</th>
       <th>Invoice Number</th>
       <th>Shop ID</th>
       <th>Item Name</th>
@@ -16,6 +17,8 @@
       <th>IGST Amt.</th>
       <th>Quantity</th>
       <th>Gross Value</th>
+      <th>Sale Type</th>
+      <th>Sale Status</th>
     </tr>
   </thead>
   <tbody>
@@ -23,22 +26,23 @@
       $discounted_price = $row['item_price'] - bcmul($row['item_price'], bcdiv($row['item_discount'], 100));
       $tax_data = $this->Item_taxes->get_sales_tax($row['sale_id'], $row['item_id']);
 
-      $total_tax = 18.00;
-      // (empty($tax_data['tax_percents']['CGST'])) ? 0.00 : $tax_data['tax_percents']['CGST'] + (empty($tax_data['tax_percents']['SGST'])) ? 0.00 : $tax_data['tax_percents']['SGST'] + (empty($tax_data['tax_percents']['IGST'])) ? 0.00 : $tax_data['tax_percents']['IGST'];
+      $total_tax = ((empty($tax_data['tax_percents']['CGST'])) ? 0.00 : $tax_data['tax_percents']['CGST']) + ((empty($tax_data['tax_percents']['SGST'])) ? 0.00 : $tax_data['tax_percents']['SGST']) + ((empty($tax_data['tax_percents']['IGST'])) ? 0.00 : $tax_data['tax_percents']['IGST']);
 
       $price = bcmul($discounted_price, $row['quantity']);
       $a = $price * $total_tax;
       $b = 100 + $total_tax;
       $taxable_value = $a / $b;
 
+      $customer_info = $this->Customer->get_info($row['customer_id']);
       ?>
       <tr>
         <td><?php echo $row['sale_id']; ?></td>
         <td><?php echo $row['sale_time']; ?></td>
-        <td><?php echo $row['customer_id']; ?></td>
+        <td><?php echo $customer_info->first_name." ".$customer_info->last_name; ?></td>
+        <td><?php echo $customer_info->gstin; ?></td>
         <td><?php echo $row['tally_number']; ?></td>
-        <td><?php echo $row['employee_id']; ?></td>
-        <td><?php echo $row['item_id']; ?></td>
+        <td><?php echo $this->Stock_location->get_location_name2($row['employee_id']); ?></td>
+        <td><?php echo $this->Item->get_info($row['item_id'])->name; ?></td>
         <td><?php echo $price - round($taxable_value, 2); ?></td>
         <td><?php echo (empty($tax_data['tax_percents']['CGST'])) ? NULL : $tax_data['tax_percents']['CGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_amounts']['CGST'])) ? NULL : $tax_data['tax_amounts']['CGST']; ?></td>
@@ -48,6 +52,8 @@
         <td><?php echo (empty($tax_data['tax_amounts']['IGST'])) ? NULL : $tax_data['tax_amounts']['IGST']; ?></td>
         <td><?php echo to_quantity_decimals($row['quantity']); ?></td>
         <td><?php echo $price; ?></td>
+        <td><?php echo ($row['sale_type'] == 1) ? "Invoice" : "Credit Note"; ?></td>
+        <td><?php echo ($row['sale_status'] == 0) ? "Active" : "Cancelled"; ?></td>
       </tr>
     <?php endforeach; ?>
   </tbody>

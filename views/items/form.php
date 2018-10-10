@@ -340,7 +340,7 @@
 				}
 			?>
 			
-		<?php if($this->Item->is_both()){ ?>
+		<?php if($this->Item->check_auth(array('superadmin', 'admin', 'apnagps'))){ ?>
 			<div class="form-group form-group-sm">
 				<?php echo form_label(strtoupper('Retail'), 'ds_1', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>

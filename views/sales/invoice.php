@@ -74,7 +74,8 @@ $(document).ready(function()
 							<p id="inv_cp" style="text-align:center; font-size: 0.8em">Seller Copy</p>
 							<table class="table table-bordered" style="margin: 0px; border-right: 0px; font-size: 10px">
 								<tr>
-									<td style="padding: 5px;"><?php echo $this->lang->line('sales_invoice_number');?><br> <b><?php echo $tally_invoice; ?><b/></td>
+									<td style="padding: 5px;"><?php echo $this->lang->line('sales_tally_number');?><br> <b><?php echo $tally_number; ?><b/></td>
+									<td style="padding: 5px;"><?php echo $this->lang->line('sales_invoice_number');?><br> <b><?php echo $invoice_number; ?><b/></td>
 									<td style="padding: 5px;" class="text-right"><?php echo $this->lang->line('common_date'); ?> <br> <b><?php echo $transaction_date; ?></b></td>
 								</tr>
 							</table>
@@ -125,7 +126,18 @@ $(document).ready(function()
                 {
               ?>
                   <tr class="item-row">
-                    <td style="font-size:0.9em; text-align:center"><?php echo $item['name']; ?></td>
+                    <td style="font-size:0.9em; text-align:center">
+											<?php 
+												if($bill_type == "ys")
+												{
+													echo $item['name']. " (Damaged)";
+												}
+												else
+												{
+													echo $item['name'];
+												}; 
+											?>
+										</td>
                     <td style="font-size:0.8em; text-align:center"><?php echo $item['custom1']; ?></td> 
 
                     <td style="font-size:0.8em; text-align:center"> 

@@ -1131,11 +1131,12 @@ class Sales extends Secure_Controller
 		$data['sale_id'] = 'POS ' . $sale_id;
 		$data['comments'] = $sale_info['comment'];
 		$data['invoice_number'] = $sale_info['invoice_number'];
-		$data['tally_invoice'] = $sale_info['tally_number'].'/'.$sale_info['invoice_number'];
+		$data['tally_number'] = $sale_info['tally_number'];
 		$data['cashier_name'] = $this->Sale->get_cashier_detail($sale_info['cashier_id'], 'name');
 		$data['cashier_sale_code'] = $this->Sale->get_cashier_detail($sale_info['cashier_id'], 'id');
 		$data['quote_number'] = $sale_info['quote_number'];
 		$data['sale_status'] = $sale_info['sale_status'];
+		$data['bill_type'] = $sale_info['bill_type'];
 		$data['company_info'] = implode("\n", array(
 			$this->config->item('address'),
 			$this->config->item('phone'),

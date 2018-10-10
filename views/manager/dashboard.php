@@ -14,20 +14,25 @@
 	<li role="presentation">
 		<a data-toggle="tab" href="#mci_mod" title="Master Classification Index">MCI</a>
 	</li>
-	<?php if($this->Item->is_both()){ ?>
+
+	<?php if($this->Item->check_auth(array('superadmin', 'admin'))){ ?>
 		<li role="presentation">
 			<a data-toggle="tab" href="#bulk_mod" title="Bulk Actions">Bulk Actions</a>
 		</li>
 		<li role="presentation">
 			<a data-toggle="tab" href="#cashier_mod" title="Cashiers">Cashiers</a>
 		</li>
+	<?php } ?>
+
+	<?php if($this->Item->check_auth(array('superadmin', 'admin', 'accounts'))){ ?>
 		<li role="presentation">
 			<a data-toggle="tab" href="#report_mod" title="Custom Reports">Reports</a>
 		</li>
-		<li role="presentation">
-			<a data-toggle="tab" href="#extras_mod" title="Extra Features">Extras</a>
-		</li>
 	<?php } ?>
+
+	<li role="presentation">
+		<a data-toggle="tab" href="#extras_mod" title="Extra Features">Extras</a>
+	</li>
 
 </ul>
 
@@ -41,20 +46,26 @@
 	<div class="tab-pane" id="mci_mod">
 		<?php $this->load->view("manager/mci"); ?>
 	</div>
-	<?php if($this->Item->is_both()){ ?>
+
+	<?php if($this->Item->check_auth(array('superadmin', 'admin'))){ ?>
 		<div class="tab-pane" id="bulk_mod">
 			<?php $this->load->view("manager/bulk_actions"); ?>
 		</div>
 		<div class="tab-pane" id="cashier_mod">
 			<?php $this->load->view("manager/cashiers"); ?>
 		</div>
+	<?php } ?>
+	
+	<?php if($this->Item->check_auth(array('superadmin', 'admin', 'accounts'))){ ?>
 		<div class="tab-pane" id="report_mod">
 			<?php $this->load->view("manager/reports"); ?>
 		</div>
-		<div class="tab-pane" id="extras_mod">
-			<?php $this->load->view("manager/extras"); ?>
-		</div>
 	<?php } ?>
+
+	<div class="tab-pane" id="extras_mod">
+		<?php $this->load->view("manager/extras"); ?>
+	</div>
+	
 </div>
 
 <?php $this->load->view("partial/footer"); ?>

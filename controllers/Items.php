@@ -29,11 +29,6 @@ class Items extends Secure_Controller
 		$this->load->view('items/manage', $data);
 	}
 
-	public function test_auth($input)
-	{
-		echo $this->Item->check_auth($input);
-	}
-
 	/*
 	Returns Items table data rows. This will be called with AJAX.
 	*/
