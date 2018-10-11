@@ -1159,7 +1159,7 @@ class Sale_lib
 		{
 			$discounted_unit = $this->get_discounted_unit($item['price'], $item['discount']);
 			// Start of current VAT tax apply
-			$tax_info = $this->CI->Item_taxes->get_info($item['item_id'], $discounted_unit); #3105-1
+			$tax_info = $this->CI->Item_taxes->get_info($item['item_id'], $discounted_unit);
 			$tax_group_sequence = 0;
 			foreach($tax_info as $tax)
 			{
@@ -1232,7 +1232,7 @@ class Sale_lib
 	public function get_item_total_tax_exclusive($item_id, $quantity, $price, $discount_percentage, $include_discount = FALSE)
 	{
 		$discounted_unit = $this->get_discounted_unit($price, $discount_percentage);
-		$tax_info = $this->CI->Item_taxes->get_info($item_id, $discounted_unit); #3105-1
+		$tax_info = $this->CI->Item_taxes->get_info($item_id, $discounted_unit);
 		$item_total = $this->get_item_total($quantity, $price, $discount_percentage, $include_discount);
 		// only additive tax here
 		foreach($tax_info as $tax)
@@ -1247,7 +1247,7 @@ class Sale_lib
 	public function get_extended_total_tax_exclusive($item_id, $discounted_extended_amount, $quantity, $price, $discount_percentage = 0)
 	{
 		$discounted_unit = $this->get_discounted_unit($price, $discount_percentage);
-		$tax_info = $this->CI->Item_taxes->get_info($item_id, $discounted_unit); #3105-1
+		$tax_info = $this->CI->Item_taxes->get_info($item_id, $discounted_unit);
 		// only additive tax here
 		foreach($tax_info as $tax)
 		{

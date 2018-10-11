@@ -900,8 +900,9 @@ class Sale extends CI_Model
 				$item_total = $this->sale_lib->get_item_total($item['quantity'], $item['price'], $item['discount'], TRUE);
 				$tax_basis = $item_total;
 				$item_tax_amount = 0;
+				$discounted_unit = $this->sale_lib->get_discounted_unit($item['price'], $item['discount']);
 
-				foreach($this->Item_taxes->get_info($item['item_id']) as $row)
+				foreach($this->Item_taxes->get_info($item['item_id'], $discounted_unit) as $row)
 				{
 
 					$sales_items_taxes = array(

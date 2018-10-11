@@ -361,7 +361,13 @@ Get the html data row for the item
 function get_item_data_row($item)
 {
 	$CI =& get_instance();
-	$item_tax_info = $CI->Item_taxes->get_info($item->item_id);
+
+	$fraction = bcdiv($item->discount, 100);
+	$disc = bcmul($item->price, $fraction);
+	$discounted_unit = bcsub($price, $disc);
+
+	$item_tax_info = $CI->Item_taxes->get_info($item->item_id, $discounted_unit);
+	
 	$tax_percents = '';
 	foreach($item_tax_info as $tax_info)
 	{

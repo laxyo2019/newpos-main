@@ -34,7 +34,7 @@ class Item_taxes extends CI_Model
 	/*
 	Gets tax info for a particular item
 	*/
-	public function get_info($item_id, $amt = -1)
+	public function get_info($item_id, $amt)
 	{
 		$taxtype = $this->session->userdata('taxtype');
 		$category = $this->Item->get_info($item_id)->category;

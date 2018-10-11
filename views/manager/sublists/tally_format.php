@@ -8,6 +8,8 @@
       <th>Invoice Number</th>
       <th>Shop ID</th>
       <th>Item Name</th>
+      <th>Item Category</th>
+      <th>Item Subcategory</th>
       <th>Taxable Value</th>
       <th>CGST %</th>
       <th>CGST Amt.</th>
@@ -33,6 +35,8 @@
       $b = 100 + $total_tax;
       $taxable_value = $a / $b;
 
+      $item_info = $this->Item->get_info($row['item_id']);
+
       $customer_info = $this->Customer->get_info($row['customer_id']);
       ?>
       <tr>
@@ -42,7 +46,9 @@
         <td><?php echo $customer_info->gstin; ?></td>
         <td><?php echo $row['tally_number']; ?></td>
         <td><?php echo $this->Stock_location->get_location_name2($row['employee_id']); ?></td>
-        <td><?php echo $this->Item->get_info($row['item_id'])->name; ?></td>
+        <td><?php echo $item_info->name; ?></td>
+        <td><?php echo $item_info->category; ?></td>
+        <td><?php echo $item_info->subcategory; ?></td>
         <td><?php echo $price - round($taxable_value, 2); ?></td>
         <td><?php echo (empty($tax_data['tax_percents']['CGST'])) ? NULL : $tax_data['tax_percents']['CGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_amounts']['CGST'])) ? NULL : $tax_data['tax_amounts']['CGST']; ?></td>

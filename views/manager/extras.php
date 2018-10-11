@@ -1,17 +1,40 @@
 <hr>
 <div class="row">
-  <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_conversion"); ?>'
-            title='Excel Conversion'>
-        Excel Conversion
-  </button>
 
-  <span class="col-md-2">
+  <div class="col-md-4">
+    <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_convert"); ?>'
+              title='Quick Transfer/Billing'>
+          Quick Convert
+    </button>
     <select id="extSwitch" class="form-control">
       <option value="">Select an Option</option>
       <option value="active_items">Active Items</option>
       <option value="deleted_items">Deleted Items</option>
     </select>
-  </span>
+  </div>
+
+  <!-- <div class="col-md-4">
+    <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php //echo $this->lang->line('common_submit') ?>' data-href='<?php //echo site_url($controller_name."/quick_taxes"); ?>'
+              title='Fetch Item Taxes'>
+          Tax me up!
+    </button>
+    <select id="extSwitch1" class="form-control">
+      <option value="">Select an Option</option>
+      <option value="items_taxes">Show Item Taxes</option>
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php //echo $this->lang->line('common_submit') ?>' data-href='<?php //echo site_url($controller_name."/quick_prices"); ?>'
+              title='Fetch Item Prices'>
+          Get Prices
+    </button>
+    <select id="extSwitch2" class="form-control">
+      <option value="">Select an Option</option>
+      <option value="items_prices">Show Item Prices</option>
+    </select>
+  </div> -->
+
 </div>
 <hr>
 
