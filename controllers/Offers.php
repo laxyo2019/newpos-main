@@ -12,6 +12,7 @@ class Offers extends Secure_Controller
 	public function index()
 	{
 		$data['plans'] = $this->Pricing->get_core_plans();
+		$data['special_vouchers'] = $this->Pricing->get_core_special_vouchers();
 		$this->load->view('offers/dashboard', $data);
 	}
 
@@ -223,6 +224,43 @@ class Offers extends Secure_Controller
 		$data['offers'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
 
 		$this->load->view('offers/sublists/offers_sublist', $data);
+	}
+
+	public function get_vouchers_sublist()
+	{
+		$data['special_vouchers'] = $this->db->where('voucher_id', 1)->get('special_vc_out')->result_array();
+		$this->load->view('offers/sublists/vouchers_sublist', $data);
+	}
+
+	public function generate_voucher()
+	{
+		$mci_data = $this->Item->get_mci_data('all');
+		$categories = array('' => $this->lang->line('items_none'));
+		foreach($mci_data['categories'] as $row)
+		{
+			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
+		}
+		$data['categories'] = $categories;
+		$this->load->view('offers/generate_voucher_form', $data);
+	}
+
+	public function do_generate_voucher()
+	{
+		$customers = $this->db->get('people')->result_array();
+
+		foreach($customers as $row)
+		{
+			$phone_number = $row['phone_number'];
+			if(is_numeric($phone_number) && strlen($phone_number) == 10)
+			{
+				$data = array(
+					'voucher_id' => 1,
+					'customer_id' => $this->db->where('phone_number', $phone_number)->get('people')->row()->person_id,
+					'phone' => $phone_number
+				);
+				$this->db->insert('special_vc_out', $data);
+			}
+		}
 	}
 	
 }

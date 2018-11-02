@@ -1,6 +1,6 @@
 <ul id="error_message_box" class="error_message_box"></ul>
 
-<?php echo form_open_multipart('manager/do_quick_convert/', array('id'=>'excel_form', 'class'=>'form-horizontal')); ?>
+<?php echo form_open_multipart('manager/do_quick_bulk_discount/', array('id'=>'excel_form', 'class'=>'form-horizontal')); ?>
 	<fieldset id="item_basic_info">
 		<div class="form-group form-group-sm">
 			<div class='col-xs-12'>

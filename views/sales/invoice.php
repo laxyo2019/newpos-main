@@ -128,7 +128,7 @@ $(document).ready(function()
                   <tr class="item-row">
                     <td style="font-size:0.9em; text-align:center">
 											<?php 
-												if($bill_type == "ys")
+												if($bill_type == "1rupee")
 												{
 													echo $item['name']. " (Damaged)";
 												}
@@ -257,7 +257,7 @@ $(document).ready(function()
 				<section style="font-size: 10px;">
 					<div class="text-center" style="width: 50%;float: left;border: 1px solid #ddd;border-left: 0px;border-right: 0px; padding: 5px;">
 						Seller's Signature <br><br>
-						<img id="image" style="position:absolute; transform: rotate(-18deg)" height="64" width="64" src="<?php echo base_url('images/lel_stamp.png'); ?>" alt="company_stamp" /><br>
+						<img id="image" style="position:absolute" height="64" width="64" src="<?php echo base_url('images/lel_stamp.png'); ?>" alt="company_stamp" /><br>
 						_______________
 					</div>
 					<div class="text-center" style="width: 50%;float: left;border: 1px solid #ddd;border-right: 0px; padding: 5px;">

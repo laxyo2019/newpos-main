@@ -573,6 +573,16 @@ class Sale_lib
 		$this->CI->session->unset_userdata('applied_credit_note');
 	}
 
+	public function apply_special_voucher($voucher_number)
+	{
+		$this->CI->session->set_userdata('applied_special_voucher', $voucher_number);
+	}
+
+	public function remove_special_voucher()
+	{
+		$this->CI->session->unset_userdata('applied_special_voucher');
+	}
+
 	public function remove_invoice_mode()
 	{
 		$this->CI->session->set_userdata('sales_invoice_number_enabled', false);
@@ -1008,6 +1018,11 @@ class Sale_lib
 		$this->set_cart($items);
 	}
 
+	public function set_billtype($sale_id)
+	{
+		$this->CI->session->set_userdata('billtype', $this->CI->Sale->get_billtype($sale_id));
+	}
+
 	public function return_entire_sale($receipt_sale_id)
 	{
 		//POS #
@@ -1023,6 +1038,7 @@ class Sale_lib
 			$this->add_item($row->item_id, -$row->quantity_purchased, $row->item_location, $row->discount_percent, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, TRUE);
 		}
 
+		$this->set_billtype($sale_id);
 		$this->set_customer($this->CI->Sale->get_customer($sale_id)->person_id);
 		$this->set_return_sale_id($sale_id);
 	}
@@ -1104,6 +1120,7 @@ class Sale_lib
 		$this->remove_customer();
 		$this->remove_return_sale_id();
 		$this->remove_credit_note();
+		$this->remove_special_voucher();
 		$this->clear_cash_flags();
 	}
 

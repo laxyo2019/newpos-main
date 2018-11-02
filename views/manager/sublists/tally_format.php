@@ -11,6 +11,7 @@
       <th>Item Category</th>
       <th>Item Subcategory</th>
       <th>Taxable Value</th>
+      <!-- <th>Line</th> -->
       <th>CGST %</th>
       <th>CGST Amt.</th>
       <th>SGST %</th>
@@ -19,6 +20,7 @@
       <th>IGST Amt.</th>
       <th>Quantity</th>
       <th>Gross Value</th>
+      <th>Sale Payments</th>
       <th>Sale Type</th>
       <th>Sale Status</th>
     </tr>
@@ -38,6 +40,8 @@
       $item_info = $this->Item->get_info($row['item_id']);
 
       $customer_info = $this->Customer->get_info($row['customer_id']);
+
+      $sale_payments = $this->Sale->get_sale_payment_types($row['sale_id']);
       ?>
       <tr>
         <td><?php echo $row['sale_id']; ?></td>
@@ -50,6 +54,7 @@
         <td><?php echo $item_info->category; ?></td>
         <td><?php echo $item_info->subcategory; ?></td>
         <td><?php echo $price - round($taxable_value, 2); ?></td>
+        <!-- <td><?php //echo $row['line']; ?></td> -->
         <td><?php echo (empty($tax_data['tax_percents']['CGST'])) ? NULL : $tax_data['tax_percents']['CGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_amounts']['CGST'])) ? NULL : $tax_data['tax_amounts']['CGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_percents']['SGST'])) ? NULL : $tax_data['tax_percents']['SGST']; ?></td>
@@ -58,6 +63,7 @@
         <td><?php echo (empty($tax_data['tax_amounts']['IGST'])) ? NULL : $tax_data['tax_amounts']['IGST']; ?></td>
         <td><?php echo to_quantity_decimals($row['quantity']); ?></td>
         <td><?php echo $price; ?></td>
+        <td><?php foreach($sale_payments as $pays){echo $pays['payment_type']." ";} ?></td>
         <td><?php echo ($row['sale_type'] == 1) ? "Invoice" : "Credit Note"; ?></td>
         <td><?php echo ($row['sale_status'] == 0) ? "Active" : "Cancelled"; ?></td>
       </tr>

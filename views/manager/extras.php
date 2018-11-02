@@ -13,18 +13,20 @@
     </select>
   </div>
 
-  <!-- <div class="col-md-4">
-    <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php //echo $this->lang->line('common_submit') ?>' data-href='<?php //echo site_url($controller_name."/quick_taxes"); ?>'
-              title='Fetch Item Taxes'>
-          Tax me up!
-    </button>
-    <select id="extSwitch1" class="form-control">
-      <option value="">Select an Option</option>
-      <option value="items_taxes">Show Item Taxes</option>
-    </select>
-  </div>
+  <?php if($this->Item->is_superadmin()){ ?>
+    <div class="col-md-4">
+      <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_taxes"); ?>'
+                title='Fetch Item Taxes'>
+            Tax me up!
+      </button>
+      <select id="extSwitch1" class="form-control">
+        <option value="">Select an Option</option>
+        <option value="items_taxes">Show Item Taxes</option>
+      </select>
+    </div>
+  <?php } ?>
 
-  <div class="col-md-4">
+  <!-- <div class="col-md-4">
     <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php //echo $this->lang->line('common_submit') ?>' data-href='<?php //echo site_url($controller_name."/quick_prices"); ?>'
               title='Fetch Item Prices'>
           Get Prices

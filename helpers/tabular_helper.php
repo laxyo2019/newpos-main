@@ -76,6 +76,7 @@ function get_sales_manage_table_headers()
 	}
 
 	$headers[] = array('credit_note' => '&nbsp', 'sortable' => FALSE);
+	$headers[] = array('invoice_excel' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers($headers);
 }
@@ -113,7 +114,9 @@ function get_sale_data_row($sale)
 		);
 	}
 
-
+	$row['invoice_excel'] = anchor($controller_name."/invoice_excel/$sale->sale_id", '<span class="glyphicon glyphicon-barcode"></span>',
+		array('class' => 'print_hide', 'title' => $CI->lang->line('invoice_excel')
+		));
 	// $row['receipt'] = anchor($controller_name."/receipt/$sale->sale_id", '<span class="glyphicon glyphicon-usd"></span>',
 	// 	array('title' => $CI->lang->line('sales_show_receipt'))
 	// );

@@ -560,6 +560,38 @@ class Sale extends CI_Model
 		return $suggestions;
 	}
 
+	public function get_offer_stats($cart_data)
+	{
+		$customer_id = $this->sale_lib->get_customer();
+		$offer_total = 0;
+		$clothes_footwear = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
+		foreach($cart_data as $items)
+		{
+			if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->category, $clothes_footwear))
+			{
+				$offer_total += $items['discounted_total'];
+			}
+		}
+		
+		if($offer_total >= 1500)
+		{
+			return array(
+				'status' => TRUE,
+				'vc_code' => "DBFDIWALI300"
+			);
+		}
+	}
+
+	public function is_vc_applied_sale($cn_sale_id)
+	{
+		$is_vc_sale = $this->db->where('cn_sale_id', $cn_sale_id)->get('sales_returns')->row()->return_sale_id;
+		if($this->db->where('redeem_sale_id', $is_vc_sale)->count_all_results('special_vc_out') == 1)
+		{
+			$voucher_id = $this->db->where('redeem_sale_id', $is_vc_sale)->get('special_vc_out')->row()->voucher_id;
+			return $this->db->where('id', $voucher_id)->get('special_vc')->row()->vc_val;
+		}
+	}
+
 	/**
 	 * Gets total of invoice rows
 	 */
@@ -659,6 +691,7 @@ class Sale extends CI_Model
 			$sale_id = $pieces[1];
 
 			$this->db->where('cn_sale_id', $sale_id);
+			$this->db->where('deleted', 0);
 			if($this->db->count_all_results('sales_returns') == 0) // if not a credit note
 			{
 				$sale_info = $this->get_sale_info($sale_id);
@@ -674,6 +707,7 @@ class Sale extends CI_Model
 				else
 				{
 					$this->db->where('return_sale_id', $sale_id);
+					$this->db->where('deleted', 0);
 					if($this->db->count_all_results('sales_returns') > 0)
 					{
 						return 'PROCESSED';
@@ -681,6 +715,7 @@ class Sale extends CI_Model
 					else
 					{
 						$this->db->where('redeem_sale_id', $sale_id);
+						$this->db->where('deleted', 0);
 						if($this->db->count_all_results('sales_returns') > 0)
 						{
 							return 'NON_RETURNABLE_INVOICE';
@@ -1091,6 +1126,8 @@ class Sale extends CI_Model
 
 		$this->update_sale_status($sale_id, CANCELED);
 
+		$this->db->update('sales_returns', array('deleted' => 1), array('cn_sale_id' => $sale_id));
+
 		// execute transaction
 		$this->db->trans_complete();
 
@@ -1172,6 +1209,76 @@ class Sale extends CI_Model
 		return $this->db->get();
 	}
 
+	public function get_billtype($sale_id)
+	{
+		return $this->db->where('sale_id', $sale_id)->get('sales')->row()->bill_type;
+	}
+
+	/**
+	 * Gets sale payment types
+	 */
+	public function get_sale_payment_types($sale_id)
+	{
+		return $sale_payments = $this->db->where('sale_id', $sale_id)->get('sales_payments')->result_array();
+	}
+
+	/**
+	 * Verifies the sale
+	 */
+	public function is_valid_sale_action($amount)
+	{
+		$sales_mode = $this->session->userdata('sales_mode');
+		if($sales_mode == "sale")
+		{
+			if($this->check_50k_limit($amount))
+			{
+				return TRUE;
+			}
+		} 
+		else if($sales_mode == "return")
+		{
+			if(!empty($this->session->userdata('return_sale_id')))
+			{
+				if($this->session->userdata('billtype') != "wholesale")
+				{
+					return TRUE;
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Check if total payable amount goes above 50k in retail or below in wholesale
+	 */
+	public function check_50k_limit($amount)
+	{
+		$billtype = ($this->session->userdata('billtype') == "") ? "retail" : $this->session->userdata('billtype');
+
+		if($billtype == "retail")
+		{
+			if($amount < 50000)
+			{
+				return TRUE;
+			}
+			// else
+			// {
+			// 	echo "Retail Bill above 50k not allowed.";
+			// }
+		}
+		else if($billtype == "wholesale")
+		{
+			if($amount >= 50000)
+			{
+				return TRUE;
+			}
+			// else
+			// {
+			// 	echo "Wholesale bill below 50k not allowed.";
+			// }
+		}
+	}
+
 	/**
 	 * Gets sale payment options
 	 */
@@ -1198,7 +1305,7 @@ class Sale extends CI_Model
 			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
 		}
 
-		if($this->Item->check_auth(array('hub')))
+		if($this->Item->check_auth(array('hub', 'apnagps')))
 		{
 			$payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
 			$payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');
@@ -1223,23 +1330,6 @@ class Sale extends CI_Model
 		}
 
 		return $payments;
-	}
-
-	/**
-	 * Check if total payable amount goes above 50k in retail
-	 */
-	public function check_50k_limit($amount)
-	{
-		if(empty($this->session->userdata('billtype')))
-		{
-			if($amount > 50000){
-				return TRUE;
-			}
-		}
-		else
-		{
-			return FALSE;
-		}
 	}
 
 	/**

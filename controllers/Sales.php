@@ -54,6 +54,13 @@ class Sales extends Secure_Controller
 		}
 	}
 
+	public function invoice_excel($sale_id)
+	{
+		$data = $this->_load_sale_data($sale_id);
+		$this->load->view('sales/invoice_excel', $data);
+		$this->sale_lib->clear_all();
+	}
+
 	public function get_row($row_id)
 	{
 		$sale_info = $this->Sale->get_info($row_id)->row();
@@ -459,18 +466,43 @@ class Sales extends Secure_Controller
 		$cn_sale_id = $credit_details[0]['cn_sale_id'];
 		$credit_note_number = $credit_details[0]['cn_number'];
 
-		$this->db->where('sale_id', $cn_sale_id);
-		$cn_amount = $this->db->get('sales_payments')->row()->payment_amount;
-		$cn_amount *= -1;
+		$vc_amount = $this->Sale->is_vc_applied_sale($cn_sale_id);
+
+		$cn_amount = (empty($vc_amount)) ? $this->db->where('sale_id', $cn_sale_id)->get('sales_payments')->row()->payment_amount : $this->db->where('sale_id', $cn_sale_id)->get('sales_payments')->row()->payment_amount + $vc_amount;
+		$cn_amount *= -1; // to convert into positive amount
 
 		$this->sale_lib->add_payment($this->lang->line('sales_credit_note'), $cn_amount);
 		$this->sale_lib->apply_credit_note($credit_note_number);
+	}
+
+	public function add_special_voucher_payment()
+	{
+		$customer_id = $this->sale_lib->get_customer();
+		if($customer_id != -1)
+		{
+			$this->db->where('customer_id', $customer_id);
+			$vc_number = $this->db->get('special_vc_out')->row()->id;
+			$vc_id = $this->db->get('special_vc_out')->row()->voucher_id;
+			$vc_amount = $this->db->where('id', $vc_id)->get('special_vc')->row()->vc_val;
+
+			$this->sale_lib->add_payment($this->lang->line('sales_special_voucher'), $vc_amount);
+			$this->sale_lib->apply_special_voucher($vc_number);
+		}
+		
 	}
 
 	// Multiple Payments
 	public function delete_payment($payment_id)
 	{
 		$this->sale_lib->delete_payment($payment_id);
+		if($payment_id == $this->lang->line('sales_credit_note'))
+		{
+			$this->sale_lib->remove_credit_note();
+		}
+		if($payment_id == "Special Voucher")
+		{
+			$this->sale_lib->remove_special_voucher();
+		}
 
 		$this->_reload();
 	}
@@ -768,6 +800,21 @@ class Sales extends Secure_Controller
 					);
 					$this->db->update('sales_returns', $redeem_data);
 				}
+
+				if(!empty($this->session->userdata('applied_special_voucher'))) //check in session if special voucher is already applied
+				{
+					$redeem_at = array(
+						'id' => $this->session->userdata('applied_special_voucher'),
+						'customer_id' => $this->Sale->get_customer($data['sale_id_num'])->person_id
+					);
+					$this->db->where($redeem_at);
+					$redeem_data = array( //update entry in ospos_sales_returns table
+						'redeem_sale_id' => $data['sale_id_num'],
+						'redeem_time' => date('Y-m-d H:i:s'),
+						'status' => 1
+					);
+					$this->db->update('special_vc_out', $redeem_data);
+				}
 					
 				// Resort and filter cart lines for printing
 				$data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
@@ -995,6 +1042,7 @@ class Sales extends Secure_Controller
 	{
 		$available_credits = array();
 		$this->db->where('customer_id', $customer_id);
+		$this->db->where('deleted', 0);
 		$this->db->where('emp_id', $this->session->userdata('person_id')); //CN scanning limited to specific shop
 		foreach($this->db->get('sales_returns')->result_array() as $row)
 		{
@@ -1005,6 +1053,25 @@ class Sales extends Secure_Controller
 		}
 		return $available_credits;
 	}
+
+	public function check_my_voucher($customer_id)
+	{
+		$available_voucher = array();
+		$this->db->where('customer_id', $customer_id);
+		$this->db->where('status', 0);
+		foreach($this->db->get('special_vc_out')->result_array() as $row)
+		{
+				$available_vouchers[] = $row;
+		}
+		return $available_vouchers;
+	}
+
+	// public function view_stats()
+	// {
+	// 	$cart_data = $this->sale_lib->get_cart();
+	// 	$data['offer_stats'] = $this->Sale->get_offer_stats($cart_data);
+	// 	$this->load->view('sales/stats', $data);
+	// }
 
 	private function _load_customer_data($customer_id, &$data, $stats = FALSE)
 	{
@@ -1061,6 +1128,14 @@ class Sales extends Secure_Controller
 				}
 			}
 
+			if($this->session->userdata('sales_mode') != 'return')
+			{
+				if(empty($this->session->userdata('applied_special_voucher')))
+				{
+					$data['customer_special_voucher'] = $this->check_my_voucher($customer_id)[0]['id'];
+				}
+			}
+
 			// $data['customer_info'] = implode("\n", array(
 			// 	$data['customer'],
 			// 	$data['customer_gstin'],
@@ -1071,6 +1146,7 @@ class Sales extends Secure_Controller
 
 			$data['customer_info'] = array(
 				'name' => '<b>'.$customer_info->first_name.' '.$customer_info->last_name.'</b>',
+				// 'address' => $customer_info->address_1.', '.$customer_info->address_2.', '.$customer_info->city.', '.$customer_info->state.' ('.$customer_info->zip.')',
 				'phone' => $customer_info->phone_number,
 				'gstin' => $customer_info->gstin
 			);
@@ -1187,6 +1263,7 @@ class Sales extends Secure_Controller
 			$this->session->set_userdata('sale_id', -1);
 		}
 		$data['cart'] = $this->sale_lib->get_cart();
+		$data['offer_stats'] = $this->Sale->get_offer_stats($data['cart']);
 		$customer_info = $this->_load_customer_data($this->sale_lib->get_customer(), $data, TRUE);
 
 		foreach($this->get_custom_fields('billtype', 'custom_fields') as $row)

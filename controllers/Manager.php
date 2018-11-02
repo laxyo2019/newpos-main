@@ -167,25 +167,23 @@ class Manager extends Secure_Controller
     $start_date = $this->input->post('start_date');
     $end_date = $this->input->post('end_date');
     $result_items = array();
-
+    
     $this->db->select('
-      sales.sale_id AS sale_id,
-      sales.sale_time AS sale_time,
-      sales.customer_id AS customer_id,
-      sales.tally_number AS tally_number,
-      sales.employee_id AS employee_id,
-      sales.sale_status AS sale_status,
-      sales.sale_type AS sale_type,
-      sales_items.item_id AS item_id,
-      sales_items.quantity_purchased AS quantity,
-      sales_items.item_unit_price AS item_price,
-      sales_items.discount_percent AS item_discount
+    sales.sale_id AS sale_id,
+    sales.sale_time AS sale_time,
+    sales.customer_id AS customer_id,
+    sales.tally_number AS tally_number,
+    sales.employee_id AS employee_id,
+    sales.sale_status AS sale_status,
+    sales.sale_type AS sale_type,
+    sales_items.item_id AS item_id,
+    sales_items.quantity_purchased AS quantity,
+    sales_items.item_unit_price AS item_price,
+    sales_items.discount_percent AS item_discount
     ');
     $this->db->from('sales');
     $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
-    // $this->db->join('sales_items_taxes', 'sales_items.sale_id = sales_items_taxes.sale_id');
-    // $this->db->where('sale_time >=', date('Y-m-d', strtotime($start_date)));
-    // $this->db->where('sale_time <=', date('Y-m-d', strtotime($end_date)));
+    $this->db->where('DATE(sale_time) BETWEEN "'.rawurldecode($start_date).'" AND "'.rawurldecode($end_date).'"');
     $data['report_results'] = $this->db->get()->result_array();
     $this->load->view('manager/sublists/tally_format', $data);
   }
@@ -523,6 +521,100 @@ class Manager extends Secure_Controller
 
 		echo $counter.' Items successfully updated!';
   }
+
+  public function quick_bulk_discount()
+  {
+    $this->load->view('manager/modals/discount_uploader', NULL);
+  }
+
+  public function do_quick_bulk_discount()
+  {
+    if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
+		{
+			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
+		}
+		else
+		{
+			if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
+			{
+				// Skip the first row as it's the table description
+				fgetcsv($handle);
+				$i = 1;
+
+				$failCodes = array();
+
+				while(($data = fgetcsv($handle)) !== FALSE)
+				{
+					// XSS file data sanity check
+          $data = $this->xss_clean($data);
+
+          // COLUMN1
+          $barcode = $data[0]; 
+
+          // COLUMN2
+          switch ($data[1]) { 
+              case 1:
+                  $discount_type = 'retail';
+                  break;
+              case 2:
+                  $discount_type = 'wholesale';
+                  break;
+              case 3:
+                  $discount_type = 'franchise';
+                  break;
+              case 4:
+                  $discount_type = 'ys';
+                  break;    
+              default:
+                  // No Action
+          }
+
+          // COLUMN3
+          $discount_value = $data[2];
+
+          // COLUMN4
+          if($data[3] == 1) // DISCOUNTED ITEMS  
+          {
+            $item_info = $this->Item->get_info_by_id_or_number($barcode);
+            $discounts = json_decode($item_info->discounts);
+            $discounts->$discount_type = number_format($discount_value, 2);
+            $data = array(
+              'discounts' => json_encode($discounts)
+            );
+            $this->db->where('item_number', $barcode)->update('items', $data);
+          }
+          else if($data[3] == 2) // FP ITEMS
+          {
+            $item_info = $this->Item->get_info_by_id_or_number($barcode);
+            $discounts = json_decode($item_info->cost_price);
+            $discounts->$discount_type = number_format($discount_value, 2);
+            $data = array(
+              'unit_price' => 0,
+              'cost_price' => json_encode($discounts)
+            );
+            $this->db->where('item_number', $barcode)->update('items', $data);
+          }
+
+          ++$i;
+
+        } // while loop ends here
+        if(count($failCodes) > 0)
+				{
+					$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
+
+					echo json_encode(array('success' => FALSE, 'message' => $message));
+				}
+				else
+				{
+					echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
+				}
+      }
+      else
+      {
+        echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
+      }
+    }
+  }
   
   public function bulk_action_report()
   {
@@ -563,7 +655,12 @@ class Manager extends Secure_Controller
 					$location_id = $data[1];
 					$location_quantity = $data[2];
 
-					$count =$this->db->where('item_number', $barcode)->count_all_results('items');
+          $where_array = array(
+            'deleted' => 0,
+            'item_number' => $barcode
+          );
+
+					$count = $this->db->where($where_array)->count_all_results('items');
 
 					if($count == 1)
 					{
@@ -633,20 +730,26 @@ class Manager extends Secure_Controller
 					// XSS file data sanity check
 					$data = $this->xss_clean($data);
 
-					$barcode = $data[0];
+          $sale_id = $data[0];
+          $item_id = $data[1];
+          $tax_percent = $data[2];
+          $tax_amt = $data[3];
 
-					$count =$this->db->where('item_number', $barcode)->count_all_results('items');
+          $array1 = array(
+            'sale_id' => $sale_id,
+            'item_id' => $item_id
+          );
+
+          $array2 = array(
+            'percent' => number_format($tax_percent,1),
+            'item_tax_amount' => number_format($tax_amt,2)
+          );
+
+          $this->db->where($array1)->update('sales_items_taxes', $array2);
 
 					++$i;
 
 				} // while loop ends here
-
-				$extras_array = array(
-					'active_items' => json_encode($active_items),
-          'deleted_items' => json_encode($deleted_items),
-          'time' => date('Y-m-d H:i:s')
-				);
-				$this->db->insert('extras', $extras_array);
 
 				if(count($failCodes) > 0)
 				{

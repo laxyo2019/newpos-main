@@ -7,14 +7,18 @@
 			<option value="bulk_discount">Bulk Discount</option>
 		</select>
 	</span>
-  <span class="col-md-3 pull-right">
-    <button class='btn btn-info modal-dlg' data-href='<?php echo site_url($controller_name."/bulk_hsn_view"); ?>'
+  <span class="col-md-4 pull-right">
+    <button class='btn btn-info btn-sm modal-dlg' data-href='<?php echo site_url($controller_name."/bulk_hsn_view"); ?>'
             title='Bulk HSN Update'>
         </span>Bulk HSN
     </button>
-    <button class='btn btn-info modal-dlg' data-href='<?php echo site_url($controller_name."/bulk_discount_view"); ?>'
+    <button class='btn btn-info btn-sm modal-dlg' data-href='<?php echo site_url($controller_name."/bulk_discount_view"); ?>'
             title='Bulk Discount Update'>
         </span>Bulk Discounts
+    </button>
+    <button class='btn btn-info btn-sm modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_bulk_discount"); ?>'
+              title='Quick Discount Update'>
+            Quick Discounts
     </button>
 </div>
 <hr>

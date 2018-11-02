@@ -97,7 +97,7 @@
 		});
 
 		$('#save').on('click', function(){
-			<?php if($this->Item->is_superadmin()){ ?>
+			<?php if($this->Item->is_both()){ ?>
 				var id = "";
 				var type = $('#select_mci').val();
 				var name = $('#create_mci').val();

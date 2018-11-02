@@ -42,9 +42,12 @@ class Pricing extends CI_Model
 	
 	public function get_core_plans()
 	{
-		return $this->db->where('tag', 'special_pricing')
-		->get('custom_fields')
-		->result_array();
+		return $this->db->where('tag', 'special_pricing')->get('custom_fields')->result_array();
+	}
+
+	public function get_core_special_vouchers()
+	{
+		return $this->db->where('tag', 'special_voucher')->get('custom_fields')->result_array();
 	}
 	
 	public function pointer_search($plan, $info)

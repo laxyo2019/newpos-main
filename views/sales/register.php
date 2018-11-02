@@ -16,7 +16,7 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-<?php //echo json_encode($this->session->userdata()); ?>
+<?php echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -93,7 +93,7 @@ if(isset($success))
 					</button>
 				</li> -->
 
-				<?php
+				<?php //Daily Sales
 				if($this->Employee->has_grant('reports_sales', $this->session->userdata('person_id')))
 				{
 				?>
@@ -104,12 +104,15 @@ if(isset($success))
 				<?php
 				}
 				?>
+				<!-- <li class="pull-right">
+					<?php //echo anchor($controller_name."/view_stats", 'Stats',
+								//array('class'=>'btn btn-primary btn-sm modal-dlg', 'id'=>'stats_button', 'title'=>'Stats')); ?>
+				</li> -->
 			</ul>
 		</div>
 	<?php echo form_close(); ?>
 
 	<?php $tabindex = 0; ?>
-
 	<?php echo form_open($controller_name."/add", array('id'=>'add_item_form', 'class'=>'form-horizontal panel panel-default')); ?>
 		<div class="panel-body form-group">
 			<ul>
@@ -122,6 +125,17 @@ if(isset($success))
 				</li>
 
 				<?php //echo form_hidden('billtype', $this->session->userdata('billtype')); ?>
+
+				<?php //SPECIAL VOUCHER BLINKER
+				if(!empty($customer_special_voucher))
+				{
+				?>
+					<li class="pull-right">
+						<p id="add_special_voucher_payment" class="animated pulse infinite" style="font-weight:bold; font-size: 1.3em; color:#fff; cursor:pointer"><?php echo $offer_stats['vc_code']; ?></p>
+					</li>
+				<?php 
+				} 
+				?>
 
 				<li class="pull-right">
 				<?php if($this->Item->is_superadmin()) { ?>
@@ -153,19 +167,7 @@ if(isset($success))
 			</tr>
 		</thead>
 
-		<tbody id="cart_contents">
-			<?php
-				if($this->Sale->check_50k_limit($total))
-				{
-			?>
-				<tr>
-					<td colspan='8'>
-						<div class='alert alert-dismissible alert-danger'>Total bill amt. exceeding 50,000. Please remove few items and add in next bill.</div>
-					</td>
-				</tr>
-			<?php
-				}
-			?>								
+		<tbody id="cart_contents">								
 			<?php
 			if(count($cart) == 0)
 			{
@@ -406,7 +408,7 @@ if(isset($success))
 					<?php
 					}
 					?>
-					<?php
+					<?php //CREDIT NOTE BLINKER
 					if(!empty($customer_credit_note))
 					{
 					?>
@@ -517,7 +519,7 @@ if(isset($success))
 					<?php echo form_close(); ?>
 						<?php
 						// Only show this part if the payment cover the total and in sale or return mode
-						if($pos_mode == '1' && !$this->Sale->check_50k_limit($total)) 
+						if($pos_mode == '1') // && $this->Sale->check_50k_limit($total)
 						{
 						?>
 						<div class='btn btn-sm btn-success pull-right' id='finish_sale_button' tabindex='<?php echo ++$tabindex; ?>'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $this->lang->line('sales_complete_sale'); ?></div>
@@ -591,7 +593,7 @@ if(isset($success))
 					<!-- <div class='btn btn-sm btn-default pull-left' id='suspend_sale_button'><span class="glyphicon glyphicon-align-justify">&nbsp</span><?php //echo $this->lang->line('sales_suspend_sale'); ?></div> -->
 					<?php
 					// Only show this part if the payment covers the total
-					if(!$pos_mode && isset($customer) && !$this->Sale->check_50k_limit($total))
+					if(!$pos_mode && isset($customer)) // && !$this->Sale->check_50k_limit($total)
 					{
 					?>
 						<div class='btn btn-sm btn-success' id='finish_invoice_quote_button'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $mode_label; ?></div>
@@ -745,6 +747,13 @@ $(document).ready(function()
   	});
 	});
 
+	$('#add_special_voucher_payment').on('click', function(){
+		$(this).hide();
+	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment");?>', {}, function(data) {
+			window.location.href = "sales";
+  	});
+	});
+
 	$("#item").autocomplete(
 	{
 		source: '<?php echo site_url($controller_name."/item_search"); ?>',
@@ -834,10 +843,14 @@ $(document).ready(function()
 
 	$("#finish_sale_button").click(function()
 	{
-		$('#buttons_form').attr('action', '<?php echo site_url($controller_name."/complete"); ?>');
-		$('#buttons_form').submit();
+		<?php if($data = $this->Sale->is_valid_sale_action($total)){ ?>
+			$('#buttons_form').attr('action', '<?php echo site_url($controller_name."/complete"); ?>');
+			$('#buttons_form').submit();
+		<?php }else{ ?>
+			alert("Invalid Action");
+		<?php } ?>
 	});
-
+	
 	$("#finish_invoice_quote_button").click(function()
 	{
 		$('#buttons_form').attr('action', '<?php echo site_url($controller_name."/complete"); ?>');
@@ -908,13 +921,13 @@ $(document).ready(function()
 		}
 	});
 
-	$("#finish_sale_button").keypress(function(event)
-	{
-		if(event.which == 13)
-		{
-			$('#finish_sale_form').submit();
-		}
-	});
+	// $("#finish_sale_button").keypress(function(event)
+	// {
+	// 	if(event.which == 13)
+	// 	{
+	// 		$('#finish_sale_form').submit();
+	// 	}
+	// });
 
 	dialog_support.init("a.modal-dlg, button.modal-dlg");
 
