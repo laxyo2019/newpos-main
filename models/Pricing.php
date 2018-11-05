@@ -45,9 +45,14 @@ class Pricing extends CI_Model
 		return $this->db->where('tag', 'special_pricing')->get('custom_fields')->result_array();
 	}
 
-	public function get_core_special_vouchers()
+	public function get_core_voucher_types()
 	{
 		return $this->db->where('tag', 'special_voucher')->get('custom_fields')->result_array();
+	}
+
+	public function get_special_vouchers()
+	{
+		return $this->db->get('special_vc')->result_array();
 	}
 	
 	public function pointer_search($plan, $info)
@@ -99,6 +104,15 @@ class Pricing extends CI_Model
 			}
 		}
 
+	}
+
+	public function get_voucher_detail($vc_type)
+	{
+		$array = array(
+			'tag' => 'special_pricing',
+			'int_value' => $vc_type
+		);
+		return $this->db->where($array)->get('custom_fields')->row()->title;
 	}
 
 }

@@ -316,33 +316,26 @@
 		</div>
 
 		<hr>
-		<select name="custom_item_type" id="custom_item_type" class="form-control col-xs-4">
-			<?php if($item_info->unit_price == 0.00){ ?>
-				<option value="discounted">Discounted Item</option>
-				<option value="fixed" selected>Fixed Price Item</option>
-			<?php } else if($item_info->unit_price > 0.00){ ?>
-				<option value="discounted" selected>Discounted Item</option>
-				<option value="fixed">Fixed Price Item</option>
-			<?php } else{ ?>
-				<option value="discounted">Discounted Item</option>
-				<option value="fixed">Fixed Price Item</option>
-			<?php } ?>
-		</select>
 
-		<p style="text-align:center; font-weight:bold; font-size: 1.2em; color:#9C27B0">Discounts/Fixed Prices</p>
-			<?php
-				if(!empty($item_info->unit_price))
-				{
-					$billtype_retail = ($item_info->unit_price < 1) ? json_decode($item_info->cost_price)->retail : json_decode($item_info->discounts)->retail;
-					$billtype_wholesale = ($item_info->unit_price < 1) ? json_decode($item_info->cost_price)->wholesale : json_decode($item_info->discounts)->wholesale;
-					$billtype_franchise = ($item_info->unit_price < 1) ? json_decode($item_info->cost_price)->franchise : json_decode($item_info->discounts)->franchise;
-					$billtype_ys = ($item_info->unit_price < 1) ? json_decode($item_info->cost_price)->ys : json_decode($item_info->discounts)->ys;
-				}
-			?>
+		<?php if($item_info->unit_price == 0.00){ ?>
+			<p name="custom_price_label" id="custom_price_label" value="fixed" style="text-align:center; font-weight:bold; font-size: 1.2em; color:#9C27B0">Fixed Prices</p>
+		<?php }else{ ?>
+			<p id="custom_price_label" value="discounted" style="text-align:center; font-weight:bold; font-size: 1.2em; color:#9C27B0">Discount Values</p>
+		<?php } ?>
+
+		<?php
+			if(!empty($item_info->unit_price))
+			{
+				$billtype_retail = ($item_info->unit_price == 0.00) ? json_decode($item_info->cost_price)->retail : json_decode($item_info->discounts)->retail;
+				$billtype_wholesale = ($item_info->unit_price == 0.00) ? json_decode($item_info->cost_price)->wholesale : json_decode($item_info->discounts)->wholesale;
+				$billtype_franchise = ($item_info->unit_price == 0.00) ? json_decode($item_info->cost_price)->franchise : json_decode($item_info->discounts)->franchise;
+				$billtype_ys = ($item_info->unit_price == 0.00) ? json_decode($item_info->cost_price)->ys : json_decode($item_info->discounts)->ys;
+			}
+		?>
 			
 		<?php if($this->Item->check_auth(array('superadmin', 'admin', 'apnagps'))){ ?>
 			<div class="form-group form-group-sm">
-				<?php echo form_label(strtoupper('Retail'), 'ds_1', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('RETAIL', 'ds_1', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
 							'name'=> 'ds_1',
@@ -355,7 +348,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label(strtoupper('Wholesale'), 'ds_2', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('WHOLESALE', 'ds_2', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
 							'name'=> 'ds_2',
@@ -368,7 +361,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label(strtoupper('Franchise'), 'ds_3', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('FRANCHISE', 'ds_3', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
 							'name'=> 'ds_3',
@@ -381,7 +374,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label(strtoupper('Special Approval'), 'ds_4', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('SPECIAL APPROVAL', 'ds_4', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
 							'name'=> 'ds_4',
@@ -413,6 +406,20 @@ $(document).ready(function()
 	// 	$('#name').val(text);
 	// 	$('#livesearch').html('');
 	// });
+
+	$('#unit_price').on('keyup', function(){
+		var unit_price = $(this).val();
+		if(unit_price == 0.00)
+		{
+			$('#custom_price_label').val('fixed');
+			$('#custom_price_label').html('Fixed Prices');
+		}
+		else
+		{
+			$('#custom_price_label').val('discounted');
+			$('#custom_price_label').html('Discount Values');
+		}
+	});
 
 	$('#level1').on('change',function(){
 		var level1 = $(this).val();

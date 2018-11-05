@@ -16,7 +16,7 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-<?php echo json_encode($this->session->userdata()); ?>
+<?php //echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -127,14 +127,14 @@ if(isset($success))
 				<?php //echo form_hidden('billtype', $this->session->userdata('billtype')); ?>
 
 				<?php //SPECIAL VOUCHER BLINKER
-				if(!empty($customer_special_voucher))
-				{
+				//if(!empty($customer_special_voucher))
+				//{
 				?>
-					<li class="pull-right">
-						<p id="add_special_voucher_payment" class="animated pulse infinite" style="font-weight:bold; font-size: 1.3em; color:#fff; cursor:pointer"><?php echo $offer_stats['vc_code']; ?></p>
-					</li>
+					<!-- <li class="pull-right">
+						<p id="add_special_voucher_payment" class="animated pulse infinite" style="font-weight:bold; font-size: 1.3em; color:#fff; cursor:pointer"><?php //echo $offer_stats['vc_code']; ?></p>
+					</li> -->
 				<?php 
-				} 
+				//} 
 				?>
 
 				<li class="pull-right">
@@ -843,7 +843,7 @@ $(document).ready(function()
 
 	$("#finish_sale_button").click(function()
 	{
-		<?php if($data = $this->Sale->is_valid_sale_action($total)){ ?>
+		<?php if($this->Sale->is_valid_sale_action($total)){ ?>
 			$('#buttons_form').attr('action', '<?php echo site_url($controller_name."/complete"); ?>');
 			$('#buttons_form').submit();
 		<?php }else{ ?>

@@ -589,11 +589,11 @@ class Items extends Secure_Controller
 			// 'custom10' => $this->input->post('custom10') == NULL ? '' : $this->input->post('custom10')
 		);
 
-		if($this->input->post('custom_item_type') == 'fixed')
+		if($item_data['unit_price'] == 0.00)
 		{
 			$item_data['cost_price'] = json_encode($discounts);
 		}
-		else if($this->input->post('custom_item_type') == 'discounted')
+		else
 		{
 			$item_data['discounts'] = json_encode($discounts);
 		}

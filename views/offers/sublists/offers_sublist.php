@@ -1,4 +1,4 @@
-<table id="list" class="display" style="width:100%">
+<table id="offer_list" class="display" style="width:100%">
   <thead>
     <tr>
       <th>Delete</th>

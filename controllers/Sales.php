@@ -1054,23 +1054,16 @@ class Sales extends Secure_Controller
 		return $available_credits;
 	}
 
-	public function check_my_voucher($customer_id)
-	{
-		$available_voucher = array();
-		$this->db->where('customer_id', $customer_id);
-		$this->db->where('status', 0);
-		foreach($this->db->get('special_vc_out')->result_array() as $row)
-		{
-				$available_vouchers[] = $row;
-		}
-		return $available_vouchers;
-	}
-
-	// public function view_stats()
+	// public function check_my_voucher($customer_id)
 	// {
-	// 	$cart_data = $this->sale_lib->get_cart();
-	// 	$data['offer_stats'] = $this->Sale->get_offer_stats($cart_data);
-	// 	$this->load->view('sales/stats', $data);
+	// 	$available_voucher = array();
+	// 	$this->db->where('customer_id', $customer_id);
+	// 	$this->db->where('status', 0);
+	// 	foreach($this->db->get('special_vc_out')->result_array() as $row)
+	// 	{
+	// 		$available_vouchers[] = $row;
+	// 	}
+	// 	return $available_vouchers;
 	// }
 
 	private function _load_customer_data($customer_id, &$data, $stats = FALSE)
@@ -1128,13 +1121,13 @@ class Sales extends Secure_Controller
 				}
 			}
 
-			if($this->session->userdata('sales_mode') != 'return')
-			{
-				if(empty($this->session->userdata('applied_special_voucher')))
-				{
-					$data['customer_special_voucher'] = $this->check_my_voucher($customer_id)[0]['id'];
-				}
-			}
+			// if($this->session->userdata('sales_mode') != 'return')
+			// {
+			// 	if(empty($this->session->userdata('applied_special_voucher')))
+			// 	{
+			// 		$data['customer_special_voucher'] = $this->check_my_voucher($customer_id)[0]['id'];
+			// 	}
+			// }
 
 			// $data['customer_info'] = implode("\n", array(
 			// 	$data['customer'],
@@ -1263,7 +1256,7 @@ class Sales extends Secure_Controller
 			$this->session->set_userdata('sale_id', -1);
 		}
 		$data['cart'] = $this->sale_lib->get_cart();
-		$data['offer_stats'] = $this->Sale->get_offer_stats($data['cart']);
+		// $data['offer_stats'] = $this->Sale->get_offer_stats($data['cart']);
 		$customer_info = $this->_load_customer_data($this->sale_lib->get_customer(), $data, TRUE);
 
 		foreach($this->get_custom_fields('billtype', 'custom_fields') as $row)

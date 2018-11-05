@@ -11,14 +11,13 @@
 		</select>
 	</span>
   <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/view_basic"); ?>'
-            title='Add New Basic Offer'>
-      Add New
+            title='Create New Offer'>
+      Create
   </button>
 
 </div>
 <hr>
-<div id="table_area"></div>
-
+<div id="offers_table_area"></div>
 
 <script>
 	$(document).ready( function () {

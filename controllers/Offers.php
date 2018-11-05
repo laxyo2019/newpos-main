@@ -12,7 +12,7 @@ class Offers extends Secure_Controller
 	public function index()
 	{
 		$data['plans'] = $this->Pricing->get_core_plans();
-		$data['special_vouchers'] = $this->Pricing->get_core_special_vouchers();
+		$data['special_vouchers'] = $this->Pricing->get_special_vouchers();
 		$this->load->view('offers/dashboard', $data);
 	}
 
@@ -230,6 +230,18 @@ class Offers extends Secure_Controller
 	{
 		$data['special_vouchers'] = $this->db->where('voucher_id', 1)->get('special_vc_out')->result_array();
 		$this->load->view('offers/sublists/vouchers_sublist', $data);
+	}
+
+	public function get_all_vc_out_sublist($id)
+	{	
+		$data['all_vc_out_list'] = $this->db->where('voucher_id', $id)->get('special_vc_out')->result_array();
+		$this->load->view('offers/sublists/vc_out_sublist', $data);
+	}
+
+	public function get_redeemed_vc_out_sublist($id)
+	{	
+		$data['all_vc_out_list'] = $this->db->where(array('voucher_id' => $id, 'status' => 1))->get('special_vc_out')->result_array();
+		$this->load->view('offers/sublists/vc_out_sublist', $data);
 	}
 
 	public function generate_voucher()

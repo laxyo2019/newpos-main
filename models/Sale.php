@@ -560,27 +560,27 @@ class Sale extends CI_Model
 		return $suggestions;
 	}
 
-	public function get_offer_stats($cart_data)
-	{
-		$customer_id = $this->sale_lib->get_customer();
-		$offer_total = 0;
-		$clothes_footwear = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
-		foreach($cart_data as $items)
-		{
-			if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->category, $clothes_footwear))
-			{
-				$offer_total += $items['discounted_total'];
-			}
-		}
+	// public function get_offer_stats($cart_data)
+	// {
+	// 	$customer_id = $this->sale_lib->get_customer();
+	// 	$offer_total = 0;
+	// 	$clothes_footwear = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
+	// 	foreach($cart_data as $items)
+	// 	{
+	// 		if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->category, $clothes_footwear))
+	// 		{
+	// 			$offer_total += $items['discounted_total'];
+	// 		}
+	// 	}
 		
-		if($offer_total >= 1500)
-		{
-			return array(
-				'status' => TRUE,
-				'vc_code' => "DBFDIWALI300"
-			);
-		}
-	}
+	// 	if($offer_total >= 1500)
+	// 	{
+	// 		return array(
+	// 			'status' => TRUE,
+	// 			'vc_code' => "DBFDIWALI300"
+	// 		);
+	// 	}
+	// }
 
 	public function is_vc_applied_sale($cn_sale_id)
 	{
@@ -1261,10 +1261,6 @@ class Sale extends CI_Model
 			{
 				return TRUE;
 			}
-			// else
-			// {
-			// 	echo "Retail Bill above 50k not allowed.";
-			// }
 		}
 		else if($billtype == "wholesale")
 		{
@@ -1272,10 +1268,10 @@ class Sale extends CI_Model
 			{
 				return TRUE;
 			}
-			// else
-			// {
-			// 	echo "Wholesale bill below 50k not allowed.";
-			// }
+		}
+		else
+		{
+			return TRUE;
 		}
 	}
 
