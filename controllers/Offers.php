@@ -226,6 +226,8 @@ class Offers extends Secure_Controller
 		$this->load->view('offers/sublists/offers_sublist', $data);
 	}
 
+	// ------------------ VC FUNCTIONS ------------------------------
+
 	public function get_vouchers_sublist()
 	{
 		$data['special_vouchers'] = $this->db->where('voucher_id', 1)->get('special_vc_out')->result_array();
@@ -243,6 +245,16 @@ class Offers extends Secure_Controller
 		$data['all_vc_out_list'] = $this->db->where(array('voucher_id' => $id, 'status' => 1))->get('special_vc_out')->result_array();
 		$this->load->view('offers/sublists/vc_out_sublist', $data);
 	}
+
+	public function voucher_toggle()
+  {
+    $status = ($this->input->post('status') == 'true') ? 'checked' : '';
+    $data = array(
+      'active' => $status
+    );
+    $this->db->where('id', $this->input->post('id'));
+    echo ($this->db->update('special_vc', $data)) ? 'success' : 'failed';
+  }
 
 	public function generate_voucher()
 	{

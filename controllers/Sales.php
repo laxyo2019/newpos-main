@@ -475,20 +475,11 @@ class Sales extends Secure_Controller
 		$this->sale_lib->apply_credit_note($credit_note_number);
 	}
 
-	public function add_special_voucher_payment()
+	public function add_special_voucher_payment($voucher_id)
 	{
-		$customer_id = $this->sale_lib->get_customer();
-		if($customer_id != -1)
-		{
-			$this->db->where('customer_id', $customer_id);
-			$vc_number = $this->db->get('special_vc_out')->row()->id;
-			$vc_id = $this->db->get('special_vc_out')->row()->voucher_id;
-			$vc_amount = $this->db->where('id', $vc_id)->get('special_vc')->row()->vc_val;
-
-			$this->sale_lib->add_payment($this->lang->line('sales_special_voucher'), $vc_amount);
-			$this->sale_lib->apply_special_voucher($vc_number);
-		}
-		
+		$vc_data = $this->db->where('id', $voucher_id)->get('special_vc')->row();
+		$this->sale_lib->add_payment($this->lang->line('sales_special_voucher'), $vc_data->vc_val);
+		$this->sale_lib->apply_special_voucher($vc_data->voucher_code);
 	}
 
 	// Multiple Payments
@@ -510,12 +501,18 @@ class Sales extends Secure_Controller
 	// 3 Custom Functions
 	public function set_billing_type(){
 		$this->session->set_userdata('billtype', $this->input->post('type'));
-		echo 'success';
 	}
 
 	public function set_taxing_type(){
 		$this->session->set_userdata('taxtype', $this->input->post('type'));
-		echo 'success';
+	}
+
+	public function set_franchise_customer(){
+		$customer_id = $this->input->post('customer_id');
+		if($this->Customer->exists($customer_id))
+		{
+			$this->sale_lib->set_customer($customer_id);
+		}
 	}
 
 	public function get_custom_fields($tag, $table)
@@ -1054,18 +1051,6 @@ class Sales extends Secure_Controller
 		return $available_credits;
 	}
 
-	// public function check_my_voucher($customer_id)
-	// {
-	// 	$available_voucher = array();
-	// 	$this->db->where('customer_id', $customer_id);
-	// 	$this->db->where('status', 0);
-	// 	foreach($this->db->get('special_vc_out')->result_array() as $row)
-	// 	{
-	// 		$available_vouchers[] = $row;
-	// 	}
-	// 	return $available_vouchers;
-	// }
-
 	private function _load_customer_data($customer_id, &$data, $stats = FALSE)
 	{
 		$customer_info = '';
@@ -1125,19 +1110,19 @@ class Sales extends Secure_Controller
 			// {
 			// 	if(empty($this->session->userdata('applied_special_voucher')))
 			// 	{
-			// 		$data['customer_special_voucher'] = $this->check_my_voucher($customer_id)[0]['id'];
+			// 		$data['customer_available_special_vc'] = $this->get_offer_stats($customer_id);
 			// 	}
 			// }
 
 			// $data['customer_info'] = implode("\n", array(
-			// 	$data['customer'],
-			// 	$data['customer_gstin'],
-			// 	$data['customer_address'],
-			// 	$data['customer_location'],
-			// 	$data['customer_account_number']
+			// $data['customer'],
+			// $data['customer_gstin'],
+			// $data['customer_address'],
+			// $data['customer_location'],
+			// $data['customer_account_number']
 			// ));
 
-			$data['customer_info'] = array(
+			$data['customer_billing_info'] = array(
 				'name' => '<b>'.$customer_info->first_name.' '.$customer_info->last_name.'</b>',
 				// 'address' => $customer_info->address_1.', '.$customer_info->address_2.', '.$customer_info->city.', '.$customer_info->state.' ('.$customer_info->zip.')',
 				'phone' => $customer_info->phone_number,
@@ -1146,6 +1131,45 @@ class Sales extends Secure_Controller
 		}
 
 		return $data;
+	}
+
+	public function get_offer_stats($customer_id, $cart_data)
+	{
+		$vc_data = $this->Sale->check_my_voucher($customer_id);
+		if(!empty($vc_data))
+		{
+			$sale_offer_total = 0;
+			$included_categories = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
+			foreach($cart_data as $items)
+			{
+				if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->category, $included_categories))
+				{
+					$sale_offer_total += $items['discounted_total'];
+				}
+			}
+			
+			if($sale_offer_total >= $vc_data->vc_thres)
+			{
+				return array(
+					'status' => TRUE,
+					'voucher_id' => $vc_data->id,
+					'voucher_code' => $vc_data->voucher_code,
+					'voucher_value' => $vc_data->vc_val
+				);
+			}
+			else
+			{
+				return array(
+					'status' => FALSE,
+				);
+			}
+		}
+		else
+		{
+			return array(
+				'status' => FALSE,
+			);
+		}
 	}
 
 	private function _load_sale_data($sale_id)
@@ -1221,27 +1245,27 @@ class Sales extends Secure_Controller
 		if($this->sale_lib->get_mode() == 'sale_invoice')
 		{
 			$data['mode_label'] = $this->lang->line('sales_invoice');
-			$data['customer_required'] = $this->lang->line('sales_customer_required');
+			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'sale_quote')
 		{
 			$data['mode_label'] = $this->lang->line('sales_quote');
-			$data['customer_required'] = $this->lang->line('sales_customer_required');
+			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'sale_work_order')
 		{
 			$data['mode_label'] = $this->lang->line('sales_work_order');
-			$data['customer_required'] = $this->lang->line('sales_customer_required');
+			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'return')
 		{
 			$data['mode_label'] = $this->lang->line('sales_return');
-			$data['customer_required'] = $this->lang->line('sales_customer_optional');
+			// $data['customer_required'] = $this->lang->line('sales_customer_optional');
 		}
 		else
 		{
 			$data['mode_label'] = $this->lang->line('sales_receipt');
-			$data['customer_required'] = $this->lang->line('sales_customer_optional');
+			// $data['customer_required'] = $this->lang->line('sales_customer_optional');
 		}
 
 		return $this->xss_clean($data);
@@ -1256,9 +1280,13 @@ class Sales extends Secure_Controller
 			$this->session->set_userdata('sale_id', -1);
 		}
 		$data['cart'] = $this->sale_lib->get_cart();
-		// $data['offer_stats'] = $this->Sale->get_offer_stats($data['cart']);
 		$customer_info = $this->_load_customer_data($this->sale_lib->get_customer(), $data, TRUE);
 
+		if($this->session->userdata('sales_customer') !== -1 && empty($this->session->userdata('applied_special_voucher')))
+		{
+			$data['offer_stats'] = $this->get_offer_stats($this->sale_lib->get_customer(), $data['cart']);
+		}
+		
 		foreach($this->get_custom_fields('billtype', 'custom_fields') as $row)
 		{
 			$billings[$this->xss_clean($row['varchar_value'])] = $this->xss_clean($row['title']);
@@ -1274,6 +1302,11 @@ class Sales extends Secure_Controller
 		$data['custom_taxes'] = $custom_taxes;
 		$data['custom_selected_tax'] = $this->session->userdata('taxtype');
 
+		foreach($this->Sale->get_franchises() as $row)
+		{
+			$franchises[$this->xss_clean($row['int_value'])] = $this->xss_clean($row['title']);
+		}
+		$data['franchises'] = $franchises;
 		// -------------------------------------------------------------------
 
 		$data['modes'] = $this->sale_lib->get_register_mode_options();
@@ -1357,17 +1390,17 @@ class Sales extends Secure_Controller
 		if($this->sale_lib->get_mode() == 'sale_invoice')
 		{
 			$data['mode_label'] = $this->lang->line('sales_invoice');
-			$data['customer_required'] = $this->lang->line('sales_customer_required');
+			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'sale_quote')
 		{
 			$data['mode_label'] = $this->lang->line('sales_quote');
-			$data['customer_required'] = $this->lang->line('sales_customer_required');
+			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'sale_work_order')
 		{
 			$data['mode_label'] = $this->lang->line('sales_work_order');
-			$data['customer_required'] = $this->lang->line('sales_customer_required');
+			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'return')
 		{
@@ -1377,12 +1410,12 @@ class Sales extends Secure_Controller
 				$this->lang->line('sales_credit_note') => $this->lang->line('sales_credit_note')
 			);
 			$data['payment_options'] = $return_payment_options;
-			$data['customer_required'] = $this->lang->line('sales_customer_optional');
+			// $data['customer_required'] = $this->lang->line('sales_customer_optional');
 		}
 		else
 		{
 			$data['mode_label'] = $this->lang->line('sales_receipt');
-			$data['customer_required'] = $this->lang->line('sales_customer_optional');
+			// $data['customer_required'] = $this->lang->line('sales_customer_optional');
 		}
 
 		$data = $this->xss_clean($data);

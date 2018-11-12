@@ -560,27 +560,27 @@ class Sale extends CI_Model
 		return $suggestions;
 	}
 
-	// public function get_offer_stats($cart_data)
-	// {
-	// 	$customer_id = $this->sale_lib->get_customer();
-	// 	$offer_total = 0;
-	// 	$clothes_footwear = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
-	// 	foreach($cart_data as $items)
-	// 	{
-	// 		if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->category, $clothes_footwear))
-	// 		{
-	// 			$offer_total += $items['discounted_total'];
-	// 		}
-	// 	}
+	public function check_my_voucher($customer_id)
+	{
+		$active_vc = $this->db->where('deleted', 0)->get('special_vc')->row();
 		
-	// 	if($offer_total >= 1500)
-	// 	{
-	// 		return array(
-	// 			'status' => TRUE,
-	// 			'vc_code' => "DBFDIWALI300"
-	// 		);
-	// 	}
-	// }
+		if(!empty($active_vc))
+		{
+			$my_active_vc = $this->db->where(
+				array(
+					'voucher_id' => $active_vc->id,
+					'customer_id' => $customer_id,
+					'redeemed' => 0
+					)
+				)->get('special_vc_out')->row();
+
+			if(!empty($my_active_vc))
+			{
+				return $active_vc;
+			}
+		}
+			
+	}
 
 	public function is_vc_applied_sale($cn_sale_id)
 	{
@@ -590,6 +590,11 @@ class Sale extends CI_Model
 			$voucher_id = $this->db->where('redeem_sale_id', $is_vc_sale)->get('special_vc_out')->row()->voucher_id;
 			return $this->db->where('id', $voucher_id)->get('special_vc')->row()->vc_val;
 		}
+	}
+
+	public function get_franchises()
+	{
+		return $this->db->where('tag', 'franchise')->get('custom_fields')->result_array();
 	}
 
 	/**

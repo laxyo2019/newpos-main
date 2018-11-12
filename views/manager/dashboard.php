@@ -38,32 +38,32 @@
 
 <div class="tab-content">
 	<div class="tab-pane fade in active" id="count_mod">
-		<?php $this->load->view("manager/count_actions"); ?>
+		<?php $this->load->view("manager/tabs/count_actions"); ?>
 	</div>
 	<div class="tab-pane" id="list_mod">
-		<?php $this->load->view("manager/list_actions"); ?>
+		<?php $this->load->view("manager/tabs/list_actions"); ?>
 	</div>
 	<div class="tab-pane" id="mci_mod">
-		<?php $this->load->view("manager/mci"); ?>
+		<?php $this->load->view("manager/tabs/mci"); ?>
 	</div>
 
 	<?php if($this->Item->check_auth(array('superadmin', 'admin'))){ ?>
 		<div class="tab-pane" id="bulk_mod">
-			<?php $this->load->view("manager/bulk_actions"); ?>
+			<?php $this->load->view("manager/tabs/bulk_actions"); ?>
 		</div>
 		<div class="tab-pane" id="cashier_mod">
-			<?php $this->load->view("manager/cashiers"); ?>
+			<?php $this->load->view("manager/tabs/cashiers"); ?>
 		</div>
 	<?php } ?>
 	
 	<?php if($this->Item->check_auth(array('superadmin', 'admin', 'accounts'))){ ?>
 		<div class="tab-pane" id="report_mod">
-			<?php $this->load->view("manager/reports"); ?>
+			<?php $this->load->view("manager/tabs/reports"); ?>
 		</div>
 	<?php } ?>
 
 	<div class="tab-pane" id="extras_mod">
-		<?php $this->load->view("manager/extras"); ?>
+		<?php $this->load->view("manager/tabs/extras"); ?>
 	</div>
 	
 </div>

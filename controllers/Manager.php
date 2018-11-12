@@ -93,6 +93,28 @@ class Manager extends Secure_Controller
     $this->load->view('manager/sublists/items_sublist', $data);
   }
 
+  // public function list_all_items()
+  // {
+  //   $data['locations'] = $this->input->post('locations');
+
+  //   $this->db->from('items');
+  //   $this->db->join('item_quantities', 'item_quantities.item_id = items.item_id');
+  //   $this->db->
+
+	// 	$shop_types = array('dbf', 'shop', 'hub');
+	// 	$this->db->where_in('login_type', $shop_types);
+	// 	$this->db->where('deleted !=', 1);
+	// 	$query = $this->db->get();
+
+	// 	$shops = array('' => $this->lang->line('items_none'));
+	// 	foreach($query->result_array() as $row)
+	// 		{
+	// 			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
+	// 		}
+
+	// 	return $shops;
+  // }
+
   public function list_filtered_items()
   {
     $data['locations'] = $this->input->post('locations');
@@ -304,7 +326,7 @@ class Manager extends Secure_Controller
 			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}
 		$data['shops'] = $shops;
-    $this->load->view('manager/cashier_add', $data);
+    $this->load->view('manager/modals/cashier_add', $data);
   }
 
   public function cashier_save()
@@ -356,7 +378,7 @@ class Manager extends Secure_Controller
 		}
 
 		$data['categories'] = $categories;
-		$this->load->view('manager/bulk_hsn_form', $data);
+		$this->load->view('manager/modals/bulk_hsn_form', $data);
 	}
 
 	public function bulk_hsn_update()
@@ -461,7 +483,7 @@ class Manager extends Secure_Controller
 		$data['categories'] = $categories;
 		$data['brands'] = $brands;
 		$data['custom_discounts'] = $custom_discounts;
-		$this->load->view('manager/bulk_discount_form', $data);
+		$this->load->view('manager/modals/bulk_discount_form', $data);
 	}
 
 	public function bulk_discount_update()
@@ -524,7 +546,7 @@ class Manager extends Secure_Controller
 
   public function quick_bulk_discount()
   {
-    $this->load->view('manager/modals/discount_uploader', NULL);
+    $this->load->view('manager/file_uploaders/discount_uploader', NULL);
   }
 
   public function do_quick_bulk_discount()
@@ -625,7 +647,7 @@ class Manager extends Secure_Controller
 
   public function quick_convert()
   {
-    $this->load->view('manager/modals/excel_uploader', NULL);
+    $this->load->view('manager/file_uploaders/excel_uploader', NULL);
   }
 
   public function do_quick_convert()
@@ -705,7 +727,7 @@ class Manager extends Secure_Controller
 
   public function quick_taxes()
   {
-    $this->load->view('manager/modals/excel_uploader1', NULL);
+    $this->load->view('manager/file_uploaders/excel_uploader1', NULL);
   }
 
   public function do_quick_taxes()
@@ -769,10 +791,10 @@ class Manager extends Secure_Controller
 		}
   }
 
-  public function quick_prices()
-  {
-    $this->load->view('manager/modals/excel_uploader2', NULL);
-  }
+  // public function quick_prices()
+  // {
+  //   $this->load->view('manager/file_uploaders/excel_uploader2', NULL);
+  // }
 
   public function do_quick_prices()
   {

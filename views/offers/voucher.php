@@ -1,9 +1,8 @@
-  <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/create_voucher"); ?>'
-            title='Create New Voucher'>
-      Create
-  </button>
+<button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/create_voucher"); ?>'
+          title='Create New Voucher'>
+    Create
+</button>
 
-<hr>
 <div id="vouchers_table_area">
   <table id="voucher_list" class="display" style="width:100%">
     <thead>

@@ -46,8 +46,8 @@
   </thead>
   <tbody>
   <?php foreach ($items as $item): 
-    $taxes = $this->Item_taxes->get_specific_tax($item['item_id']);
-    $multiqty = $this->Item_quantity->get_multilocation_quantity($item['item_id']);
+    // $taxes = $this->Item_taxes->get_specific_tax($item['item_id']);
+    // $multiqty = $this->Item_quantity->get_multilocation_quantity($item['item_id']);
   ?>
     <tr style="text-align: center;">
       <td><?php echo $item['item_id']; ?></td>

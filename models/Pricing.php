@@ -85,7 +85,7 @@ class Pricing extends CI_Model
 	{
 		$response = array();
 		$item_row = $this->Item->get_info($item_id);
-		$item_info = array( // DO NOT CHANGE ORDER (SET ON PRIORITY RULE)
+		$item_info = array( // DO NOT CHANGE ORDER (SET AS PRIORITY RULE)
 			'single' => $item_row->item_number,
 			// 'sublist' => $item_row->item_number,
 			'mixed' => [$item_row->category, $item_row->subcategory, $item_row->brand],

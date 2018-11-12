@@ -16,7 +16,7 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-<?php //echo json_encode($this->session->userdata()); ?>
+<?php echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -127,14 +127,14 @@ if(isset($success))
 				<?php //echo form_hidden('billtype', $this->session->userdata('billtype')); ?>
 
 				<?php //SPECIAL VOUCHER BLINKER
-				//if(!empty($customer_special_voucher))
-				//{
+				if($offer_stats['status'])
+				{
 				?>
-					<!-- <li class="pull-right">
-						<p id="add_special_voucher_payment" class="animated pulse infinite" style="font-weight:bold; font-size: 1.3em; color:#fff; cursor:pointer"><?php //echo $offer_stats['vc_code']; ?></p>
-					</li> -->
+					<li class="pull-right">
+						<p id="add_special_voucher_payment" class="animated pulse infinite" style="font-weight:bold; font-size: 1.3em; color:#fff; cursor:pointer"><?php echo $offer_stats['voucher_code']; ?></p>
+					</li>
 				<?php 
-				//} 
+				} 
 				?>
 
 				<li class="pull-right">
@@ -436,16 +436,23 @@ if(isset($success))
 			else
 			{
 			?>
-				<div class="form-group" id="select_customer">
-					<label id="customer_label" for="customer" class="control-label" style="margin-bottom: 1em; margin-top: -1em;"><?php echo $this->lang->line('sales_select_customer') . ' ' . $customer_required; ?></label>
-					<?php echo form_input(array('name'=>'customer', 'id'=>'customer', 'class'=>'form-control input-sm', 'value'=>$this->lang->line('sales_start_typing_customer_name')));?>
+				<?php if($this->session->userdata('billtype') == 'franchise'){ 
+					if($this->session->userdata('sales_customer') == -1){?>
+					<div class="form-group">
+						<?php echo form_dropdown('franchise_select', $franchises, 'test', array('class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'id'=>'franchise_select')); ?>
+					</div>	
+				<?php }}else{ ?>
+					<div class="form-group" id="select_customer">
+						<label id="customer_label" for="customer" class="control-label" style="margin-bottom: 1em; margin-top: -1em;"><?php echo $this->lang->line('sales_select_customer'); ?></label>
+						<?php echo form_input(array('name'=>'customer', 'id'=>'customer', 'class'=>'form-control input-sm', 'value'=>$this->lang->line('sales_start_typing_customer_name')));?>
 
-					<button class='btn btn-info btn-sm modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("customers/view"); ?>'
-							title='<?php echo $this->lang->line($controller_name. '_new_customer'); ?>'>
-						<span class="glyphicon glyphicon-user">&nbsp</span><?php echo $this->lang->line($controller_name. '_new_customer'); ?>
-					</button>
+						<button class='btn btn-info btn-sm modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("customers/view"); ?>'
+								title='<?php echo $this->lang->line($controller_name. '_new_customer'); ?>'>
+							<span class="glyphicon glyphicon-user">&nbsp</span><?php echo $this->lang->line($controller_name. '_new_customer'); ?>
+						</button>
+					</div>
+				<?php } ?>
 
-				</div>
 			<?php
 			}
 			?>
@@ -729,14 +736,21 @@ $(document).ready(function()
   $('#billType').on('change', function(){
     var type = $(this).val();
 		$.post('<?php echo site_url($controller_name."/set_billing_type");?>', {'type': type}, function(data) {
-			console.log(data);
+			window.location.href = "sales";
 		});
   });
 
 	$('#taxType').on('change', function(){
     var type = $(this).val();
     $.post('<?php echo site_url($controller_name."/set_taxing_type");?>', {'type': type}, function(data) {
-			console.log(data);
+			window.location.href = "sales";
+		});
+  });
+
+	$('#franchise_select').on('change', function(){
+    var customer_id = $(this).val();
+    $.post('<?php echo site_url($controller_name."/set_franchise_customer");?>', {'customer_id': customer_id}, function(data) {
+			window.location.href = "sales";
 		});
   });
 
@@ -749,7 +763,7 @@ $(document).ready(function()
 
 	$('#add_special_voucher_payment').on('click', function(){
 		$(this).hide();
-	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment");?>', {}, function(data) {
+	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']);?>', {}, function(data) {
 			window.location.href = "sales";
   	});
 	});

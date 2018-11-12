@@ -96,10 +96,10 @@ $(document).ready(function()
 				<section>
 					<div style="height: 1px;background-color: #dddddd; width: 100%;"></div>
 					<p style="font-size: 0.9em ;padding: 5px 10px;margin: 0px;">
-						<?php echo $customer_info['name']; ?><br>
-						Ph.: <?php echo $customer_info['phone']; ?><br>
-						<?php if(!empty($customer_info['gstin'])){
-							echo 'Cust. GSTIN: '.$customer_info['gstin'];
+						<?php echo $customer_billing_info['name']; ?><br>
+						Ph.: <?php echo $customer_billing_info['phone']; ?><br>
+						<?php if(!empty($customer_billing_info['gstin'])){
+							echo 'Cust. GSTIN: '.$customer_billing_info['gstin'];
 						}?>
 					</p>
 				</section>
