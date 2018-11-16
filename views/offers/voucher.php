@@ -14,7 +14,6 @@
         <th>Show Details</th>
         <th>VC Value</th>
         <th>VC Threshold</th>
-        <th>Status</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -37,15 +36,10 @@
         <td><?php echo to_currency($row['vc_val']); ?></td>
         <td><?php echo to_currency($row['vc_thres']); ?></td>
         <td>
-        <style>
-          .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
-          .toggle.ios .toggle-handle { border-radius: 20px; }
-        </style>
-        <input type="checkbox" class="voucher_toggle" <?php echo $row['status'] ?> data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-style="ios" data-size="mini" />
+          <button class='btn btn-info btn-xs modal-dlg-wide' data-href='<?php echo site_url($controller_name."/vc_edit/".$row['id']); ?>'
+            title='Edit Voucher'><?php echo "Edit"; ?>
+          </button>
         </td>
-        <td><button class='btn btn-info btn-xs modal-dlg-wide' data-href='<?php echo site_url($controller_name."/vc_edit/".$row['id']); ?>'
-					title='Edit Voucher'><?php echo "Edit"; ?>
-	      </button></td>
       </tr>
     <?php endforeach; ?>
     </tbody>

@@ -5,6 +5,7 @@ require_once("Secure_Controller.php");
 define('PRICE_MODE_STANDARD', 0);
 define('PRICE_MODE_KIT', 1);
 define('PRICE_MODE_1_RUPEE', 5);
+define('PRICE_MODE_BOGO', 7);
 
 class Sales extends Secure_Controller
 {
@@ -1133,9 +1134,52 @@ class Sales extends Secure_Controller
 		return $data;
 	}
 
+	public function detect_bogo($cart_data)
+	{
+		$main_response = array();
+		$response = array();
+		$bogo_data = $this->db->get('special_bogo')->result_array();
+		foreach($cart_data as $row)
+		{
+			$response = array();
+			$item_id = $row['item_id'];
+			$quantity = $row['quantity'];
+
+			foreach($bogo_data as $row)
+			{
+				if($quantity > 1)
+				{
+					$item_info = $this->Item->get_info($item_id);
+					if($item_info->category == $row['category'] && $item_info->subcategory == $row['subcategory'] && $item_info->brand == $row['brand'])
+					{
+						$response['item_id'] = $item_id;
+						$response['item_count'] = $quantity;
+						$response['bogo_count'] = $row['bogo_count'];
+						$response['bogo_val'] = $row['bogo_val'];
+					}
+					$main_response[] = $response;
+				}
+			}	
+		}
+
+		$discount_val = 0;
+		foreach($main_response as $row)
+		{
+			$discount_val += $row['bogo_val'] * round( ($row['item_count']/$row['bogo_count']), 0, PHP_ROUND_HALF_DOWN );
+		}
+
+		if($discount_val > 0)
+		{
+			$discount_val *= -1;
+			$this->sale_lib->set_bogo_value($discount_val);
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	public function get_offer_stats($customer_id, $cart_data)
 	{
-		$vc_data = $this->Sale->check_my_voucher($customer_id);
+		$vc_data = $this->Sale->check_my_voucher($customer_id); //CODE FOR VOUCHER TYPE OFFERS
 		if(!empty($vc_data))
 		{
 			$sale_offer_total = 0;
@@ -1271,6 +1315,11 @@ class Sales extends Secure_Controller
 		return $this->xss_clean($data);
 	}
 
+	public function lock_bill()
+	{
+		$this->sale_lib->lock_bill();
+	}
+
 	private function _reload($data = array())
 	{		
 		$sale_id = $this->session->userdata('sale_id');
@@ -1281,12 +1330,26 @@ class Sales extends Secure_Controller
 		}
 		$data['cart'] = $this->sale_lib->get_cart();
 		$customer_info = $this->_load_customer_data($this->sale_lib->get_customer(), $data, TRUE);
-
-		if($this->session->userdata('sales_customer') !== -1 && empty($this->session->userdata('applied_special_voucher')))
-		{
-			$data['offer_stats'] = $this->get_offer_stats($this->sale_lib->get_customer(), $data['cart']);
-		}
 		
+		if($this->session->userdata('sales_mode') != 'return')
+		{
+			if($this->session->userdata('sales_customer') !== -1 && empty($this->session->userdata('applied_special_voucher')))
+			{
+				$data['offer_stats'] = $this->get_offer_stats($this->sale_lib->get_customer(), $data['cart']);
+			}
+
+			$cItems = array();
+			foreach($data['cart'] as $row)
+			{
+				$cItems[] = $row['item_id'];
+			}
+
+			if(!in_array($this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value, $cItems))
+			{
+				$data['bogo'] = $this->detect_bogo($data['cart']);
+			}
+		}
+
 		foreach($this->get_custom_fields('billtype', 'custom_fields') as $row)
 		{
 			$billings[$this->xss_clean($row['varchar_value'])] = $this->xss_clean($row['title']);
@@ -1294,7 +1357,6 @@ class Sales extends Secure_Controller
 		$data['billings'] = $billings;
 		$data['selected_bill'] = $this->session->userdata('billtype');
 
-		// --------------------------------------------------------- For Dropdown
 		foreach($this->get_custom_fields('taxtype', 'custom_fields') as $row)
 		{
 			$custom_taxes[$this->xss_clean($row['varchar_value'])] = $this->xss_clean($row['title']);
@@ -1302,12 +1364,12 @@ class Sales extends Secure_Controller
 		$data['custom_taxes'] = $custom_taxes;
 		$data['custom_selected_tax'] = $this->session->userdata('taxtype');
 
+		$franchises = array('' => 'Select Franchise');
 		foreach($this->Sale->get_franchises() as $row)
 		{
 			$franchises[$this->xss_clean($row['int_value'])] = $this->xss_clean($row['title']);
 		}
 		$data['franchises'] = $franchises;
-		// -------------------------------------------------------------------
 
 		$data['modes'] = $this->sale_lib->get_register_mode_options();
 		$data['mode'] = $this->sale_lib->get_mode();

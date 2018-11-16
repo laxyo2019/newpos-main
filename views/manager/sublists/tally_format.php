@@ -7,6 +7,7 @@
       <th>Customer GST No.</th>
       <th>Invoice Number</th>
       <th>Shop ID</th>
+      <th>Barcode</th>
       <th>Item Name</th>
       <th>Item Category</th>
       <th>Item Subcategory</th>
@@ -23,6 +24,7 @@
       <th>Sale Payments</th>
       <th>Sale Type</th>
       <th>Sale Status</th>
+      <th>Customer Type</th>
     </tr>
   </thead>
   <tbody>
@@ -38,9 +40,7 @@
       $taxable_value = $a / $b;
 
       $item_info = $this->Item->get_info($row['item_id']);
-
       $customer_info = $this->Customer->get_info($row['customer_id']);
-
       $sale_payments = $this->Sale->get_sale_payment_types($row['sale_id']);
       ?>
       <tr>
@@ -50,6 +50,7 @@
         <td><?php echo $customer_info->gstin; ?></td>
         <td><?php echo $row['tally_number']; ?></td>
         <td><?php echo $this->Stock_location->get_location_name2($row['employee_id']); ?></td>
+        <td><?php echo $item_info->item_number; ?></td>
         <td><?php echo $item_info->name; ?></td>
         <td><?php echo $item_info->category; ?></td>
         <td><?php echo $item_info->subcategory; ?></td>
@@ -66,6 +67,7 @@
         <td><?php foreach($sale_payments as $pays){echo $pays['payment_type']." ";} ?></td>
         <td><?php echo ($row['sale_type'] == 1) ? "Invoice" : "Credit Note"; ?></td>
         <td><?php echo ($row['sale_status'] == 0) ? "Active" : "Cancelled"; ?></td>
+        <td><?php echo $row['bill_type']; ?></td>
       </tr>
     <?php endforeach; ?>
   </tbody>

@@ -26,8 +26,8 @@
     $('#select_plan').on('change', function(){
 			var selected_plan = $(this).val();
 			$.post('<?php echo site_url($controller_name."/get_offers_sublist"); ?>', {'plan': selected_plan}, function(data) {
-				$('#table_area').html(data);
-				$('#list').DataTable({
+				$('#offers_table_area').html(data);
+				$('#offer_list').DataTable({
             "scrollX": true,
             dom: 'Bfrtip',
             buttons: [

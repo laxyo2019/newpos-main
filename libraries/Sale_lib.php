@@ -206,6 +206,16 @@ class Sale_lib
 		}
 	}
 
+	public function lock_bill()
+	{
+		$this->CI->session->set_userdata('lock_status', TRUE);
+	}
+
+	public function remove_bill()
+	{
+		$this->CI->session->unset_userdata('lock_status');
+	}
+
 	public function clear_invoice_number()
 	{
 		$this->CI->session->unset_userdata('sales_invoice_number');
@@ -583,6 +593,16 @@ class Sale_lib
 		$this->CI->session->unset_userdata('applied_special_voucher');
 	}
 
+	public function set_bogo_value($bogo_value)
+	{
+		$this->CI->session->set_userdata('bogo_value', $bogo_value);
+	}
+
+	public function remove_bogo()
+	{
+		$this->CI->session->unset_userdata('bogo_value');
+	}
+
 	public function remove_invoice_mode()
 	{
 		$this->CI->session->set_userdata('sales_invoice_number_enabled', false);
@@ -723,12 +743,18 @@ class Sale_lib
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
 		$billtype = (empty($this->CI->session->userdata('billtype'))) ? "retail" : $this->CI->session->userdata('billtype');
 		$discount = json_decode($item_info->discounts)->$billtype; //get discount value from session (saved as json in 'discounts' column)
-
+		$bogo_value = $this->CI->session->userdata('bogo_value') * -1 ;
+		
 		if($billtype == "1rupee")
 		{
 			$price_mode = PRICE_MODE_1_RUPEE;
 		}
-		
+
+		if($bogo_value > 0)
+		{
+			$price_mode = PRICE_MODE_BOGO;
+		}
+
 		//make sure item exists
 		if(empty($item_info))
 		{
@@ -745,14 +771,14 @@ class Sale_lib
 		{
 			$cost_price = $item_info->cost_price;
 			$sp_data = $this->CI->Pricing->check_active_offers($item_id);
-			if(!empty($sp_data))
+			if(!empty($sp_data) && $unit_price != 0.00 && $item_info->brand != "WS")
 			{
 				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : $unit_price;
 				$discount = $sp_data['discount'];
 			}
 			else
 			{
-				if($unit_price < 1){ //FIXED PRICE ITEM
+				if($unit_price == 0.00){ //FIXED PRICE ITEM
 					$price = json_decode($item_info->cost_price)->$billtype;
 					$discount = 0.00;
 				}else{ //DISCOUNTED ITEM
@@ -763,6 +789,12 @@ class Sale_lib
 		elseif($price_mode == PRICE_MODE_1_RUPEE)
 		{
 			$price = 1.00;
+			$discount = 0.00;
+			$cost_price = $item_info->cost_price;
+		}
+		elseif($price_mode == PRICE_MODE_BOGO)
+		{
+			$price = $this->CI->session->userdata('bogo_value');
 			$discount = 0.00;
 			$cost_price = $item_info->cost_price;
 		}
@@ -791,7 +823,7 @@ class Sale_lib
 		}
 		else
 		{
-			$price= 0.00;
+			$price = 0.00;
 			$cost_price = 0.00;
 		}
 
@@ -1121,6 +1153,8 @@ class Sale_lib
 		$this->remove_return_sale_id();
 		$this->remove_credit_note();
 		$this->remove_special_voucher();
+		$this->remove_bogo();
+		$this->remove_bill();
 		$this->clear_cash_flags();
 	}
 

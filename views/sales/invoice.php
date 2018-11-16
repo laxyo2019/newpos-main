@@ -124,6 +124,7 @@ $(document).ready(function()
               {
                 if($item['print_option'] == PRINT_YES)
                 {
+									$is_spl_offer_item = ($item['item_id'] == $this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value) ? TRUE : FALSE;
               ?>
                   <tr class="item-row">
                     <td style="font-size:0.9em; text-align:center">
@@ -148,13 +149,13 @@ $(document).ready(function()
 
 										<td style="font-size:0.9em; text-align:center">
 											<?php 
-												echo to_quantity_decimals($item['discount']) . '%';
+												echo ($is_spl_offer_item) ? "" :to_quantity_decimals($item['discount']) . '%';
 											?>
 										</td>
                     
 										<td style="font-size:0.9em; text-align:center"> 
 											<?php // DISCOUNTED PRICE
-												echo to_currency($item['price'] - ($item['price'] * ($item['discount'] / 100)) );
+												echo ($is_spl_offer_item) ? "" : round($item['price'] - ($item['price'] * ($item['discount'] / 100)), 2 );
 											?>
 										</td>
 
@@ -162,13 +163,13 @@ $(document).ready(function()
                     
 										<td style="font-size:0.8em; text-align:center">
 											<?php
-												echo $this->Item_taxes->get_item_invoice_tax_rate($item['item_id'], $item['price'], $item['discount']) . '%';
+												echo ($is_spl_offer_item) ? "" : $this->Item_taxes->get_item_invoice_tax_rate($item['item_id'], $item['price'], $item['discount']) . '%';
 											?>
 										</td>
 
                     <td style="font-size:0.9em; text-align:right">
 											<?php // TAXABLE VALUE
-												echo to_currency($item['taxable_total']); 
+												echo round($item['taxable_total'], 2); 
 											?>
 										</td>
                   </tr>

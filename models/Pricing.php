@@ -58,14 +58,15 @@ class Pricing extends CI_Model
 	public function pointer_search($plan, $info)
 	{
 		$now = date('Y-m-d H:i:s');
-		$array = array(
-			'status' => 'checked',
-			'plan' => $plan,
-			'locations' => $this->session->userdata('person_id'),
-			'start_time <=' => $now,
-			'end_time >=' => $now
-		);
-		$results = $this->db->where($array)->get('special_prices')->result_array();
+		$results = $this->db->where(
+			array(
+				'status' => 'checked',
+				'plan' => $plan,
+				'locations' => $this->session->userdata('person_id'),
+				'start_time <=' => $now,
+				'end_time >=' => $now
+			)
+		)->get('special_prices')->result_array();
 
 		foreach($results as $row)
 		{

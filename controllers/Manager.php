@@ -22,6 +22,33 @@ class Manager extends Secure_Controller
     $this->load->view('manager/dashboard', $data);
   }
 
+  public function get_valid_customers()
+  {
+    $this->load->view('manager/get_valid_customers');
+  }
+
+  public function process_valid_customers()
+  {
+    $customers = $this->input->post('customers');
+    $cArray = explode(PHP_EOL, $customers);
+    foreach($cArray as $row)
+    {
+      if(!empty($row))
+      {
+        if(is_numeric($row) && strlen($row) == 10)
+        {
+          if (count(array_keys($cArray, $row)) == 1) 
+          {
+            echo ($row . "\n");
+          }
+          
+        }
+      }
+      
+    }
+
+  }
+
   public function get_count()
   {
     $count = 0;
@@ -198,6 +225,7 @@ class Manager extends Secure_Controller
     sales.employee_id AS employee_id,
     sales.sale_status AS sale_status,
     sales.sale_type AS sale_type,
+    sales.bill_type AS bill_type,
     sales_items.item_id AS item_id,
     sales_items.quantity_purchased AS quantity,
     sales_items.item_unit_price AS item_price,

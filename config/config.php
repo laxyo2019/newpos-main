@@ -412,9 +412,11 @@ $config['encryption_key'] = getenv('ENCRYPTION_KEY') ? getenv('ENCRYPTION_KEY') 
 |
 */
 $config['sess_driver'] = 'files';
+$config['sess_save_path'] = '/var/lib/php/sessions';
+// $config['sess_driver'] = 'database';
+// $config['sess_save_path'] = 'sessions';
 $config['sess_cookie_name'] = 'ospos_session';
 $config['sess_expiration'] = 7200;
-$config['sess_save_path'] = '/var/lib/php/sessions';
 $config['sess_match_ip'] = TRUE;
 $config['sess_time_to_update'] = 300;
 $config['sess_regenerate_destroy'] = FALSE;

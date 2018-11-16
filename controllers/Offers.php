@@ -13,21 +13,22 @@ class Offers extends Secure_Controller
 	{
 		$data['plans'] = $this->Pricing->get_core_plans();
 		$data['special_vouchers'] = $this->Pricing->get_special_vouchers();
+		$data['mci_data'] = $this->Item->get_mci_data('all');
 		$this->load->view('offers/dashboard', $data);
 	}
 
-	public function test($item_id)
-	{
-		// echo $this->Pricing->check_active_offers($item_id);
-		foreach($this->Pricing->check_active_offers($item_id) as $row)
-		{
-			echo $row."<br>";
-		}
-	}
+	// public function test($item_id)
+	// {
+	// 	// echo $this->Pricing->check_active_offers($item_id);
+	// 	foreach($this->Pricing->check_active_offers($item_id) as $row)
+	// 	{
+	// 		echo $row."<br>";
+	// 	}
+	// }
 
 	public function make_barcode_list()
 	{
-		$this->load->view('offers/form_excel_barcodes');
+		$this->load->view('offers/modals/form_excel_barcodes');
 	}
 
 	public function do_make_barcode_list()
@@ -87,10 +88,10 @@ class Offers extends Secure_Controller
 		$data['categories'] = $categories;
 
 		$subcategories = array('' => $this->lang->line('items_none'));
-			foreach($mci_data['subcategories'] as $row)
-			{
-				$subcategories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-			}
+		foreach($mci_data['subcategories'] as $row)
+		{
+			$subcategories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
+		}
 		$data['subcategories'] = $subcategories;
 
 		$brands = array('' => $this->lang->line('items_none'));
@@ -107,7 +108,7 @@ class Offers extends Secure_Controller
 		$data['active_shops'] = $active_shops;
 
 		$data['plans'] = $this->Pricing->get_core_plans();
-		$this->load->view('offers/view_basic_form', $data);
+		$this->load->view('offers/modals/view_basic_form', $data);
 	}
 
 	public function save_basic()
@@ -265,7 +266,7 @@ class Offers extends Secure_Controller
 			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
 		}
 		$data['categories'] = $categories;
-		$this->load->view('offers/generate_voucher_form', $data);
+		$this->load->view('offers/modals/generate_voucher_form', $data);
 	}
 
 	public function do_generate_voucher()
@@ -285,6 +286,32 @@ class Offers extends Secure_Controller
 				$this->db->insert('special_vc_out', $data);
 			}
 		}
+	}
+
+	public function save_bogo()
+	{
+		$id = $this->input->post('id');
+		$insert_data = $this->input->post('insert_data');
+		if(!empty($id))
+		{
+			$this->db->where('id', $id)->update('special_bogo', $insert_data);
+		}
+		else
+		{
+			$this->db->insert('special_bogo', $insert_data);
+		}
+		echo json_encode($insert_data);
+	}
+
+	public function edit_bogo($id)
+	{
+		$data['bogo_data'] = $this->db->where('id', $id)->get('special_bogo')->row();
+		$this->load->view('offers/modals/edit_bogo', $data);
+	}
+
+	public function active_bogo_window()
+	{
+		$this->load->view('offers/sublists/active_bogo_window');
 	}
 	
 }

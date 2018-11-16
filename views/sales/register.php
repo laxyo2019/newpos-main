@@ -16,13 +16,13 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-<?php echo json_encode($this->session->userdata()); ?>
+<?php //echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
-	<?php echo form_open($controller_name."/change_mode", array('id'=>'mode_form', 'class'=>'form-horizontal panel panel-default')); ?>
+	<?php echo form_open($controller_name."/change_mode", array('id'=>'mode_form', 'class'=>'form-horizontal panel panel-default sPanel1')); ?>
 
-		<div class="panel-body form-group">
+		<div class="panel-body form-group sPanel1">
 			<ul>
 				<?php if(($this->Item->check_auth(array('hub')))) { ?>
 					<button class='btn btn-sm btn-primary pull-left modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_billing"); ?>'
@@ -112,9 +112,26 @@ if(isset($success))
 		</div>
 	<?php echo form_close(); ?>
 
+	<?php if($bogo){ ?>	
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="process_bogo">APPLY OFFER</button>
+			</div>
+		</div>
+	<?php } ?>
+
+	<?php if($offer_stats['status']){ ?>
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<li class="pull-right">
+				<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="add_special_voucher_payment"><?php echo $offer_stats['voucher_code']; ?></button>
+			</div>
+		</div>		
+	<?php } ?>
+
 	<?php $tabindex = 0; ?>
-	<?php echo form_open($controller_name."/add", array('id'=>'add_item_form', 'class'=>'form-horizontal panel panel-default')); ?>
-		<div class="panel-body form-group">
+	<?php echo form_open($controller_name."/add", array('id'=>'add_item_form', 'class'=>'form-horizontal panel panel-default sPanel2')); ?>
+		<div class="panel-body form-group sPanel2">
 			<ul>
 				<li class="pull-left first_li">
 					<label for="item" class='control-label'><?php echo $this->lang->line('sales_find_or_scan_item_or_receipt'); ?></label>
@@ -124,27 +141,14 @@ if(isset($success))
 					<span class="ui-helper-hidden-accessible" role="status"></span>
 				</li>
 
-				<?php //echo form_hidden('billtype', $this->session->userdata('billtype')); ?>
+				<span id="lock_bill" class="btn btn-sm btn-danger glyphicon glyphicon-lock pull-right animated pulse infinite" title="Lock Bill"></span>
 
-				<?php //SPECIAL VOUCHER BLINKER
-				if($offer_stats['status'])
-				{
-				?>
-					<li class="pull-right">
-						<p id="add_special_voucher_payment" class="animated pulse infinite" style="font-weight:bold; font-size: 1.3em; color:#fff; cursor:pointer"><?php echo $offer_stats['voucher_code']; ?></p>
-					</li>
-				<?php 
-				} 
-				?>
-
-				<li class="pull-right">
-				<?php if($this->Item->is_superadmin()) { ?>
-					<button id='new_item_button' class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('common_new') ?>' data-btn-submit='<?php echo $this->lang->line('common_submit')?>' data-href='<?php echo site_url("items/view"); ?>'
-							title='<?php echo $this->lang->line($controller_name . '_new_item'); ?>'>
-						<span class="glyphicon glyphicon-tag">&nbsp</span><?php echo $this->lang->line($controller_name. '_new_item'); ?>
+				<!-- <li class="pull-right">
+					<button id='new_item_button' class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php //echo $this->lang->line('common_new') ?>' data-btn-submit='<?php //echo $this->lang->line('common_submit')?>' data-href='<?php //echo site_url("items/view"); ?>'
+							title='<?php //echo $this->lang->line($controller_name . '_new_item'); ?>'>
+						<span class="glyphicon glyphicon-tag">&nbsp</span><?php //echo $this->lang->line($controller_name. '_new_item'); ?>
 					</button>
-				<?php } ?>	
-				</li>
+				</li> -->
 			
 			</ul>
 		</div>
@@ -232,7 +236,14 @@ if(isset($success))
 								}
 								else
 								{
-									echo form_input(array('name'=>'quantity', 'class'=>'form-control input-sm', 'value'=>to_quantity_decimals($item['quantity']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									if($this->session->userdata('lock_status'))
+									{
+										echo form_input(array('name'=>'quantity', 'class'=>'form-control input-sm', 'readonly'=>'true', 'value'=>to_quantity_decimals($item['quantity']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									}
+									else
+									{
+										echo form_input(array('name'=>'quantity', 'class'=>'form-control input-sm', 'value'=>to_quantity_decimals($item['quantity']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
+									}
 								}
 								?>
 							</td>
@@ -716,6 +727,10 @@ $(document).ready(function()
 		console.log('Invoicing Enabled');
 	<?php } ?>
 
+	<?php if($this->session->userdata('lock_status')){ ?>
+		$('.sPanel1, .sPanel2').hide();
+	<?php } ?>
+
 	$('#selectCashier').on('change', function(){
 		var cashier_id = $(this).val();
 		var webkey = prompt("Enter your secure webkey:");
@@ -732,6 +747,12 @@ $(document).ready(function()
 				}
       });
 	});
+
+	$('#lock_bill').on('click', function(){
+		$.post('<?php echo site_url($controller_name."/lock_bill");?>', {}, function(data) {
+			window.location.href = "sales";
+		});
+  });
 
   $('#billType').on('change', function(){
     var type = $(this).val();
@@ -766,6 +787,17 @@ $(document).ready(function()
 	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']);?>', {}, function(data) {
 			window.location.href = "sales";
   	});
+	});
+
+	$('#process_bogo').on('click', function(){
+		<?php if($this->session->userdata('lock_status')){ ?>
+			$(this).hide();
+		  $.post('<?php echo site_url($controller_name."/add");?>', {'item': <?php echo $this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value; ?>}, function(data) {
+				window.location.href = "sales";
+	  	});
+		<?php }else{ ?>
+			alert('Please lock the bill first');
+		<?php } ?>
 	});
 
 	$("#item").autocomplete(
@@ -889,32 +921,17 @@ $(document).ready(function()
 
 	$("#add_payment_button").click(function()
 	{
-		<?php 
-		if($this->session->userdata('sales_customer') !== -1)
-		{ 
-			if(!empty($this->session->userdata('cashier_id')))
-			{ 
-		?>
-				$('#add_payment_form').submit();
-			<?php
-			}
-			else
-			{ 
-			?>
-				alert('Please select a cashier');
-			<?php 
-			} 
-			?>
-
 		<?php
-		}
-		else
-		{ 
-		?>
-			alert('Please select or add a customer');
-		<?php 
-		} 
-		?>
+		$customer_added = ($this->session->userdata('sales_customer') !== -1) ? TRUE : FALSE;
+		$cashier_added = (!empty($this->session->userdata('cashier_id'))) ? TRUE : FALSE;
+		$bill_locked = ($this->session->userdata('lock_status')) ? TRUE : FALSE;
+
+		if($customer_added && $cashier_added && $bill_locked){ ?> 
+			$('#add_payment_form').submit();
+		<?php }else{ ?>
+			alert('Either Customer/Cashier not added or Bill Unlocked');
+		<?php } ?>
+			
 	});
 
 	$("#payment_types").change(check_payment_type).ready(check_payment_type);
