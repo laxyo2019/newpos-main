@@ -743,17 +743,17 @@ class Sale_lib
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
 		$billtype = (empty($this->CI->session->userdata('billtype'))) ? "retail" : $this->CI->session->userdata('billtype');
 		$discount = json_decode($item_info->discounts)->$billtype; //get discount value from session (saved as json in 'discounts' column)
-		$bogo_value = $this->CI->session->userdata('bogo_value') * -1 ;
+		// $bogo_value = $this->CI->session->userdata('bogo_value') * -1 ;
 		
 		if($billtype == "1rupee")
 		{
 			$price_mode = PRICE_MODE_1_RUPEE;
 		}
 
-		if($bogo_value > 0)
-		{
-			$price_mode = PRICE_MODE_BOGO;
-		}
+		// if($bogo_value > 0)
+		// {
+		// 	$price_mode = PRICE_MODE_BOGO;
+		// }
 
 		//make sure item exists
 		if(empty($item_info))
@@ -771,7 +771,8 @@ class Sale_lib
 		{
 			$cost_price = $item_info->cost_price;
 			$sp_data = $this->CI->Pricing->check_active_offers($item_id);
-			if(!empty($sp_data) && $unit_price != 0.00 && $item_info->brand != "WS")
+			$sp_status = ($sp_data == "NO_MATCH" || empty($sp_data)) ? FALSE : TRUE;
+			if($sp_status && $unit_price != 0.00 && $item_info->brand != "WS") 
 			{
 				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : $unit_price;
 				$discount = $sp_data['discount'];
@@ -792,12 +793,12 @@ class Sale_lib
 			$discount = 0.00;
 			$cost_price = $item_info->cost_price;
 		}
-		elseif($price_mode == PRICE_MODE_BOGO)
-		{
-			$price = $this->CI->session->userdata('bogo_value');
-			$discount = 0.00;
-			$cost_price = $item_info->cost_price;
-		}
+		// elseif($price_mode == PRICE_MODE_BOGO)
+		// {
+		// 	$price = $this->CI->session->userdata('bogo_value');
+		// 	$discount = 0.00;
+		// 	$cost_price = $item_info->cost_price;
+		// }
 		elseif($price_mode == PRICE_MODE_KIT)
 		{
 			if($kit_price_option == PRICE_OPTION_ALL)

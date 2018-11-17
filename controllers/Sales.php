@@ -24,6 +24,11 @@ class Sales extends Secure_Controller
 		$this->_reload();
 	}
 
+	public function test($item_id)
+	{
+		echo $this->Pricing->check_active_offers($item_id);
+	}
+
 	public function manage()
 	{
 		$person_id = $this->session->userdata('person_id');
