@@ -107,13 +107,6 @@
 	<!-- DATATABLE CDN -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-	<script>
-		$(document).ready(function(){
-			<?php if($pending_transfers1){ ?>
-				$('#menuicon_receivings').toggleClass('animated rubberBand infinite');
-			<?php } ?>
-		});
-	</script>
 </head>
 
 <body>
@@ -125,7 +118,8 @@
 				</div>
 
 				<div class="navbar-right" style="margin:0">
-					<?php echo anchor('home/change_password/'.$user_info->person_id, $user_info->first_name . ' ' . $user_info->last_name, array('class' => 'modal-dlg', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => $this->lang->line('employees_change_password'))); ?>
+					<?php //echo anchor('home/change_password/'.$user_info->person_id, $user_info->first_name . ' ' . $user_info->last_name, array('class' => 'modal-dlg', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => $this->lang->line('employees_change_password'))); ?>
+					<?php echo $user_info->first_name . ' ' . $user_info->last_name; ?>
 					<?php echo '  |  ' . ($this->input->get('debug') == 'true' ? $this->session->userdata('session_sha1') . '  |  ' : ''); ?>
 					<?php echo anchor('home/logout', $this->lang->line('common_logout')); ?>
 				</div>

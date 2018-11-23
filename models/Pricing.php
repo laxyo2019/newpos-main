@@ -50,11 +50,6 @@ class Pricing extends CI_Model
 		return $this->db->where('tag', 'special_voucher')->get('custom_fields')->result_array();
 	}
 
-	public function get_special_vouchers()
-	{
-		return $this->db->get('special_vc')->result_array();
-	}
-	
 	public function pointer_search($plan, $info)
 	{
 		$now = date('Y-m-d H:i:s');
@@ -74,10 +69,6 @@ class Pricing extends CI_Model
 			if($offer == $info)
 			{
 				return $row;
-			}
-			else
-			{
-				return "NO_MATCH";
 			}
 		}
 	}

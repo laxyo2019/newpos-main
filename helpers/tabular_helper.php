@@ -194,8 +194,8 @@ function get_people_manage_table_headers()
 
 	$headers = array(
 		array('people.person_id' => $CI->lang->line('common_id')),
-		array('last_name' => $CI->lang->line('common_last_name')),
 		array('first_name' => $CI->lang->line('common_first_name')),
+		array('last_name' => $CI->lang->line('common_last_name')),
 		array('email' => $CI->lang->line('common_email')),
 		array('phone_number' => $CI->lang->line('common_phone_number'))
 	);
@@ -218,8 +218,8 @@ function get_person_data_row($person)
 
 	return array (
 		'people.person_id' => $person->person_id,
-		'last_name' => $person->last_name,
 		'first_name' => $person->first_name,
+		'last_name' => $person->last_name,
 		'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
 		'phone_number' => $person->phone_number,
 		'messages' => empty($person->phone_number) ? '' : anchor("Messages/view/$person->person_id", '<span class="glyphicon glyphicon-phone"></span>',

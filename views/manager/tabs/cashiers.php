@@ -30,6 +30,7 @@
         <th>Sale Code</th>
         <th>Name</th>
         <th>Shop</th>
+        <th>Contact</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -46,6 +47,7 @@
             }
             ?>
           </td>
+          <td><?php echo $row['contact']; ?></td>
           <td>
             <style>
               .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
@@ -61,6 +63,7 @@
 <script>
   $(document).ready(function(){
     dialog_support.init("button.modal-dlg");
+    $('.cashier_toggle').bootstrapToggle();
 
     $('#cashier_list').DataTable({
         "scrollX": true,
@@ -69,15 +72,6 @@
           'copy', 'csv', 'excel', 'pdf', 'print'
         ]
       });
-
-//     $('#shops').on('change', function(){
-//       var id = $(this).val();
-//       // console.log(id);
-//       $.post('<?php //echo site_url($controller_name."/get_incentive_report"); ?>', {'id': id}, function(data) {
-//           $('#incentive-list').html(data);
-//         });
-//     });
-    $('.cashier_toggle').bootstrapToggle();
 
     $('.cashier_toggle').on('change', function(){
       var id = $(this).closest('tr').attr('id');

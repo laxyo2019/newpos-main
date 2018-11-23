@@ -20,6 +20,8 @@
       <th>IGST %</th>
       <th>IGST Amt.</th>
       <th>Quantity</th>
+      <th>Item Type</th>
+      <th>Discount</th>
       <th>Gross Value</th>
       <th>Sale Payments</th>
       <th>Sale Type</th>
@@ -63,11 +65,13 @@
         <td><?php echo (empty($tax_data['tax_percents']['IGST'])) ? NULL : $tax_data['tax_percents']['IGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_amounts']['IGST'])) ? NULL : $tax_data['tax_amounts']['IGST']; ?></td>
         <td><?php echo to_quantity_decimals($row['quantity']); ?></td>
+        <td><?php echo ($item_info->unit_price == 0.00) ? "FP" : "DISC"; ?></td>
+        <td><?php echo $row['item_discount']; ?></td>
         <td><?php echo $price; ?></td>
         <td><?php foreach($sale_payments as $pays){echo $pays['payment_type']." ";} ?></td>
         <td><?php echo ($row['sale_type'] == 1) ? "Invoice" : "Credit Note"; ?></td>
         <td><?php echo ($row['sale_status'] == 0) ? "Active" : "Cancelled"; ?></td>
-        <td><?php echo $row['bill_type']; ?></td>
+        <td><?php echo ($row['bill_type'] == 'ys') ? "Special Approval" : ucfirst($row['bill_type']); ?></td>
       </tr>
     <?php endforeach; ?>
   </tbody>

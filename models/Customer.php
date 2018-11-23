@@ -178,6 +178,38 @@ class Customer extends Person
 		return ($this->db->get()->num_rows() == 1);
 	}
 
+		/*
+	Checks if customer email exists
+	*/
+	public function check_phone_exists($phone_number, $customer_id = '')
+	{
+		// if the email is empty return like it is not existing
+		if(empty($phone_number))
+		{
+			return FALSE;
+		}
+
+		$this->db->from('customers');
+		$this->db->join('people', 'people.person_id = customers.person_id');
+		$this->db->where('people.phone_number', $phone_number);
+		$this->db->where('customers.deleted', 0);
+
+		if(!empty($customer_id))
+		{
+			$this->db->where('customers.person_id !=', $customer_id);
+		}
+
+		return ($this->db->get()->num_rows() == 1);
+	}
+
+	public function get_customers_list()
+	{
+		$this->db->from('customers');
+		$this->db->join('people', 'people.person_id = customers.person_id');
+		$this->db->where('customers.deleted', 0);
+		return $this->db->get()->result_array();
+	}
+
 	/*
 	Inserts or updates a customer
 	*/

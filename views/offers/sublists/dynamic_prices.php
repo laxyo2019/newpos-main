@@ -1,4 +1,4 @@
-<table id="offer_list" class="display" style="width:100%">
+<table id="dynamic_prices" class="display" style="width:100%">
   <thead>
     <tr>
       <th>Delete</th>
@@ -13,7 +13,7 @@
     </tr>
   </thead>
   <tbody>
-  <?php foreach ($offers as $row): ?>
+  <?php foreach ($dynamic_prices as $row): ?>
     <tr id="<?php echo $row['id']; ?>">
       <td><span style="cursor:pointer" class="glyphicon glyphicon-trash delete-basic"></span></td>
       <td><?php echo $row['id']; ?></td>

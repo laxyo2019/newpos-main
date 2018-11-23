@@ -26,6 +26,13 @@
       'class'=>'form-control input-sm'
     ));
     ?>
+
+    <?php echo form_input(array(
+      'id'=>'contact',
+      'placeholder'=>'Cashier Contact',
+      'class'=>'form-control input-sm'
+    ));
+    ?>
   </div>
 </div>
 
@@ -38,7 +45,7 @@
 			var name = $('#cashier_name').val();
       var sale_code = $('#cashier_code').val();
       console.log(shops);
-			$.post('<?php echo site_url($controller_name."/cashier_save");?>', {'shops': shops, 'name': name, 'sale_code': sale_code}, function(data) {
+			$.post('<?php echo site_url($controller_name."/cashier_save");?>', {'shops': shops, 'name': name, 'sale_code': sale_code, 'contact': contact}, function(data) {
 				alert(data);
       });
 		});

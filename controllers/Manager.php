@@ -44,9 +44,7 @@ class Manager extends Secure_Controller
           
         }
       }
-      
     }
-
   }
 
   public function get_count()
@@ -360,6 +358,7 @@ class Manager extends Secure_Controller
   public function cashier_save()
 	{
     $sale_code = $this->input->post('sale_code');
+    $contact = $this->input->post('contact');
     $count = $this->db->where('id', $sale_code)->count_all_results('cashiers');
 
     if($count == 0)
@@ -367,7 +366,8 @@ class Manager extends Secure_Controller
       $data = array(
         'id' => $sale_code,
         'shops' => json_encode($this->input->post('shops')),
-        'name' => $this->input->post('name')
+        'name' => $this->input->post('name'),
+        'contact' => $contact
       );
   
       if($this->db->insert('cashiers', $data)){

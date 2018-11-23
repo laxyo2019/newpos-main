@@ -11,9 +11,7 @@ class Customers extends Persons
 		parent::__construct('customers');
 
 		$this->load->library('mailchimp_lib');
-
 		$CI =& get_instance();
-
 		$this->_list_id = $CI->encryption->decrypt($CI->Appconfig->get('mailchimp_list_id'));
 	}
 
@@ -206,17 +204,6 @@ class Customers extends Persons
 		$this->load->view("customers/form", $data);
 	}
 
-	public function check_duplicate_customer($phone_number, $customer_id)
-	{
-		if($customer_id == -1)
-		{
-			$this->db->where('phone_number', $phone_number);
-			return $this->db->count_all_results('people');
-		}
-
-		return 0;
-	}
-
 	/*
 	Inserts/updates a customer
 	*/
@@ -265,7 +252,7 @@ class Customers extends Persons
 			$customer_data['sales_tax_code'] = $tax_code;
 		}
 
-		if($this->check_duplicate_customer($phone_number, $customer_id) == 0)
+		if($this->Customer->check_phone_exists($phone_number, $customer_id))
 		{
 			if($this->Customer->save_customer($person_data, $customer_data, $customer_id))
 			{
@@ -319,6 +306,12 @@ class Customers extends Persons
 		$exists = $this->Customer->check_account_number_exists($this->input->post('account_number'), $this->input->post('person_id'));
 
 		echo !$exists ? 'true' : 'false';
+	}
+
+	public function get_datatable()
+	{
+		$data['customers'] = $this->Customer->get_customers_list();
+		$this->load->view('customers/datatable.php', $data);
 	}
 
 	/*
@@ -385,9 +378,10 @@ class Customers extends Persons
 					if(sizeof($data) >= 15)
 					{
 						$email = strtolower($data[3]);
+						$phone_number = $data[4];
 						$person_data = array(
-							'first_name'	=> $data[0],
-							'last_name'		=> $data[1],
+							'first_name'	=> $this->nameize($data[0]),
+							'last_name'		=> $this->nameize($data[1]),
 							'gender'		=> $data[2],
 							'email'			=> $email,
 							'phone_number'	=> $data[4],
@@ -401,14 +395,18 @@ class Customers extends Persons
 						);
 
 						$customer_data = array(
-							'company_name'		=> $data[12],
-							'discount_percent'	=> $data[14],
-							'taxable'			=> $data[15] == '' ? 0 : 1
+							'source'		=> $data[12],
+							'gstin' => $data[14],
+							'discount_percent'	=> 0.00,
+							'taxable'			=> 1
 						);
 						$account_number = $data[13];
 
 						// don't duplicate people with same email
 						$invalidated = $this->Customer->check_email_exists($email);
+
+						// don't duplicate people with same phone number
+						$invalidated &= $this->Customer->check_phone_exists($phone_number);
 
 						if($account_number != '')
 						{

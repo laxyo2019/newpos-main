@@ -17,7 +17,7 @@
 
 </div>
 <hr>
-<div id="offers_table_area"></div>
+<div id="dynamic_prices_table_area"></div>
 
 <script>
 	$(document).ready( function () {
@@ -25,9 +25,9 @@
 
     $('#select_plan').on('change', function(){
 			var selected_plan = $(this).val();
-			$.post('<?php echo site_url($controller_name."/get_offers_sublist"); ?>', {'plan': selected_plan}, function(data) {
-				$('#offers_table_area').html(data);
-				$('#offer_list').DataTable({
+			$.post('<?php echo site_url($controller_name."/get_dynamic_prices"); ?>', {'plan': selected_plan}, function(data) {
+				$('#dynamic_prices_table_area').html(data);
+				$('#dynamic_prices').DataTable({
             "scrollX": true,
             dom: 'Bfrtip',
             buttons: [
@@ -39,3 +39,16 @@
 
 	});
 </script>
+
+
+  <!-- <div class="col-md-6 col-md-offset-3">
+    <ul class="nav nav-tabs">
+    <?php //foreach($plans as $row): ?>
+        <li><a href="#" onclick="event.preventDefault();" id="<?php //echo $row['varchar_value']; ?>" class="text-warning"><?php //echo $row['title']; ?></a></li>
+      <?php //endforeach; ?>
+    </ul>
+  </div>
+
+  <a class="modal-dlg-wide" href="<?php //echo site_url($controller_name."/view_basic"); ?>">
+    <span class="glyphicon glyphicon-plus"></span>
+  </a> -->

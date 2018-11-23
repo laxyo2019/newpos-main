@@ -554,12 +554,25 @@ class Items extends Secure_Controller
 	{
 		// ---------------------------------------------- Discounts JSON processing
 		$discounts = array();
-		foreach($this->Item->get_custom_discounts() as $row)
-		{
-			$discounts[$row['alias']] = $this->input->post('ds_'.$row['id']) == NULL ? '0.00' : number_format($this->input->post('ds_'.$row['id']), 2, '.', '');
-		}
+		$retail = $this->input->post('retail');
+		$wholesale = $this->input->post('wholesale');
+		$franchise = $this->input->post('franchise');
+		$special = $this->input->post('special');
+
+		$discounts['retail'] = $retail == NULL ? '0.00' : number_format($retail, 2, '.', '');
+		$discounts['wholesale'] = $wholesale == NULL ? '0.00' : number_format($wholesale, 2, '.', '');
+		$discounts['franchise'] = $franchise == NULL ? '0.00' : number_format($franchise, 2, '.', '');
+		$discounts['ys'] = $special == NULL ? '0.00' : number_format($special, 2, '.', '');
 		// ---------------------------------------------------------
 
+		if(!empty($wholesale) && !empty($franchise))
+		{
+			if($this->input->post('unit_price') != 0.00)
+			{
+				$d5rule = (($franchise - $wholesale) >= 0) ? FALSE : TRUE;
+			}
+		}
+		
 		//Save item data
 		$item_data = array(
 			'name' => strtoupper($this->input->post('name')),
@@ -627,7 +640,13 @@ class Items extends Secure_Controller
 		$redundancy_count = $this->get_redundant_item($item_data, "count");
 		if($redundancy_count > 1)
 		{
-			$message = $this->xss_clean('Item already exists ' . $item_data['name']);
+			$message = $this->xss_clean(' ||item already exists|| ' . $item_data['name']);
+
+			echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => -1));
+		}
+		else if($d5rule)
+		{
+			$message = $this->xss_clean(' ||unauthorized discount rates|| ' . $item_data['name']);
 
 			echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => -1));
 		}
@@ -635,7 +654,7 @@ class Items extends Secure_Controller
 		{
 			if($this->Item->save($item_data, $item_id))
 			{
-				$success = TRUE;
+				$success &= TRUE;
 				$new_item = FALSE;
 				//New item
 				if($item_id == -1)

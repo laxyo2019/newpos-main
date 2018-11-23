@@ -743,17 +743,11 @@ class Sale_lib
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
 		$billtype = (empty($this->CI->session->userdata('billtype'))) ? "retail" : $this->CI->session->userdata('billtype');
 		$discount = json_decode($item_info->discounts)->$billtype; //get discount value from session (saved as json in 'discounts' column)
-		// $bogo_value = $this->CI->session->userdata('bogo_value') * -1 ;
 		
 		if($billtype == "1rupee")
 		{
 			$price_mode = PRICE_MODE_1_RUPEE;
 		}
-
-		// if($bogo_value > 0)
-		// {
-		// 	$price_mode = PRICE_MODE_BOGO;
-		// }
 
 		//make sure item exists
 		if(empty($item_info))
@@ -793,12 +787,6 @@ class Sale_lib
 			$discount = 0.00;
 			$cost_price = $item_info->cost_price;
 		}
-		// elseif($price_mode == PRICE_MODE_BOGO)
-		// {
-		// 	$price = $this->CI->session->userdata('bogo_value');
-		// 	$discount = 0.00;
-		// 	$cost_price = $item_info->cost_price;
-		// }
 		elseif($price_mode == PRICE_MODE_KIT)
 		{
 			if($kit_price_option == PRICE_OPTION_ALL)
@@ -827,6 +815,162 @@ class Sale_lib
 			$price = 0.00;
 			$cost_price = 0.00;
 		}
+
+		if($price_override != NULL)
+		{
+			$price = $price_override;
+		}
+
+		if($price == 0.00)
+		{
+			$discount = 0.00;
+		}
+
+		// Serialization and Description
+
+		//Get all items in the cart so far...
+		$items = $this->get_cart();
+
+		//We need to loop through all items in the cart.
+		//If the item is already there, get it's key($updatekey).
+		//We also need to get the next key that we are going to use in case we need to add the
+		//item to the cart. Since items can be deleted, we can't use a count. we use the highest key + 1.
+
+		$maxkey = 0;                       //Highest key so far
+		$itemalreadyinsale = FALSE;        //We did not find the item yet.
+		$insertkey = 0;                    //Key to use for new entry.
+		$updatekey = 0;                    //Key to use to update(quantity)
+
+		foreach($items as $item)
+		{
+			//We primed the loop so maxkey is 0 the first time.
+			//Also, we have stored the key in the element itself so we can compare.
+
+			if($maxkey <= $item['line'])
+			{
+				$maxkey = $item['line'];
+			}
+
+			if($item['item_id'] == $item_id && $item['item_location'] == $item_location)
+			{
+				$itemalreadyinsale = TRUE;
+				$updatekey = $item['line'];
+				if(!$item_info->is_serialized)
+				{
+					$quantity = bcadd($quantity, $items[$updatekey]['quantity']);
+				}
+			}
+		}
+
+		$insertkey = $maxkey + 1;
+		//array/cart records are identified by $insertkey and item_id is just another field.
+
+		if($price_mode == PRICE_MODE_KIT)
+		{
+			if($kit_print_option == PRINT_ALL)
+			{
+				$print_option_selected = PRINT_YES;
+			}
+			elseif($kit_print_option == PRINT_KIT && $item_type == ITEM_KIT)
+			{
+				$print_option_selected = PRINT_YES;
+			}
+			elseif($kit_print_option == PRINT_PRICED && $price > 0)
+			{
+				$print_option_selected = PRINT_YES;
+			}
+			else
+			{
+				$print_option_selected = PRINT_NO;
+			}
+		}
+		else
+		{
+			if($print_option != NULL)
+			{
+				$print_option_selected = $print_option;
+			}
+			else
+			{
+				$print_option_selected = PRINT_YES;
+			}
+		}
+
+		$total = $this->get_item_total($quantity, $price, $discount);
+		$discounted_total = $this->get_item_total($quantity, $price, $discount, TRUE);
+
+		$total_discount = 0;
+		$discount_amount = $this->get_item_discount($quantity, $price, $discount);
+		$total_discount = bcadd($total_discount, $discount_amount);
+		$extended_amount = $this->get_extended_amount($quantity, $price);
+		// $discounted_unit = $this->get_discounted_unit($price, $discount);
+		$extended_discounted_amount = $this->get_extended_amount($quantity, $price, $discount_amount);
+
+		//Item already exists and is not serialized, add to quantity
+		if(!$itemalreadyinsale || $item_info->is_serialized)
+		{
+			$item = array($insertkey => array(
+					'item_id' => $item_id,
+					'custom1' => $item_info->custom1,
+					'item_location' => $item_location,
+					'stock_name' => $this->CI->Stock_location->get_location_name($item_location),
+					'line' => $insertkey,
+					'name' => $item_info->name,
+					'item_number' => $item_info->item_number,
+					'description' => $description != NULL ? $description : $item_info->description,
+					'serialnumber' => $serialnumber != NULL ? $serialnumber : '',
+					'allow_alt_description' => $item_info->allow_alt_description,
+					'is_serialized' => $item_info->is_serialized,
+					'quantity' => $quantity,
+					'discount' => $discount,
+					'in_stock' => $this->CI->Item_quantity->get_item_quantity($item_id, $item_location)->quantity,
+					'unit_price' => $unit_price,
+					'price' => $price,
+					'cost_price' => $cost_price,
+					'total' => $total,
+					'taxable_total' => $this->get_extended_total_tax_exclusive($item_id, $extended_discounted_amount, $quantity, $price, $discount),
+					'discounted_total' => $discounted_total,
+					'print_option' => $print_option_selected,
+					'stock_type' => $stock_type,
+					'item_type' => $item_type,
+					'tax_category_id' => $item_info->tax_category_id
+				)
+			);
+			//add to existing array
+			$items += $item;
+		}
+		else
+		{
+			$line = &$items[$updatekey];
+			$line['quantity'] = $quantity;
+			$line['total'] = $total;
+			$line['discounted_total'] = $discounted_total;
+		}
+
+		$this->set_cart($items);
+
+		return TRUE;
+	}
+
+	public function add_item_custom(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL )
+	{
+		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
+
+		//make sure item exists
+		if(empty($item_info))
+		{
+			$item_id = -1;
+			return FALSE;
+		}
+
+		$item_id = $item_info->item_id;
+		$item_type = $item_info->item_type;
+		$stock_type = $item_info->stock_type;
+		$unit_price = $item_info->unit_price;
+
+		$price = $this->CI->session->userdata('bogo_value');
+		$discount = 0.00;
+		$cost_price = $item_info->cost_price;
 
 		if($price_override != NULL)
 		{

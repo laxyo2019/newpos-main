@@ -4,6 +4,7 @@
 			<th>Sale Code</th>
 			<th>Name</th>
 			<th>Shop</th>
+			<th>Contact</th>
 			<th>Actions</th>
 		</tr>
 	</thead>
@@ -13,7 +14,8 @@
 				<td><?php echo $row['id']; ?></td>
 				<td><?php echo $row['name']; ?></td>
 				<td><span><?php echo $this->Employee->get_info($row['shop_id'])->first_name; ?></span></td>
-				<td id="<?php echo $row['id']; ?>">
+				<td><?php echo $row['contact']; ?></td>
+				<td>
 					<style>
 						.toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
 						.toggle.ios .toggle-handle { border-radius: 20px; }
@@ -28,20 +30,16 @@
 
 <script type="text/javascript">
 	$(document).ready(function(){
+		$('.cashier_toggle').bootstrapToggle();
 		$('#cashier_list').DataTable();
 
-		$('.glyphicon-edit').on('click', function(){
-			var id = $(this).closest('td').attr('id');
-		});
-
-		$('.glyphicon-trash').on('click', function(){
-			var id = $(this).closest('td').attr('id');
-			console.log(id);
-			$.post('<?php echo site_url($controller_name."/cashier_delete");?>', {'id': id}, function(data) {
-				alert(data);
-				location.reload();
-      });
-		});
+		$('.cashier_toggle').on('change', function(){
+      var id = $(this).closest('tr').attr('id');
+      var status = $(this).prop('checked');
+      $.post('<?php echo site_url($controller_name."/cashier_toggle"); ?>', {'id': id, 'status': status}, function(data) {
+				console.log(data);
+      });
+    });
 	
 	});
 </script>

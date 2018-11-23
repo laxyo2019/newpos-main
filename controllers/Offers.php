@@ -12,10 +12,11 @@ class Offers extends Secure_Controller
 	public function index()
 	{
 		$data['plans'] = $this->Pricing->get_core_plans();
-		$data['special_vouchers'] = $this->Pricing->get_special_vouchers();
 		$data['mci_data'] = $this->Item->get_mci_data('all');
 		$this->load->view('offers/dashboard', $data);
 	}
+
+	// --------------------------------- TESTING FUNCTIONS --------------------------------------
 
 	// public function test($item_id)
 	// {
@@ -26,56 +27,58 @@ class Offers extends Secure_Controller
 	// 	}
 	// }
 
-	public function make_barcode_list()
-	{
-		$this->load->view('offers/modals/form_excel_barcodes');
-	}
+	// public function make_barcode_list()
+	// {
+	// 	$this->load->view('offers/modals/form_excel_barcodes');
+	// }
 
-	public function do_make_barcode_list()
-	{
-		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
-		{
-			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
-		}
-		else
-		{
-			if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
-			{
-				// Skip the first row as it's the table description
-				fgetcsv($handle);
-				$i = 1;
+	// public function do_make_barcode_list()
+	// {
+	// 	if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
+	// 	{
+	// 		echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
+	// 	}
+	// 	else
+	// 	{
+	// 		if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
+	// 		{
+	// 			// Skip the first row as it's the table description
+	// 			fgetcsv($handle);
+	// 			$i = 1;
 
-				$failCodes = array();
-				$barcodes = array();
+	// 			$failCodes = array();
+	// 			$barcodes = array();
 
-				while(($data = fgetcsv($handle)) !== FALSE)
-				{
-					// XSS file data sanity check
-					$data = $this->xss_clean($data);
-					$barcodes[] = $data[0]; //barcode
+	// 			while(($data = fgetcsv($handle)) !== FALSE)
+	// 			{
+	// 				// XSS file data sanity check
+	// 				$data = $this->xss_clean($data);
+	// 				$barcodes[] = $data[0]; //barcode
 
-					++$i;
+	// 				++$i;
 
-				} // while loop ends here
-				$this->session->set_userdata('barcode_list', $barcodes);
+	// 			} // while loop ends here
+	// 			$this->session->set_userdata('barcode_list', $barcodes);
 
-				if(count($failCodes) > 0)
-				{
-					$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
+	// 			if(count($failCodes) > 0)
+	// 			{
+	// 				$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
 
-					echo json_encode(array('success' => FALSE, 'message' => $message));
-				}
-				else
-				{
-					echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
-				}
-			}
-			else
-			{
-				echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
-			}
-		}
-	}
+	// 				echo json_encode(array('success' => FALSE, 'message' => $message));
+	// 			}
+	// 			else
+	// 			{
+	// 				echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
+	// 		}
+	// 	}
+	// }
+
+	// --------------------------------- DYNAMIC PRICING --------------------------------------
 
 	public function view_basic()
 	{
@@ -220,44 +223,16 @@ class Offers extends Secure_Controller
 		echo ($this->db->update('special_prices', $data)) ? 'success' : 'failed';
 	}
 
-	public function get_offers_sublist()
+	public function get_dynamic_prices()
 	{
-		$data['offers'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
+		$data['dynamic_prices'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
 
-		$this->load->view('offers/sublists/offers_sublist', $data);
+		$this->load->view('offers/sublists/dynamic_prices', $data);
 	}
 
-	// ------------------ VC FUNCTIONS ------------------------------
+	// --------------------------------- GIFT VOUCHERS --------------------------------------
 
-	public function get_vouchers_sublist()
-	{
-		$data['special_vouchers'] = $this->db->where('voucher_id', 1)->get('special_vc_out')->result_array();
-		$this->load->view('offers/sublists/vouchers_sublist', $data);
-	}
-
-	public function get_all_vc_out_sublist($id)
-	{	
-		$data['all_vc_out_list'] = $this->db->where('voucher_id', $id)->get('special_vc_out')->result_array();
-		$this->load->view('offers/sublists/vc_out_sublist', $data);
-	}
-
-	public function get_redeemed_vc_out_sublist($id)
-	{	
-		$data['all_vc_out_list'] = $this->db->where(array('voucher_id' => $id, 'status' => 1))->get('special_vc_out')->result_array();
-		$this->load->view('offers/sublists/vc_out_sublist', $data);
-	}
-
-	public function voucher_toggle()
-  {
-    $status = ($this->input->post('status') == 'true') ? 'checked' : '';
-    $data = array(
-      'active' => $status
-    );
-    $this->db->where('id', $this->input->post('id'));
-    echo ($this->db->update('special_vc', $data)) ? 'success' : 'failed';
-  }
-
-	public function generate_voucher()
+	public function view_vc($id = -1)
 	{
 		$mci_data = $this->Item->get_mci_data('all');
 		$categories = array('' => $this->lang->line('items_none'));
@@ -266,10 +241,10 @@ class Offers extends Secure_Controller
 			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
 		}
 		$data['categories'] = $categories;
-		$this->load->view('offers/modals/generate_voucher_form', $data);
+		$this->load->view('offers/modals/view_vc_form', $data);
 	}
 
-	public function do_generate_voucher()
+	public function save_vc()
 	{
 		$customers = $this->db->get('people')->result_array();
 
@@ -288,19 +263,67 @@ class Offers extends Secure_Controller
 		}
 	}
 
+	public function get_vc_out($id)
+	{	
+		$data['vc_list'] = $this->db->where('voucher_id', $id)->get('special_vc_out')->result_array();
+		$this->load->view('offers/sublists/vc_list', $data);
+	}
+
+	public function get_vc_redeemed($id)
+	{	
+		$data['vc_list'] = $this->db->where(array('voucher_id' => $id, 'redeemed' => 1))->get('special_vc_out')->result_array();
+		$this->load->view('offers/sublists/vc_list', $data);
+	}
+
+	public function get_vc_details($id)
+	{
+
+	}
+
+	public function vc_toggle()
+  {
+    $status = ($this->input->post('status') == 'true') ? 'checked' : '';
+    $data = array(
+      'active' => $status
+    );
+    $this->db->where('id', $this->input->post('id'));
+    echo ($this->db->update('special_vc', $data)) ? 'success' : 'failed';
+	}
+	
+	// --------------------------------- ITEMS CLUB --------------------------------------
+
 	public function save_bogo()
 	{
 		$id = $this->input->post('id');
-		$insert_data = $this->input->post('insert_data');
+		$category = $this->input->post('category');
+		$subcategory = $this->input->post('subcategory');
+		$brand = $this->input->post('brand');
+		$bogo_count = $this->input->post('bogo_count');
+		$bogo_val = $this->input->post('bogo_val');
+
+		$insert_data = array(
+			'category' => $category,
+			'subcategory' => $subcategory,
+			'brand' => $brand,
+			'bogo_count' => $bogo_count,
+			'bogo_val' => $bogo_val
+		);
+
+		$update_data = array(
+			'bogo_count' => $bogo_count,
+			'bogo_val' => $bogo_val
+		);
+
 		if(!empty($id))
 		{
-			$this->db->where('id', $id)->update('special_bogo', $insert_data);
+			$this->db->where('id', $id)->update('special_bogo', $update_data);
+			echo json_encode($update_data);
 		}
 		else
 		{
 			$this->db->insert('special_bogo', $insert_data);
+			echo json_encode($insert_data);
 		}
-		echo json_encode($insert_data);
 	}
 
 	public function edit_bogo($id)
@@ -309,9 +332,69 @@ class Offers extends Secure_Controller
 		$this->load->view('offers/modals/edit_bogo', $data);
 	}
 
+	public function bogo_toggle()
+	{
+		$status = ($this->input->post('status') == 'true') ? 'checked' : '';
+		$data = array(
+			'status' => $status
+		);
+		$this->db->where('id', $this->input->post('id'));
+		echo ($this->db->update('special_bogo', $data)) ? 'success' : 'failed';
+	}
+
 	public function active_bogo_window()
 	{
 		$this->load->view('offers/sublists/active_bogo_window');
+	}
+
+	// --------------------------------- PURCHASE LIMITS --------------------------------------
+
+	public function save_plimit()
+	{
+		$id = $this->input->post('id');
+		$mci_value = $this->input->post('mci_value');
+		$quantity = $this->input->post('quantity');
+
+		$insert_data = array(
+			'mci_value' => $mci_value,
+			'quantity' => $quantity
+		);
+
+		$update_data = array(
+			'quantity' => $quantity
+		);
+
+		if(!empty($id))
+		{
+			$this->db->where('id', $id)->update('purchase_limiter', $update_data);
+			echo json_encode($update_data);
+		}
+		else
+		{
+			$this->db->insert('purchase_limiter', $insert_data);
+			echo json_encode($insert_data);
+		}
+	}
+	
+	public function edit_plimit($id)
+	{
+		$data['plimit_data'] = $this->db->where('id', $id)->get('purchase_limiter')->row();
+		$this->load->view('offers/modals/edit_plimit', $data);
+	}
+
+	public function plimit_toggle()
+	{
+		$status = ($this->input->post('status') == 'true') ? 'checked' : '';
+		$data = array(
+			'status' => $status
+		);
+		$this->db->where('id', $this->input->post('id'));
+		echo ($this->db->update('purchase_limiter', $data)) ? 'success' : 'failed';
+	}
+	
+	public function active_plimit_window()
+	{
+		$this->load->view('offers/sublists/active_plimit_window');
 	}
 	
 }

@@ -672,7 +672,7 @@ class Receivings extends Secure_Controller
 	{
 		if($this->Receiving->get_transfers($this->session->userdata('person_id'), 'count') > 0)
 		{
-			$data['pending_transfers2'] = TRUE;
+			$data['pending_transfers'] = TRUE;
 		}
 		$data['cart'] = $this->receiving_lib->get_cart();
 		// $data['modes'] = array('receive' => $this->lang->line('receivings_receiving'), 'return' => $this->lang->line('receivings_return'));

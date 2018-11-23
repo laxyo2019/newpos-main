@@ -3,6 +3,8 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
+	dialog_support.init("button.modal-dlg-wide");
+
 	<?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
 	table_support.init({
@@ -10,6 +12,9 @@ $(document).ready(function()
 		headers: <?php echo $table_headers; ?>,
 		pageSize: <?php echo $this->config->item('lines_per_page'); ?>,
 		uniqueId: 'people.person_id',
+		showRefresh: true,
+		sortName: 'people.person_id',
+		sortOrder: 'desc',
 		enableActions: function()
 		{
 			var email_disabled = $("td input:checkbox:checked").parents("tr").find("td a[href^='mailto:']").length == 0;
@@ -33,18 +38,23 @@ $(document).ready(function()
 	if ($controller_name == 'customers')
 	{
 	?>
-	<?php if($this->Item->is_both()) { ?>
+	<?php if($this->Item->is_superadmin()) { ?>
 		<button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/excel_import"); ?>'
 				title='<?php echo $this->lang->line('customers_import_items_excel'); ?>'>
 			<span class="glyphicon glyphicon-import">&nbsp</span><?php echo $this->lang->line('common_import_excel'); ?>
 		</button>
-	<?php } ?>	
+	<?php } ?>
 	<?php
 	}
 	?>
 	<button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/view"); ?>'
 			title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
 		<span class="glyphicon glyphicon-user">&nbsp</span><?php echo $this->lang->line($controller_name . '_new'); ?>
+	</button>
+
+	<button class='btn btn-info btn-sm modal-dlg-wide' data-href='<?php echo site_url($controller_name."/get_datatable"); ?>'
+			title='Customer Base'>
+		Datatable
 	</button>
 </div>
 

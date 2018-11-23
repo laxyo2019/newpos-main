@@ -5,7 +5,6 @@ require_once("Secure_Controller.php");
 define('PRICE_MODE_STANDARD', 0);
 define('PRICE_MODE_KIT', 1);
 define('PRICE_MODE_1_RUPEE', 5);
-define('PRICE_MODE_BOGO', 7);
 
 class Sales extends Secure_Controller
 {
@@ -600,6 +599,32 @@ class Sales extends Secure_Controller
 		$this->_reload($data);
 	}
 
+	public function add_custom()
+	{
+		$data = array();
+
+		$discount = 0;
+
+		$customer_id = $this->sale_lib->get_customer();
+
+		$item_id_or_number_or_item_kit_or_receipt = $this->input->post('item');
+		$this->barcode_lib->parse_barcode_fields($quantity, $item_id_or_number_or_item_kit_or_receipt);
+		$mode = $this->sale_lib->get_mode();
+		$quantity = ($mode == 'return') ? -$quantity : $quantity;
+		$item_location = $this->sale_lib->get_sale_location();
+
+		if(!$this->sale_lib->add_item_custom($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, PRICE_MODE_STANDARD))
+		{
+			$data['error'] = $this->lang->line('sales_unable_to_add_item');
+		}
+		else
+		{
+			$data['warning'] = $this->sale_lib->out_of_stock($item_id_or_number_or_item_kit_or_receipt, $item_location);
+		}
+
+		$this->_reload($data);
+	}
+
 	public function edit_item($item_id)
 	{
 		$data = array();
@@ -1143,7 +1168,9 @@ class Sales extends Secure_Controller
 	{
 		$main_response = array();
 		$response = array();
+		$discount_val = 0;
 		$bogo_data = $this->db->get('special_bogo')->result_array();
+
 		foreach($cart_data as $row)
 		{
 			$response = array();
@@ -1157,20 +1184,10 @@ class Sales extends Secure_Controller
 					$item_info = $this->Item->get_info($item_id);
 					if($item_info->category == $row['category'] && $item_info->subcategory == $row['subcategory'] && $item_info->brand == $row['brand'])
 					{
-						$response['item_id'] = $item_id;
-						$response['item_count'] = $quantity;
-						$response['bogo_count'] = $row['bogo_count'];
-						$response['bogo_val'] = $row['bogo_val'];
+						$discount_val += $row['bogo_val'] * round( ($quantity/$row['bogo_count']), 0, PHP_ROUND_HALF_DOWN );
 					}
-					$main_response[] = $response;
-				}
-			}	
-		}
-
-		$discount_val = 0;
-		foreach($main_response as $row)
-		{
-			$discount_val += $row['bogo_val'] * round( ($row['item_count']/$row['bogo_count']), 0, PHP_ROUND_HALF_DOWN );
+				}	
+			}
 		}
 
 		if($discount_val > 0)
@@ -1322,7 +1339,13 @@ class Sales extends Secure_Controller
 
 	public function lock_bill()
 	{
-		$this->sale_lib->lock_bill();
+		$customer_id = $this->session->userdata('sales_customer');
+		$purchase_limits = $this->check_purchase_limits($customer_id);
+		if($purchase_limits === TRUE)
+		{
+			$this->sale_lib->lock_bill();
+		}
+		echo $purchase_limits;
 	}
 
 	private function _reload($data = array())
@@ -1500,7 +1523,7 @@ class Sales extends Secure_Controller
 	public function invoice($sale_id)
 	{
 		$data = $this->_load_sale_data($sale_id);
-		$this->load->view('sales/invoice', $data); //INVOICE WHICH IS SEEN LATER IN RECORDS
+		$this->load->view('sales/invoice', $data);
 		$this->sale_lib->clear_all();
 	}
 
@@ -1795,6 +1818,70 @@ class Sales extends Secure_Controller
 
 		return $filtered_cart;
 	}
+
+	public function check_purchase_limits($customer_id)
+  {
+		$today = date("Y-m-d");
+
+    $this->db->select('
+			sales.sale_id AS sale_id,
+			sales.sale_status AS sale_status,
+			sales.sale_time AS sale_time,
+			sales.customer_id AS customer_id,
+			sales_items.item_id AS item_id,
+			sales_items.quantity_purchased AS quantity,
+    ');
+    $this->db->from('sales');
+		$this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+		$this->db->where('sale_status', 0);
+		$this->db->where('customer_id', $customer_id);
+    $this->db->where('DATE(sale_time) BETWEEN "'.rawurldecode($today).'" AND "'.rawurldecode($today).'"');
+		$dbItems = $this->db->get()->result_array();
+
+		foreach($dbItems as $row)
+		{
+			$perItem1['item_id'] = $row['item_id'];
+			$perItem1['category'] = $this->Item->get_info($row['item_id'])->category;
+			$perItem1['quantity'] = $row['quantity'];
+			$dbCart[] = $perItem1;
+		}
+
+		foreach($this->session->userdata('sales_cart') as $row)
+		{
+			$perItem2['item_id'] = $row['item_id'];
+			$perItem2['category'] = $this->Item->get_info($row['item_id'])->category;
+			$perItem2['quantity'] = $row['quantity'];
+			$nowCart[] = $perItem2;
+		}
+
+		$fullCart = (!empty($dbCart)) ? array_merge_recursive($dbCart, $nowCart) : $nowCart;
+
+		$catCount = array(); 
+		foreach($fullCart as $row){    
+			$catCount[$row['category']] += $row['quantity'];
+		} 
+		// echo json_encode($catCount);
+		
+		$ruleset = $this->db->where('status', 'checked')->get('purchase_limiter')->result_array();
+		
+		foreach($catCount as $key=>$value)
+		{
+			foreach($ruleset as $row)
+			{
+				if($key == $row['mci_value'])
+				{
+					if($value > $row['quantity'])
+					{
+						$disputed['mci'] = $row['mci_value'];
+						$disputed['exceed_by'] = $value - $row['quantity'];
+					}
+				}
+			}
+		}
+
+		return (empty($disputed)) ? TRUE : json_encode($disputed);
+	}
+	
 }
 
 ?>

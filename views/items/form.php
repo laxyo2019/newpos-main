@@ -335,11 +335,11 @@
 			
 		<?php if($this->Item->check_auth(array('superadmin', 'admin', 'apnagps'))){ ?>
 			<div class="form-group form-group-sm">
-				<?php echo form_label('RETAIL', 'ds_1', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('RETAIL', 'retail', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
-							'name'=> 'ds_1',
-							'id'=> 'ds_1',
+							'name'=> 'retail',
+							'id'=> 'retail',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_retail)) ? NULL : $billtype_retail
 							)
@@ -348,11 +348,11 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label('WHOLESALE', 'ds_2', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('WHOLESALE', 'wholesale', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
-							'name'=> 'ds_2',
-							'id'=> 'ds_2',
+							'name'=> 'wholesale',
+							'id'=> 'wholesale',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_wholesale)) ? NULL : $billtype_wholesale
 							)
@@ -361,11 +361,11 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label('FRANCHISE', 'ds_3', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('FRANCHISE', 'franchise', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
-							'name'=> 'ds_3',
-							'id'=> 'ds_3',
+							'name'=> 'franchise',
+							'id'=> 'franchise',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_franchise)) ? NULL : $billtype_franchise
 							)
@@ -374,11 +374,11 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label('SPECIAL APPROVAL', 'ds_4', array('class'=>'control-label col-xs-3')); ?>
+				<?php echo form_label('SPECIAL APPROVAL', 'special', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<?php echo form_input(array(
-							'name'=> 'ds_4',
-							'id'=> 'ds_4',
+							'name'=> 'special',
+							'id'=> 'special',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_ys)) ? NULL : $billtype_ys
 							)
