@@ -239,7 +239,8 @@ class Customers extends Persons
 			'company_name' => $this->input->post('company_name') == '' ? NULL : $this->input->post('company_name'),
 			'discount_percent' => $this->input->post('discount_percent') == '' ? 0.00 : $this->input->post('discount_percent'),
 			'package_id' => $this->input->post('package_id') == '' ? NULL : $this->input->post('package_id'),
-			'taxable' => $this->input->post('taxable') != NULL
+			'taxable' => $this->input->post('taxable') != NULL,
+			'created_at' => date('Y-m-d H:i:s')
 		);
 
 		$tax_code = $this->input->post('sales_tax_code');
@@ -252,7 +253,7 @@ class Customers extends Persons
 			$customer_data['sales_tax_code'] = $tax_code;
 		}
 
-		if($this->Customer->check_phone_exists($phone_number, $customer_id))
+		if($this->Customer->check_phone_exists($phone_number))
 		{
 			if($this->Customer->save_customer($person_data, $customer_data, $customer_id))
 			{
@@ -398,7 +399,8 @@ class Customers extends Persons
 							'source'		=> $data[12],
 							'gstin' => $data[14],
 							'discount_percent'	=> 0.00,
-							'taxable'			=> 1
+							'taxable'			=> 1,
+							'created_at' => date('Y-m-d H:i:s')
 						);
 						$account_number = $data[13];
 

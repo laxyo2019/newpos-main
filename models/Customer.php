@@ -181,9 +181,8 @@ class Customer extends Person
 		/*
 	Checks if customer email exists
 	*/
-	public function check_phone_exists($phone_number, $customer_id = '')
+	public function check_phone_exists($phone_number)
 	{
-		// if the email is empty return like it is not existing
 		if(empty($phone_number))
 		{
 			return FALSE;
@@ -193,13 +192,14 @@ class Customer extends Person
 		$this->db->join('people', 'people.person_id = customers.person_id');
 		$this->db->where('people.phone_number', $phone_number);
 		$this->db->where('customers.deleted', 0);
+		$count = $this->db->count_all_results();
 
-		if(!empty($customer_id))
+		if($count > 0)
 		{
-			$this->db->where('customers.person_id !=', $customer_id);
+			return FALSE;
 		}
-
-		return ($this->db->get()->num_rows() == 1);
+		
+		return TRUE;
 	}
 
 	public function get_customers_list()

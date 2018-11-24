@@ -741,8 +741,14 @@ class Sale_lib
 	public function add_item(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL )
 	{
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
-		$billtype = (empty($this->CI->session->userdata('billtype'))) ? "retail" : $this->CI->session->userdata('billtype');
-		$discount = json_decode($item_info->discounts)->$billtype; //get discount value from session (saved as json in 'discounts' column)
+		$invoice_mode = $this->CI->session->userdata('billtype');
+		$sales_mode = $this->CI->session->userdata('sales_mode');
+		$billtype = (empty($invoice_mode)) ? "retail" : $invoice_mode;
+
+		if($sales_mode != 'return')
+		{
+			$discount = json_decode($item_info->discounts)->$billtype;
+		}
 		
 		if($billtype == "1rupee")
 		{
@@ -765,7 +771,8 @@ class Sale_lib
 		{
 			$cost_price = $item_info->cost_price;
 			$sp_data = $this->CI->Pricing->check_active_offers($item_id);
-			$sp_status = ($sp_data == "NO_MATCH" || empty($sp_data)) ? FALSE : TRUE;
+			$sp_status = ($sp_data == "NO_MATCH" || empty($sp_data) || $sales_mode == 'return') ? FALSE : TRUE;
+
 			if($sp_status && $unit_price != 0.00 && $item_info->brand != "WS") 
 			{
 				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : $unit_price;
@@ -1212,7 +1219,9 @@ class Sale_lib
 
 		foreach($this->CI->Sale->get_sale_items_ordered($sale_id)->result() as $row) //fetches all items for the particular sale_id
 		{
-			$this->add_item($row->item_id, -$row->quantity_purchased, $row->item_location, $row->discount_percent, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, TRUE);
+			$discount = $this->CI->Sale->get_cc_item_discount($sale_id, $row->item_id);
+
+			$this->add_item($row->item_id, -$row->quantity_purchased, $row->item_location, $discount, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, TRUE);
 		}
 
 		$this->set_billtype($sale_id);

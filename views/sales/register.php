@@ -112,13 +112,14 @@ if(isset($success))
 		</div>
 	<?php echo form_close(); ?>
 
-	<?php if($bogo){ ?>	
+	<?php if(!empty($bogo)){
+		if($bogo){ ?>	
 		<div class="panel panel-default">
 			<div class="panel-body">
 				<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="process_bogo">APPLY OFFER</button>
 			</div>
 		</div>
-	<?php } ?>
+	<?php }} ?>
 
 	<?php if(!empty($offer_stats)){
 					if($offer_stats['status']){ ?>

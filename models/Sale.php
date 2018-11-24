@@ -220,6 +220,14 @@ class Sale extends CI_Model
 		return $this->search($search, $filters, 0, 0, 'sales.sale_time', 'desc', TRUE);
 	}
 
+	public function get_cc_item_discount($sale_id, $item_id)
+	{
+		$array = array(
+			'sale_id' => $sale_id,
+			'item_id' => $item_id
+		);
+		return $this->db->where($array)->get('sales_items')->row()->discount_percent;
+	}
 	/**
 	 * Get the sales data for the takings (sales/manage) view
 	 */
