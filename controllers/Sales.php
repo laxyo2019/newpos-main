@@ -1169,17 +1169,19 @@ class Sales extends Secure_Controller
 		$main_response = array();
 		$response = array();
 		$discount_val = 0;
-		$bogo_data = $this->db->get('special_bogo')->result_array();
+		$bogo_data = $this->db->where('status', 'checked')->get('special_bogo')->result_array();
 
 		foreach($cart_data as $row)
 		{
 			$response = array();
 			$item_id = $row['item_id'];
 			$quantity = $row['quantity'];
+			$retail_fp = $row['price'];
 
 			foreach($bogo_data as $row)
 			{
-				if($quantity > 1)
+				$bogo_fp = $row['bogo_fp'];
+				if($quantity > 1 && $retail_fp == $bogo_fp)
 				{
 					$item_info = $this->Item->get_info($item_id);
 					if($item_info->category == $row['category'] && $item_info->subcategory == $row['subcategory'] && $item_info->brand == $row['brand'])

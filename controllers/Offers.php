@@ -298,19 +298,19 @@ class Offers extends Secure_Controller
 		$category = $this->input->post('category');
 		$subcategory = $this->input->post('subcategory');
 		$brand = $this->input->post('brand');
-		$bogo_count = $this->input->post('bogo_count');
+		$bogo_fp = $this->input->post('bogo_fp');
 		$bogo_val = $this->input->post('bogo_val');
 
 		$insert_data = array(
 			'category' => $category,
 			'subcategory' => $subcategory,
 			'brand' => $brand,
-			'bogo_count' => $bogo_count,
+			'bogo_fp' => $bogo_fp,
 			'bogo_val' => $bogo_val
 		);
 
 		$update_data = array(
-			'bogo_count' => $bogo_count,
+			'bogo_fp' => $bogo_fp,
 			'bogo_val' => $bogo_val
 		);
 

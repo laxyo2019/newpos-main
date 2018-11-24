@@ -4,13 +4,13 @@
     <input type="number" class="form-control" value="<?php echo $limit_data->quantity; ?>" id="plimit_val" placeholder="Enter new limit">
   </div>
   <div class="form-group">
-    <button class="btn btn-info ajax_submit">Submit</button>
+    <button class="btn btn-info" id="plimit_submit">Submit</button>
   </div>
 </div>
 
 <script>
 $(document).ready(function(){
-  $('.ajax_submit').on('click', function(){
+  $('#plimit_submit').on('click', function(){
     var id = $('#plimit_id').val();
     var quantity = $('#plimit_val').val();
 

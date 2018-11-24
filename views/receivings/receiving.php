@@ -41,12 +41,12 @@ if (isset($msg))
 		</button>
 
 		<?php
-		if(!empty($pending_transfers)){ 
-		if($pending_transfers)
-		{
-			echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
-			array('class'=>'print_hide', $button_key => $button_label, 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
-		}} 
+			if(!empty($pending_transfers)){ 
+				if($pending_transfers){
+				echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
+				array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
+				}
+			} 
 		?>	
 	<br><br>
 

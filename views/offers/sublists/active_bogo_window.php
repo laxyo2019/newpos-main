@@ -6,7 +6,7 @@
 
     <?php foreach($this->db->get('special_bogo')->result_array() as $row){ ?>
       <div class="panel-body">
-        <a href="<?php echo site_url($controller_name."/edit_bogo/".$row['id']); ?>" title="Edit" class="modal-dlg"><?php echo $row['category'].' | '.$row['subcategory'].' | '.$row['brand'].' | '.$row['bogo_count'].' | '.$row['bogo_val'];?></a>
+        <a href="<?php echo site_url($controller_name."/edit_bogo/".$row['id']); ?>" title="Edit" class="modal-dlg"><?php echo $row['category'].' | '.$row['subcategory'].' | '.$row['brand'].' | '.$row['bogo_fp'].' | 2 | '.$row['bogo_val'];?></a>
 
 
         <span class="pull-right" id="<?php echo $row['id']; ?>">

@@ -37,19 +37,12 @@
         </select>
       </div>
       <div class="form-group">
-        <select id="bg_count">
-          <option value="">Item Count</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
+        <input type="number" placeholder="Enter Amt." id="bg_fp">
       </div>
       <div class="form-group">
-        <input type="number" id="bg_value">
+        <input type="number" placeholder="Enter Amt." id="bg_value">
       </div>
-      <button id="create_bogo" type="submit" class="btn btn-sm btn-success">Submit</button>
+      <button id="bogo_submit" type="submit" class="btn btn-sm btn-success">Submit</button>
     </div>
   </div>
 
@@ -65,7 +58,7 @@
 
       <?php foreach($this->db->get('special_bogo')->result_array() as $row){ ?>
         <div class="panel-body">
-          <a href="<?php echo site_url($controller_name."/edit_bogo/".$row['id']); ?>" title="Edit" class="modal-dlg"><?php echo $row['category'].' | '.$row['subcategory'].' | '.$row['brand'].' | '.$row['bogo_count'].' | '.$row['bogo_val']; ?></a>
+          <a href="<?php echo site_url($controller_name."/edit_bogo/".$row['id']); ?>" title="Edit" class="modal-dlg"><?php echo $row['category'].' | '.$row['subcategory'].' | '.$row['brand'].' | '.$row['bogo_fp'].' | 2 | '.$row['bogo_val']; ?></a>
 
           <span class="pull-right" id="<?php echo $row['id']; ?>">
             <style>
@@ -105,19 +98,19 @@
       });
     });
 
-    $('#create_bogo').on('click', function(){
+    $('#bogo_submit').on('click', function(){
 
       var category = $('#bg_category').val();
       var subcategory= $('#bg_subcategory').val();
       var brand= $('#bg_brand').val();
-      var bogo_count= $('#bg_count').val();
+      var bogo_fp= $('#bg_fp').val();
       var bogo_val= $('#bg_value').val();
 
 			$.post('<?php echo site_url($controller_name."/save_bogo"); ?>', {
           'category': category,
           'subcategory': subcategory,
           'brand': brand,
-          'bogo_count': bogo_count,
+          'bogo_fp': bogo_fp,
           'bogo_val': bogo_val,
         }, function(data) {
         $.post('<?php echo site_url($controller_name."/active_bogo_window"); ?>', {}, function(data) {
