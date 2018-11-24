@@ -11,9 +11,9 @@
 	<li role="presentation">
 		<a data-toggle="tab" href="#voucher_mod" title="Gift Vouchers">Gift Vouchers</a>
 	</li>
-	<li role="presentation">
+	<!-- <li role="presentation">
 		<a data-toggle="tab" href="#bogo_mod" title="BOGO Plans">Items Club</a>
-	</li>
+	</li> -->
 	<li role="presentation">
 		<a data-toggle="tab" href="#plimit_mod" title="Purchase Limiter">Purchase Limits</a>
 	</li>
@@ -26,9 +26,9 @@
 	<div class="tab-pane" id="voucher_mod">
 		<?php $this->load->view("offers/submodules/voucher"); ?>
 	</div>
-	<div class="tab-pane" id="bogo_mod">
-		<?php $this->load->view("offers/submodules/bogo"); ?>
-	</div>
+	<!-- <div class="tab-pane" id="bogo_mod">
+		<?php //$this->load->view("offers/submodules/bogo"); ?>
+	</div> -->
 	<div class="tab-pane" id="plimit_mod">
 		<?php $this->load->view("offers/submodules/plimit"); ?>
 	</div>

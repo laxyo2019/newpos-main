@@ -1164,32 +1164,62 @@ class Sales extends Secure_Controller
 		return $data;
 	}
 
-	public function detect_bogo($cart_data)
+	// public function detect_bogo($cart_data)
+	// {
+	// 	$main_response = array();
+	// 	$response = array();
+	// 	$discount_val = 0;
+	// 	$bogo_data = $this->db->where('status', 'checked')->get('special_bogo')->result_array();
+
+	// 	foreach($cart_data as $row)
+	// 	{
+	// 		$response = array();
+	// 		$item_id = $row['item_id'];
+	// 		$quantity = $row['quantity'];
+	// 		$retail_fp = $row['price'];
+
+	// 		foreach($bogo_data as $row)
+	// 		{
+	// 			$bogo_fp = $row['bogo_fp'];
+	// 			if($quantity > 1 && $retail_fp == $bogo_fp)
+	// 			{
+	// 				$item_info = $this->Item->get_info($item_id);
+	// 				if($item_info->category == $row['category'] && $item_info->subcategory == $row['subcategory'] && $item_info->brand == $row['brand'])
+	// 				{
+	// 					$discount_val += $row['bogo_val'] * round( ($quantity/$row['bogo_count']), 0, PHP_ROUND_HALF_DOWN );
+	// 				}
+	// 			}	
+	// 		}
+	// 	}
+
+	// 	if($discount_val > 0)
+	// 	{
+	// 		$discount_val *= -1;
+	// 		$this->sale_lib->set_bogo_value($discount_val);
+	// 		return TRUE;
+	// 	}
+	// 	return FALSE;
+	// }
+
+	public function detect_bogo1()
 	{
-		$main_response = array();
-		$response = array();
+		$cart_data = $this->session->userdata('sales_cart');
 		$discount_val = 0;
-		$bogo_data = $this->db->where('status', 'checked')->get('special_bogo')->result_array();
+		$addUp = array(); 
 
 		foreach($cart_data as $row)
 		{
-			$response = array();
-			$item_id = $row['item_id'];
-			$quantity = $row['quantity'];
-			$retail_fp = $row['price'];
-
-			foreach($bogo_data as $row)
+			$item_info = $this->Item->get_info($row['item_id']);
+			if($item_info->brand == 'WS')
 			{
-				$bogo_fp = $row['bogo_fp'];
-				if($quantity > 1 && $retail_fp == $bogo_fp)
-				{
-					$item_info = $this->Item->get_info($item_id);
-					if($item_info->category == $row['category'] && $item_info->subcategory == $row['subcategory'] && $item_info->brand == $row['brand'])
-					{
-						$discount_val += $row['bogo_val'] * round( ($quantity/$row['bogo_count']), 0, PHP_ROUND_HALF_DOWN );
-					}
-				}	
+				$addUp[number_format($row['price'])] += $row['quantity'];
 			}
+		}
+
+		foreach($addUp as $key=>$value)
+		{
+			$loop = ( (2 * $key * round( ($value/2), 0, PHP_ROUND_HALF_DOWN )) * 0.3 );
+			$discount_val += $loop;
 		}
 
 		if($discount_val > 0)
@@ -1376,7 +1406,8 @@ class Sales extends Secure_Controller
 
 			if(!in_array($this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value, $cItems))
 			{
-				$data['bogo'] = $this->detect_bogo($data['cart']);
+				// $data['bogo'] = $this->detect_bogo($data['cart']);
+				$data['bogo'] = $this->detect_bogo1($data['cart']);
 			}
 		}
 
