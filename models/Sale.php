@@ -175,6 +175,7 @@ class Sale extends CI_Model
 		$query = $this->db->get('stock_locations');
 		$shop_name = $query->row('alias');
 		$shop_address = $query->row('address');
+		$shop_incharge = $query->row('shop_incharge');
 		$tnc = $query->row('tnc');
 
 		$this->db->where('person_id', $employee_id);
@@ -183,6 +184,7 @@ class Sale extends CI_Model
 		return array(
 			'shop_name' => $shop_name,
 			'shop_address' => $shop_address,
+			'shop_incharge' => $shop_incharge,
 			'login_type' => $login_type,
 			'tnc' => $tnc
 		);

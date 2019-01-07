@@ -340,6 +340,7 @@
 					<?php echo form_input(array(
 							'name'=> 'retail',
 							'id'=> 'retail',
+							'max' => '100',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_retail)) ? NULL : $billtype_retail
 							)
@@ -353,6 +354,7 @@
 					<?php echo form_input(array(
 							'name'=> 'wholesale',
 							'id'=> 'wholesale',
+							'max' => '100',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_wholesale)) ? NULL : $billtype_wholesale
 							)
@@ -366,6 +368,7 @@
 					<?php echo form_input(array(
 							'name'=> 'franchise',
 							'id'=> 'franchise',
+							'max' => '100',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_franchise)) ? NULL : $billtype_franchise
 							)
@@ -379,6 +382,7 @@
 					<?php echo form_input(array(
 							'name'=> 'special',
 							'id'=> 'special',
+							'max' => '100',
 							'class'=>'form-control input-sm',
 							'value' => (empty($billtype_ys)) ? NULL : $billtype_ys
 							)

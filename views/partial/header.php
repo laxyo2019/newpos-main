@@ -120,7 +120,7 @@
 				<div class="navbar-right" style="margin:0">
 					<?php //echo anchor('home/change_password/'.$user_info->person_id, $user_info->first_name . ' ' . $user_info->last_name, array('class' => 'modal-dlg', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => $this->lang->line('employees_change_password'))); ?>
 					<?php echo $user_info->first_name . ' ' . $user_info->last_name; ?>
-					<?php echo '  |  ' . ($this->input->get('debug') == 'true' ? $this->session->userdata('session_sha1') . '  |  ' : ''); ?>
+					<?php echo '  |  ' . ($this->input->get('debug') == 'true' ? $this->session->userdata('session_sha1') . '  |  ' : ''); ?> 
 					<?php echo anchor('home/logout', $this->lang->line('common_logout')); ?>
 				</div>
 

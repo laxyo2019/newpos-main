@@ -11,10 +11,10 @@ if(isset($error_message))
 <table id="list" class="display">
   <thead>
 		<tr>
-			<th>Barcode</th>
-			<th>Particulars</th>
-			<th>HSN>
-			<th>MRP</th>
+	  <th>Barcode</th>
+	  <th>Particulars</th>
+	  <th>HSN>
+	  <th>MRP</th>
       <th>Discount</th>
       <th>Discounted Price</th>
       <th>Quantity</th>

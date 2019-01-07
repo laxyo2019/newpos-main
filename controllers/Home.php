@@ -13,6 +13,81 @@ class Home extends Secure_Controller
 	{
 		$this->load->view('home/home');
 	}
+	public function exists($location_id = -1)
+	{
+		$this->db->from('stock_locations');
+		$this->db->where('location_id', $location_id);
+
+		return ($this->db->get()->num_rows() >= 1);
+	}
+	public function test()
+	{
+	   $person_id = $this->session->userdata('person_id');
+	   echo $person_id;
+             /*$this->db->select('*');
+             $this->db->from('stock_locations');
+             $this->db->where('location_owner',$person_id);*/
+            return $query = $this->db->get('stock_locations');
+	//$query = "select * from stock_locations where location_owner = $person_id";
+	//SELECT * FROM `ospos_stock_locations` WHERE location_owner = 7
+	   echo $query;
+	}
+	
+
+	 public function item_count()
+    {
+    /*	$count = 0;
+    $locations = $this->input->post('locations');
+    $this->db->where('deleted', 0);
+    $items = $this->db->get('items')->result_array();
+    count($items);
+    echo "<pre>";
+    print_r( $items);*/
+
+    /*foreach($locations as $location)
+    {
+      foreach($items as $row)
+      {
+        $this->db->where('location_id', $location);
+        $this->db->where('item_id', $row['item_id']);
+        $count += $this->db->get('item_quantities')->row()->quantity;
+      }
+    }
+    */
+    //echo $count;
+    	$this->db->select(
+        'items.name AS name,
+        item_quantities.location_id AS location_id,
+        item_quantities.quantity AS quantity');
+    	$this->db->from('items');
+    	$this->db->join('item_quantities','items.item_id=item_quantities.item_id');
+    	$this->db->limit('100','1');
+    	$query = $this->db->get();
+    	$item = $query->/*num_rows*/result();
+    	echo count($item);
+    }
+
+	public function daily_sales()
+	{
+		$this->db->select('sum(quantity_purchased*item_unit_price) as stockvalue');
+		$this->db->from('sales_items');
+		$query = $this->db->get();
+		//$num = $query->num_rows();
+        $dailysales = $query->row()->stockvalue;
+        $a = round($dailysales,5);
+        echo "Rs $a";
+        //$this->load->view('home/home',$data);
+    }
+
+    public function customer_count()
+    {
+    	$this->db->select('*');
+    	$this->db->from('customers');
+    	$query = $this->db->get();
+    	$customers = $query->result();
+    	echo count($customers);
+    }
+    
 
 	public function logout()
 	{

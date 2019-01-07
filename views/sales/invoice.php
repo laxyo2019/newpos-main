@@ -85,6 +85,8 @@ $(document).ready(function()
                   <br>
                   Cashier: <?php echo $cashier_name; ?>
                   <br>
+                  Shop Incharge: <?php echo $this->Sale->get_invoice_details($sale_id_num)['shop_incharge']; ?>
+                  <br>
 									Sale Code: <?php echo $cashier_sale_code; ?>
 									<!-- <br>
 									Bill Type: <?php //echo $this->Sale->get_bill_type_on_invoice($sale_id_num); ?> -->

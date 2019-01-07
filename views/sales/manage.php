@@ -1,6 +1,19 @@
 <?php $this->load->view("partial/header"); ?>
 <?php //echo json_encode($this->session->userdata()); ?>
+<form action="" id="mode_form" class="form-horizontal panel panel-default sPanel1" method="post" accept-charset="utf-8">
+<input type="hidden" name="csrf_ospos_v3" value="d330e5d9a5aef4295667a99c591af01d">                                          
 
+<div class="panel-body form-group">
+<ul>
+   <li class="pull-left">
+	<a href="<?php echo site_url('sales/sales_invoice')?>" class="btn btn-primary btn-sm" 
+	id="sales_takings_button" title="Daily Sales"><span class="glyphicon glyphicon-list-alt">&nbsp;
+	</span>Sales Invoice</a></li>
+			<!-- <li class="pull-right">
+			</li> -->
+			</ul>
+		</div>
+	</form>		
 <script type="text/javascript">
 $(document).ready(function()
 {

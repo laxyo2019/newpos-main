@@ -396,7 +396,17 @@ class Manager extends Secure_Controller
   //   $this->db->where('employee_id', $shop_id);
 
   // }
+  public function edit_address()
+  {
 
+    $this->load->view('manager/modals/edit_address');
+  }
+  public function edit_stock_location()
+  {
+    $location_name = $this->input->post('report_edit');
+    $data['editadd'] = $this->db->/*select('address,tnc')->*/where('location_name',$location_name)->get('stock_locations')->result_array();
+    $this->load->view('manager/sublists/edit_stocklocation',$data);
+  }
   public function bulk_hsn_view()
 	{
 		$categories = array('' => $this->lang->line('items_none'));

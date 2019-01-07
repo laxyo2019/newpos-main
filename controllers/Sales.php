@@ -57,7 +57,43 @@ class Sales extends Secure_Controller
 
 			$this->load->view('sales/manage', $data);
 		}
+		
 	}
+	public function sales_invoice()
+	{
+		//$data['sales_report'] = $this->db->order_by('sale_time',"desc")->get('sales')->result_array();
+		$this->load->view('sales/sales_invoice');
+	}
+	public function get_sale()
+	{
+		$start_date = $this->input->post('start_date');
+		$end_date = $this->input->post('end_date');
+		$result_items = array();
+		//$data['sales_result'] = $this->db->order_by('sale_time',"desc")->get('sales')->result_array();
+		$this->db->select('
+		sales.sale_id AS sale_id,
+		sales.sale_time AS sale_time,
+		sales.customer_id AS customer_id,
+		sales.tally_number AS tally_number,
+		sales.invoice_number AS invoice_number,
+		sales.employee_id AS employee_id,
+		sales.sale_status AS sale_status,
+		sales.sale_type AS sale_type,
+		sales.bill_type AS bill_type,
+		sales_items.item_id AS item_id,
+		sales_items.quantity_purchased AS quantity,
+		sales_items.item_unit_price AS item_price,
+		sales_items.discount_percent AS item_discount,
+		sales_payments.payment_amount AS payment_amount
+		');
+		$this->db->from('sales');
+		$this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+		$this->db->join('sales_payments', 'sales_payments.sale_id = sales.sale_id');
+		$this->db->where('DATE(sale_time) BETWEEN "'.rawurldecode($start_date).'" AND "'.rawurldecode($end_date).'"');
+		$data['sales_results'] = $this->db->get()->result_array();
+		$this->load->view('sales/get_sales_invoice', $data);
+	}
+
 
 	public function invoice_excel($sale_id)
 	{
