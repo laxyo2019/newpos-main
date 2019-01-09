@@ -27,24 +27,54 @@ class Manager extends Secure_Controller
     $this->load->view('manager/get_valid_customers');
   }
 
-  public function process_valid_customers()
+  public function fetch_valid_customers($password)
   {
-    $customers = $this->input->post('customers');
-    $cArray = explode(PHP_EOL, $customers);
-    foreach($cArray as $row)
-    {
-      if(!empty($row))
-      {
-        if(is_numeric($row) && strlen($row) == 10)
-        {
-          if (count(array_keys($cArray, $row)) == 1) 
-          {
-            echo ($row . "\n");
+    if(isset($password) && $password == 'mechtech5') {
+      $customers = $this->input->post('customers');
+      $cArray = explode(PHP_EOL, $customers);
+      foreach($cArray as $row) {
+        if(!empty($row)) {
+          if(is_numeric($row) && strlen($row) == 10) {
+            if (count(array_keys($cArray, $row)) == 1) {
+              echo ($row . "\n");
+            }
           }
-          
         }
       }
     }
+  }
+
+  public function populate_vc_out_table($password)
+  {
+    if(isset($password) && $password == 'mechtech5') {
+      $db_customers = $this->db->get('people')->result();
+
+      foreach ($db_customers as $row) {
+        $contact = $row->phone_number;
+        if(!empty($contact)) {
+          if(is_numeric($contact) && strlen($contact) == 10) {
+            $filtered_customers['phone_number'] = $contact;
+            $filtered_customers['customer_id'] = $row->person_id;
+          }
+          $response[] = $filtered_customers;
+        }
+      }
+
+      foreach($response as $row) {
+        $data = array(
+          'voucher_id' => 3,
+          'phone' => $row['phone_number'],
+          'customer_id' => $row['customer_id']
+        );
+
+        $this->db->insert('special_vc_out', $data);
+      }
+      redirect(site_url('manager'));
+    }
+    else {
+      echo 'Unauthorised Action!';
+    }
+
   }
 
   public function get_count()
@@ -53,9 +83,8 @@ class Manager extends Secure_Controller
     $locations = $this->input->post('locations');
 
     $filter = $this->input->post('filter');
-    foreach($filter as $key=>$value)
-    {
-      if(!empty($value)){
+    foreach($filter as $key=>$value) {
+      if(!empty($value)) {
         $array[$key] = $value;
       }
     }
@@ -64,10 +93,8 @@ class Manager extends Secure_Controller
     $this->db->where($array);
     $filtered_items = $this->db->get('items')->result_array();
 
-    foreach($locations as $location)
-    {
-      foreach($filtered_items as $row)
-      {
+    foreach($locations as $location) {
+      foreach($filtered_items as $row) {
         $this->db->where('location_id', $location);
         $this->db->where('item_id', $row['item_id']);
         $count += $this->db->get('item_quantities')->row()->quantity;
@@ -85,10 +112,8 @@ class Manager extends Secure_Controller
     $items = $this->db->get('items')->result_array();
 
 
-    foreach($locations as $location)
-    {
-      foreach($items as $row)
-      {
+    foreach($locations as $location) {
+      foreach($items as $row) {
         $this->db->where('location_id', $location);
         $this->db->where('item_id', $row['item_id']);
         $count += $this->db->get('item_quantities')->row()->quantity;
@@ -110,51 +135,30 @@ class Manager extends Secure_Controller
     }
   }
 
-  public function list_all_items()
+  public function list_all_items($location_id)
   {
-    $data['locations'] = $this->input->post('locations');
-    $this->db->where('deleted', 0);
-    $data['items'] = $this->db->get('items')->result_array();
+    $data['items'] = $this->Item->get_all_custom($location_id)->result_array();
     $this->load->view('manager/sublists/items_sublist', $data);
+
+    // $items = $this->Item->get_all($location_id, 5, 0)->result_array();
+    // echo json_encode($items);
   }
 
-  // public function list_all_items()
-  // {
-  //   $data['locations'] = $this->input->post('locations');
-
-  //   $this->db->from('items');
-  //   $this->db->join('item_quantities', 'item_quantities.item_id = items.item_id');
-  //   $this->db->
-
-	// 	$shop_types = array('dbf', 'shop', 'hub');
-	// 	$this->db->where_in('login_type', $shop_types);
-	// 	$this->db->where('deleted !=', 1);
-	// 	$query = $this->db->get();
-
-	// 	$shops = array('' => $this->lang->line('items_none'));
-	// 	foreach($query->result_array() as $row)
-	// 		{
-	// 			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
-	// 		}
-
-	// 	return $shops;
-  // }
-
-  public function list_filtered_items()
+  public function list_filtered_items($location_id)
   {
-    $data['locations'] = $this->input->post('locations');
-
     $filter = $this->input->post('filter');
-    foreach($filter as $key=>$value)
-    {
-      if(!empty($value)){
+    foreach($filter as $key=>$value) {
+      if(!empty($value)) {
         $array[$key] = $value;
       }
     }
 
+    $this->db->from('items');
+    $this->db->join('item_quantities', 'item_quantities.item_id = items.item_id');
+    $this->db->where('location_id', $location_id);
     $this->db->where('deleted', 0);
     $this->db->where($array);
-    $data['items'] = $this->db->get('items')->result_array();
+    $data['items'] = $this->db->get()->result_array();
     $this->load->view('manager/sublists/items_sublist', $data);
   }
 

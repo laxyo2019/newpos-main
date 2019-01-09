@@ -583,9 +583,9 @@ class Sale_lib
 		$this->CI->session->unset_userdata('applied_credit_note');
 	}
 
-	public function apply_special_voucher($voucher_number)
+	public function apply_special_voucher($voucher_id)
 	{
-		$this->CI->session->set_userdata('applied_special_voucher', $voucher_number);
+		$this->CI->session->set_userdata('applied_special_voucher', $voucher_id);
 	}
 
 	public function remove_special_voucher()
@@ -745,7 +745,7 @@ class Sale_lib
 		$sales_mode = $this->CI->session->userdata('sales_mode');
 		$billtype = (empty($invoice_mode)) ? "retail" : $invoice_mode;
 
-		if($sales_mode != 'return')
+		if(empty($discount))
 		{
 			$discount = json_decode($item_info->discounts)->$billtype;
 		}
@@ -1219,7 +1219,7 @@ class Sale_lib
 
 		foreach($this->CI->Sale->get_sale_items_ordered($sale_id)->result() as $row) //fetches all items for the particular sale_id
 		{
-			$discount = $this->CI->Sale->get_cc_item_discount($sale_id, $row->item_id);
+			$discount = $this->CI->Sale->get_db_sale_item_discount($sale_id, $row->item_id);
 
 			$this->add_item($row->item_id, -$row->quantity_purchased, $row->item_location, $discount, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, TRUE);
 		}
@@ -1256,7 +1256,9 @@ class Sale_lib
 
 		foreach($this->CI->Sale->get_sale_items_ordered($sale_id)->result() as $row)
 		{
-			$this->add_item($row->item_id, $row->quantity_purchased, $row->item_location, $row->discount_percent, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, TRUE, $row->print_option);
+			$discount = $this->CI->Sale->get_db_sale_item_discount($sale_id, $row->item_id);
+
+			$this->add_item($row->item_id, $row->quantity_purchased, $row->item_location, $discount, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, TRUE, $row->print_option);
 		}
 
 		foreach($this->CI->Sale->get_sale_payments($sale_id)->result() as $row)

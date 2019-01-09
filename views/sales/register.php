@@ -104,32 +104,31 @@ if(isset($success))
 				<?php
 				}
 				?>
-				<!-- <li class="pull-right">
-					<?php //echo anchor($controller_name."/view_stats", 'Stats',
-								//array('class'=>'btn btn-primary btn-sm modal-dlg', 'id'=>'stats_button', 'title'=>'Stats')); ?>
-				</li> -->
 			</ul>
 		</div>
 	<?php echo form_close(); ?>
 
-	<?php if(!empty($bogo)){
-		if($bogo){ ?>	
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="process_bogo">APPLY OFFER</button>
-			</div>
-		</div>
-	<?php }} ?>
+	<?php if($this->session->userdata('lock_status')){ ?>
 
-	<?php if(!empty($offer_stats)){
-					if($offer_stats['status']){ ?>
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<li class="pull-right">
-				<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="add_special_voucher_payment"><?php echo $offer_stats['voucher_code']; ?></button>
+		<?php if(!empty($bogo)){
+			if($bogo){ ?>	
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="process_bogo">APPLY OFFER</button>
+				</div>
 			</div>
-		</div>		
-	<?php }} ?>
+		<?php }} ?>
+
+		<?php if(!empty($offer_stats)){
+			if($offer_stats['status']){ ?>
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="add_special_voucher_payment">APPLY VOUCHER</button>
+					</div>
+				</div>
+		<?php }} ?>
+
+	<?php } ?>
 
 	<?php $tabindex = 0; ?>
 	<?php echo form_open($controller_name."/add", array('id'=>'add_item_form', 'class'=>'form-horizontal panel panel-default sPanel2')); ?>
@@ -797,10 +796,12 @@ $(document).ready(function()
 	});
 
 	$('#add_special_voucher_payment').on('click', function(){
-		$(this).hide();
-	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']);?>', {}, function(data) {
-			window.location.href = "sales";
-  	});
+		<?php if(!empty($offer_stats)){ ?>
+			$(this).hide();
+		  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']."/".$offer_stats['voucher_value']);?>', {}, function(data) {
+				window.location.href = "sales";
+	  	});
+		<?php } ?>
 	});
 
 	$('#process_bogo').on('click', function(){

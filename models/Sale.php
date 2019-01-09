@@ -222,7 +222,7 @@ class Sale extends CI_Model
 		return $this->search($search, $filters, 0, 0, 'sales.sale_time', 'desc', TRUE);
 	}
 
-	public function get_cc_item_discount($sale_id, $item_id)
+	public function get_db_sale_item_discount($sale_id, $item_id)
 	{
 		$array = array(
 			'sale_id' => $sale_id,
@@ -572,24 +572,17 @@ class Sale extends CI_Model
 
 	public function check_my_voucher($customer_id)
 	{
-		$active_vc = $this->db->where('deleted', 0)->get('special_vc')->row();
-		
-		if(!empty($active_vc))
-		{
-			$my_active_vc = $this->db->where(
-				array(
-					'voucher_id' => $active_vc->id,
-					'customer_id' => $customer_id,
-					'redeemed' => 0
-					)
-				)->get('special_vc_out')->row();
+		$active_voucher = $this->db->where(
+			array(
+				'voucher_id' => 3,
+				'customer_id' => $customer_id,
+				'redeemed_at' => NULL
+				)
+			)->get('special_vc_out')->row();
 
-			if(!empty($my_active_vc))
-			{
-				return $active_vc;
-			}
-		}
-			
+		if(!empty($active_voucher)){
+			return TRUE;
+		}	
 	}
 
 	public function is_vc_applied_sale($cn_sale_id)
@@ -1397,7 +1390,7 @@ class Sale extends CI_Model
 	public function credit_note_factory()
 	{
 		$this->db->where('sale_type', 4);
-		$this->db->where_in('bill_type', array('retail', 'wholesale', 'franchise'));
+		$this->db->where_in('bill_type', array('retail', 'wholesale', 'franchise', 'ys', '1rupee'));
 		$returns_count = $this->db->count_all_results('sales');
 
 		return 'CN-'.($returns_count+1);
@@ -1415,12 +1408,8 @@ class Sale extends CI_Model
 
 	public function get_ref_invoice_number($sale_id)
 	{
-		$ref_sale_info = $this->db->where('sale_id', $sale_id)->get('sales')->result_array();
-
-		$ref_inv = $ref_sale_info['invoice_number'];
-		$ref_tally = $ref_sale_info['tally_number'];
-		
-		return $ref_tally.'/'.$ref_inv;
+		$info = $this->db->where('sale_id', $sale_id)->get('sales')->row();
+		return $info->tally_number.'/'.$info->invoice_number;
 	}
 
 	/**
