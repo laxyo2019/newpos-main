@@ -107,7 +107,7 @@
       console.log(locations);
       if(locations != null)
       {
-        $('#count').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+        $('#count').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
         $.post('<?php echo site_url($controller_name."/count_all_items");?>', {'locations': locations}, function(data) {
               $('#count').html(data);
             });
@@ -124,7 +124,7 @@
       console.log(locations);
       if(locations != null && category != "")
       {
-        $('#count').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+        $('#count').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
         var subcategory = $('#subcategory').val();
         var brand = $('#brand').val();
         var size = $('#size').val();

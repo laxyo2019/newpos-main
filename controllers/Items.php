@@ -589,7 +589,6 @@ class Items extends Secure_Controller
 			'allow_alt_description' => $this->input->post('allow_alt_description') != NULL,
 			'is_serialized' => $this->input->post('is_serialized') != NULL,
 			'deleted' => $this->input->post('is_deleted') != NULL,
-			'updated_at' => date('Y-m-d H:i:s'),
 			'custom1' => $this->input->post('custom1') == NULL ? $this->Item->hsn_factory(strtoupper($this->input->post('subcategory'))) : $this->input->post('custom1'),
 			'custom2' => $this->input->post('custom2') == NULL ? '' : $this->input->post('custom2'),
 			'custom3' => $this->input->post('custom3') == NULL ? '' : $this->input->post('custom3'),

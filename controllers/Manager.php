@@ -1,3 +1,5 @@
+<?php //ini_set('memory_limit', '-1'); ?>
+
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once("Secure_Controller.php");
@@ -22,22 +24,24 @@ class Manager extends Secure_Controller
     $this->load->view('manager/dashboard', $data);
   }
 
-  public function get_valid_customers()
-  {
-    $this->load->view('manager/get_valid_customers');
-  }
-
-  public function fetch_valid_customers($password)
+  public function get_valid_customers($password)
   {
     if(isset($password) && $password == 'mechtech5') {
-      $customers = $this->input->post('customers');
-      $cArray = explode(PHP_EOL, $customers);
-      foreach($cArray as $row) {
-        if(!empty($row)) {
-          if(is_numeric($row) && strlen($row) == 10) {
-            if (count(array_keys($cArray, $row)) == 1) {
-              echo ($row . "\n");
-            }
+      $this->load->view('manager/get_valid_customers');
+    }else{
+      echo 'Unauthorised Action';
+    }
+  }
+
+  public function fetch_valid_customers()
+  {
+    $customers = $this->input->post('customers');
+    $cArray = explode(PHP_EOL, $customers);
+    foreach($cArray as $row) {
+      if(!empty($row)) {
+        if(is_numeric($row) && strlen($row) == 10) {
+          if (count(array_keys($cArray, $row)) == 1) {
+            echo ($row . "\n");
           }
         }
       }
@@ -137,11 +141,15 @@ class Manager extends Secure_Controller
 
   public function list_all_items($location_id)
   {
-    $data['items'] = $this->Item->get_all_custom($location_id)->result_array();
-    $this->load->view('manager/sublists/items_sublist', $data);
+    $items = $this->db->from('items')
+      ->join('item_quantities', 'item_quantities.item_id = items.item_id')
+      ->where('item_quantities.location_id',  $location_id)
+      ->get()
+      ->result_array();
 
-    // $items = $this->Item->get_all($location_id, 5, 0)->result_array();
-    // echo json_encode($items);
+    $data['items'] = $items; 
+
+    $this->load->view('manager/sublists/all_items_sublist', $data);
   }
 
   public function list_filtered_items($location_id)
@@ -400,16 +408,47 @@ class Manager extends Secure_Controller
   //   $this->db->where('employee_id', $shop_id);
 
   // }
-  public function edit_address()
+  public function select_location()
   {
 
-    $this->load->view('manager/modals/edit_address');
+    $this->load->view('manager/modals/select_location');
   }
-  public function edit_stock_location()
+  public function detail_stocklocation()
   {
     $location_name = $this->input->post('report_edit');
-    $data['editadd'] = $this->db->/*select('address,tnc')->*/where('location_name',$location_name)->get('stock_locations')->result_array();
-    $this->load->view('manager/sublists/edit_stocklocation',$data);
+    $data['editadd'] = $this->db->select('location_id, location_name, shop_incharge, alias, address, tnc')->where('location_name',$location_name)->get('stock_locations')->result_array();
+    $this->load->view('manager/sublists/detailifo_location',$data);
+  }
+
+   public function save_stocklocation()
+      {
+         $location_id = $this->input->post('location_id');
+         $shop_incharge = $this->input->post('shop_incharge');
+         $alias = $this->input->post('alias');
+         $address = $this->input->post('address');
+         $tnc = $this->input->post('tnc');
+         $insert_data = array('shop_incharge'=>$shop_incharge, 'alias'=>$alias, 'address'=>$address, 'tnc'=>$tnc);
+
+         $update_data = array('shop_incharge'=>$shop_incharge, 'alias'=>$alias, 'address'=>$address, 'tnc'=>$tnc);
+
+      if(!empty($location_id))
+      {
+        $this->db->where('location_id',$location_id)->update('stock_locations',$update_data);
+        echo json_encode($update_data);
+
+      }
+      else
+      {
+        $this->db->insert('stock_locations',$insert_data);
+        echo json_encode($insert_data);
+       
+      }
+    }
+
+  public function edit_stocklocation($location_id)
+  {
+    $data['editadd'] = $this->db->select('location_id, location_name, shop_incharge, alias, address, tnc')->where('location_id',$location_id)->get('stock_locations')->result_array();
+   $this->load->view('manager/sublists/edit_stocklocation',$data);
   }
   public function bulk_hsn_view()
 	{

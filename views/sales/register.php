@@ -24,7 +24,7 @@ if(isset($success))
 
 		<div class="panel-body form-group sPanel1">
 			<ul>
-				<?php if(($this->Item->check_auth(array('hub')))) { ?>
+				<?php if(in_array($this->session->userdata('person_id'), array(7, 13))) { ?>
 					<button class='btn btn-sm btn-primary pull-left modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_billing"); ?>'
 						title='Quick Excel Billing'>
 					Quick Billing

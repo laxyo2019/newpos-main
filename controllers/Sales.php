@@ -1269,25 +1269,47 @@ class Sales extends Secure_Controller
 		if($this->Sale->check_my_voucher($customer_id))
 		{
 			$cart_data = $this->session->userdata('sales_cart');
-			$voucher_val = 0;
-			$offer_subcategories = ["MEN'S WOOLLEN", "WOMEN'S WOOLLEN", "KID'S WOOLLEN", "UNISEX WOOLLEN"];
+			$calculation = 0;
+			$offer_subcategories = ["MEN'S WOOLLEN", "WOMEN'S WOOLLEN", "KID'S WOOLLEN", "UNISEX WOOLLEN", "MEN'S BLAZER", "MEN'S JACKET COLLAR", "MEN'S WAISTCOAT", "MEN'S SWEATSHIRT", "MEN'S SCARF", "WOMEN'S JACKET"];
+			/*
+			MEN'S BLAZER
+			MEN'S JACKET COLLAR
+			MEN'S WAISTCOAT
+			MEN'S SWEATSHIRT
+			MEN'S WOOLLEN
+			MEN'S SCARF
+			WOMEN'S WOOLLEN
+			WOMEN'S JACKET
+			*/
 			foreach($cart_data as $items)
 			{
 				if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->subcategory, $offer_subcategories))
 				{
-					$voucher_val += $items['discounted_total'];
+					$calculation += $items['discounted_total'];
 				}
 			}
 
-			$voucher_val *= 0.1;
+			// $voucher_val *= 0.1;
+			if($calculation > 0)
+			{
+				$voucher_discount = 0.1; //10 percent discount
+				$scale_value = 2;
+				$voucher_val = bcmul($calculation, $voucher_discount, $scale_value);
+				
 
-			return array(
-				'status' => TRUE,
-				'voucher_id' => 3,
-				'voucher_code' => 'WINTER10',
-				'voucher_value' => $voucher_val
-			);
-
+				return array(
+					'status' => TRUE,
+					'voucher_id' => 3,
+					'voucher_code' => 'WINTER10',
+					'voucher_value' => $voucher_val
+				);
+			}
+			else
+			{
+				return array(
+					'status' => FALSE,
+				);
+			}
 		}
 		else
 		{
@@ -1428,10 +1450,10 @@ class Sales extends Secure_Controller
 		
 		if($this->session->userdata('sales_mode') != 'return')
 		{
-			if($this->session->userdata('sales_customer') !== -1 && empty($this->session->userdata('applied_special_voucher')))
-			{
-				$data['offer_stats'] = $this->get_offer_stats($this->sale_lib->get_customer());
-			}
+			// if($this->session->userdata('sales_customer') !== -1 && empty($this->session->userdata('applied_special_voucher')))
+			// {
+				// $data['offer_stats'] = $this->get_offer_stats($this->sale_lib->get_customer());
+			// }
 
 			// $cItems = array();
 			// foreach($data['cart'] as $row)

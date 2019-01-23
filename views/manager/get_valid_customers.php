@@ -15,7 +15,7 @@
   $(document).ready(function(){
     $('#submit').on('click', function(){
       var customers = $('#list').val();
-      $.post('<?php echo site_url($controller_name."/process_valid_customers");?>', {'customers': customers}, function(data) {
+      $.post('<?php echo site_url($controller_name."/fetch_valid_customers");?>', {'customers': customers}, function(data) {
 				$('#mList').html(data);
       });
     });

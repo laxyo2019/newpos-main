@@ -13,6 +13,7 @@ class Home extends Secure_Controller
 	{
 		$this->load->view('home/home');
 	}
+
 	public function exists($location_id = -1)
 	{
 		$this->db->from('stock_locations');
@@ -20,73 +21,74 @@ class Home extends Secure_Controller
 
 		return ($this->db->get()->num_rows() >= 1);
 	}
-	public function test()
+
+	public function item_count()
 	{
-	   $person_id = $this->session->userdata('person_id');
-	   echo $person_id;
-             /*$this->db->select('*');
-             $this->db->from('stock_locations');
-             $this->db->where('location_owner',$person_id);*/
-            return $query = $this->db->get('stock_locations');
-	//$query = "select * from stock_locations where location_owner = $person_id";
-	//SELECT * FROM `ospos_stock_locations` WHERE location_owner = 7
-	   echo $query;
-	}
+		$count = 0;
+
+		$location_row = $this->db->where('location_owner', $this->session->userdata('person_id'))
+			->get('stock_locations')
+			->row();
+
+		if(isset($location_row->location_id))
+		{
+			$items = $this->db->select('*')
+				->from('item_quantities')
+				->join('items', 'items.item_id = item_quantities.item_id')
+				->where('item_quantities.location_id',  $location_row->location_id)
+				->get()
+				->result_array();
+
+			foreach($items as $row)
+			{
+				$count += $row['quantity'];
+			}
+
+			$data['count'] = $count;
+		}
+		else
+		{
+			$data['count'] = 0;
+		}
+		
+			echo $data['count'];
+		}
+		
+    public function sales_count()
+    {
+			$a = date('Y-m-d');
+			$b = date('Y-m-d');                      ;
+    	$sales = $this->db->select('*')
+				->from('sales')
+				->where('employee_id', $this->session->userdata('person_id'))
+    	  ->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
+				->get()
+				->result_array();
+
+        echo count($sales); 
+     }
+ 
 	
-
-	 public function item_count()
+    public function total_sales()
     {
-    /*	$count = 0;
-    $locations = $this->input->post('locations');
-    $this->db->where('deleted', 0);
-    $items = $this->db->get('items')->result_array();
-    count($items);
-    echo "<pre>";
-    print_r( $items);*/
+			$count = 0;
+			$a = date('Y-m-d');
+			$b = date('Y-m-d');                      
+    	$total_sales = $this->db->select('payment_type,payment_amount')
+				->from('sales_payments')
+				->join('sales', 'sales_payments.sale_id = sales.sale_id')
+				->where('employee_id', $this->session->userdata('person_id'))
+				->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
+				->get()->result_array();
 
-    /*foreach($locations as $location)
-    {
-      foreach($items as $row)
-      {
-        $this->db->where('location_id', $location);
-        $this->db->where('item_id', $row['item_id']);
-        $count += $this->db->get('item_quantities')->row()->quantity;
-      }
+			foreach($total_sales as $row)
+			{
+				$count += $row['payment_amount'];
+			}
+								 
+			echo $count;
     }
-    */
-    //echo $count;
-    	$this->db->select(
-        'items.name AS name,
-        item_quantities.location_id AS location_id,
-        item_quantities.quantity AS quantity');
-    	$this->db->from('items');
-    	$this->db->join('item_quantities','items.item_id=item_quantities.item_id');
-    	$this->db->limit('100','1');
-    	$query = $this->db->get();
-    	$item = $query->/*num_rows*/result();
-    	echo count($item);
-    }
-
-	public function daily_sales()
-	{
-		$this->db->select('sum(quantity_purchased*item_unit_price) as stockvalue');
-		$this->db->from('sales_items');
-		$query = $this->db->get();
-		//$num = $query->num_rows();
-        $dailysales = $query->row()->stockvalue;
-        $a = round($dailysales,5);
-        echo "Rs $a";
-        //$this->load->view('home/home',$data);
-    }
-
-    public function customer_count()
-    {
-    	$this->db->select('*');
-    	$this->db->from('customers');
-    	$query = $this->db->get();
-    	$customers = $query->result();
-    	echo count($customers);
-    }
+  
     
 
 	public function logout()

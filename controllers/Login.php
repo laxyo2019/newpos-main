@@ -90,7 +90,7 @@ class Login extends CI_Controller
 	{
 		// get PHP extensions and check that the required ones are installed
 		$extensions = implode(', ', get_loaded_extensions());
-		echo json_encode($extensions);
+		// echo json_encode($extensions);
 		$keys = array('bcmath', 'intl', 'gd', 'openssl', 'mbstring', 'curl');
 		$pattern = '/';
 		foreach($keys as $key)

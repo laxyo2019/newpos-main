@@ -2,30 +2,16 @@
 <div class="row">
   <span class="col-md-12">
     <div class="form-group">
-      <select class="form-control" multiple="multiple" id="list_locations">
+      <select class="form-control" id="location_id">
         <?php foreach($stock_locations as $key=>$value): ?>
           <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
         <?php endforeach; ?>
       </select>
     </div>
-    <button class="btn btn-sm btn-info" id="allItems">All Items</button>
+    <button class="btn btn-sm btn-primary" id="allItems">All Items</button>
     <button class="btn btn-sm btn-warning" id="filterItems">Filter Items</button>
-    <button class="btn btn-sm btn-success" id="stockupItems">Stockup Items</button>
+    <button class="btn btn-sm btn-default" id="stockupItems">Stockup Items</button>
     <button class="btn btn-sm btn-success" id="newItems">New Items</button>
-    <!-- <span class="pull-right">
-      <label class="checkbox-inline">
-        <input type="checkbox" value="mci">MCI
-      </label>
-      <label class="checkbox-inline">
-        <input type="checkbox" value="taxes">HSN + GST
-      </label>
-      <label class="checkbox-inline">
-        <input type="checkbox" value="discounted">Discounts
-      </label>
-      <label class="checkbox-inline">
-        <input type="checkbox" value="fixed">Fixed Prices
-      </label>
-    </span> -->
   </span>
   
 </div>
@@ -94,8 +80,6 @@
 
 <script>
 	$(document).ready( function () {
-    $('#list_locations').select2();
-
     $('#category2').on('change',function(){
       var level1 = $(this).val();
       var wearables = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
@@ -107,37 +91,32 @@
         });
       }
     });
-    
-    $('#allItems').on('click', function(){
-      var locations = $('#list_locations').val();
-      console.log(locations);
-      if(locations != null)
-      {
-        $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
-        $.post('<?php echo site_url($controller_name."/list_all_items");?>', {'locations': locations}, function(data){
-          $('#table_area').html(data);
-          $('#list').DataTable({
-                "scrollX": true,
-                dom: 'Bfrtip',
-                buttons: [
-                  'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
-            });
-          });
-      }
-      else
-      {
-        alert('Please select a location');
-      }
-    });
 
+    $('#allItems').on('click', function(){
+      var location_id = $('#location_id').val();
+      console.log('location_id', location_id);
+
+      $('#table_area').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
+
+      $.get('<?php echo site_url($controller_name."/list_all_items/");?>'+location_id, function(data) {
+        $('#table_area').html(data);
+        $('#list').DataTable({
+          "scrollX": true,
+          dom: 'Bfrtip',
+          buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+          ]
+        });
+      });
+    });
+    
     $('#filterItems').on('click', function(){
-      var locations = $('#list_locations').val();
+      var location_id = $('#location_id').val();
       var category = $('#category2').val();
-      console.log(locations);
-      if(locations != null && category != "")
+      console.log('location_id', location_id);
+      if(location_id != null && category != "")
       {
-        $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+        $('#table_area').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
         var subcategory = $('#subcategory2').val();
         var brand = $('#brand2').val();
         var size = $('#size2').val();
@@ -149,7 +128,7 @@
           'custom2': size,
           'custom3': color
         };
-        $.post('<?php echo site_url($controller_name."/list_filtered_items");?>', {'filter': filterData, 'locations': locations}, function(data) {
+        $.post('<?php echo site_url($controller_name."/list_filtered_items");?>', {'filter': filterData, 'location_id': location_id}, function(data) {
         $('#table_area').html(data);
           $('#list').DataTable({
                 "scrollX": true,
@@ -168,7 +147,7 @@
 
 
     $('#stockupItems').on('click', function(){
-      $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+      $('#table_area').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
       $.post('<?php echo site_url($controller_name."/fetch_stockup_items") ?>', {'test': 'test'}, function(data) {
 	        $('#table_area').html(data);
           $('#list').DataTable({
@@ -182,7 +161,7 @@
       });
 
     $('#newItems').on('click', function(){
-      $('#table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+      $('#table_area').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
       $.post('<?php echo site_url($controller_name."/fetch_new_items") ?>', {'test': 'test'}, function(data) {
 	        $('#table_area').html(data);
           $('#list').DataTable({

@@ -11,8 +11,9 @@
       <th>Item Name</th>
       <th>Item Category</th>
       <th>Item Subcategory</th>
+      <th>Item Brand</th>
       <th>Taxable Value</th>
-      <!-- <th>Line</th> -->
+      <th>HSN</th>
       <th>CGST %</th>
       <th>CGST Amt.</th>
       <th>SGST %</th>
@@ -56,8 +57,9 @@
         <td><?php echo $item_info->name; ?></td>
         <td><?php echo $item_info->category; ?></td>
         <td><?php echo $item_info->subcategory; ?></td>
+        <td><?php echo $item_info->brand; ?></td>
         <td><?php echo $price - round($taxable_value, 2); ?></td>
-        <!-- <td><?php //echo $row['line']; ?></td> -->
+        <td><?php echo $item_info->custom1; ?></td>
         <td><?php echo (empty($tax_data['tax_percents']['CGST'])) ? NULL : $tax_data['tax_percents']['CGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_amounts']['CGST'])) ? NULL : $tax_data['tax_amounts']['CGST']; ?></td>
         <td><?php echo (empty($tax_data['tax_percents']['SGST'])) ? NULL : $tax_data['tax_percents']['SGST']; ?></td>

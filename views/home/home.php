@@ -6,6 +6,9 @@
        <div class="card"style="background-color: #00cccc;">
          <br>
         <h1><span class="glyphicon glyphicon-tags" style="color: white;"></span></h1>
+        <h3>Item Count</h3>
+        <h4>All Item Report</h4>
+        <h1 id="itemcount"></h1>
        <br>
     </div>
     </center>
@@ -17,40 +20,47 @@
        <div class="card" style="background-color: #ffcc66;">
         <br>
        <h1><span class="glyphicon glyphicon-shopping-cart" style="color: white;"></span></h1>
+       <h3>Daily Sales</h3>
+       <h4>Daily Sales Report</h4>
+       <h1 id="dailySales"></h1>
       <br>
       </div>
      </center>
   </div>
   </div>
 
-  <div class="column">
+ 
     <div class="col-md-4">
+     <div class="column">
       <center>
       <div class="card" style="background-color: #ff704d;">
         <br>
-      <h1><span class="glyphicon glyphicon-user" style="color: white;"></span></h1>
+      <h1><span class="glyphicon glyphicon-usd" style="color: white;"></span></h1>
+      <h3>Total Sales</h3>
+      <h4>Total Sales Report</h4>
+      <h1 id="totalSales"></h1>
      <br>
     </div>
     </center>
   </div>
 </div>
-<!-- old pos code -->
+ <script type="text/javascript">
+	$(document).ready(function(){
+    $('#itemcount').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+    $.get('<?php echo site_url('home/item_count') ?>', function(data){
+      $('#itemcount').html(data);
 
-<!-- <h3 class="text-center"><?php echo $this->lang->line('common_welcome_message'); ?></h3>
+    });
+    $('#dailySales').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+    $.get('<?php echo site_url('home/sales_count') ?>', function(data){
+      $('#dailySales').html(data);
+    });
 
-<div id="home_module_list">
-	<?php
-	foreach($allowed_modules as $module)
-	{
-	?>
-		<div class="module_item" title="<?php echo $this->lang->line('module_'.$module->module_id.'_desc');?>">
-			<a href="<?php echo site_url("$module->module_id");?>"><img src="<?php echo base_url().'images/menubar/'.$module->module_id.'.png';?>" border="0" alt="Menubar Image" /></a>
-			<a href="<?php echo site_url("$module->module_id");?>"><?php echo $this->lang->line("module_".$module->module_id) ?></a>
-		</div>
-	<?php
-	}
-	?>
-</div>
- -->
+    $('#totalSales').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+    $.get('<?php echo site_url('home/total_sales') ?>', function(data){
+      $('#totalSales').html(data);
+    });
+  });
+</script>
 
 <?php $this->load->view("partial/footer"); ?>

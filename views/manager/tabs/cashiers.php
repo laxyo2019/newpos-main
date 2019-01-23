@@ -7,12 +7,9 @@
     </button>
   </span>
   <span class="col-md-2">
-    <button class='btn btn-info modal-dlg' data-href='<?php echo site_url($controller_name."/edit_address"); ?>'
-            title='Edit Here'>
-        </span>Edit Address
-    </button>
+    <!-- <a href="<?php //echo site_url($controller_name."/select_location")?>" class="btn btn-info btn-sm" 
+  id="sales_takings_button" title="Daily Sales"><h6>Select Location</h6></a> -->
   </span>
-  
   <!-- <span class="col-md-2 pull-right">
     <div class="form-group">
       <select class="form-control" id="creport_mode">

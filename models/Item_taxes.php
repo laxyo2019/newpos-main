@@ -102,6 +102,9 @@ class Item_taxes extends CI_Model
 	{
 		$tax_percents = array();
 		$tax_amounts = array();
+		$response1 = array();
+		$response2 = array();
+
 		$array = array(
 			'sale_id' => $sale_id,
 			'item_id' => $item_id

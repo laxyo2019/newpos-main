@@ -95,12 +95,30 @@ class Stock_location extends CI_Model
 
 	public function get_location_id($location_name)
 	{
-		return $this->db->where('location_name', $location_name)->get('stock_locations')->row()->location_id;
+		$location_row = $this->db->where('location_name', $location_name)->get('stock_locations')->row();
+
+		if(isset($location_row->location_id))
+		{
+			return $location_row->location_id;
+		}
+		else
+		{
+			return "all";
+		}
 	}
 
 	public function get_location_id_2($owner_id)
 	{
-		return $this->db->where('location_owner', $owner_id)->get('stock_locations')->row()->location_id;
+		$location_row = $this->db->where('location_owner', $owner_id)->get('stock_locations')->row();
+		
+		if(isset($location_row->location_id))
+		{
+			return $location_row->location_id;
+		}
+		else
+		{
+			return "all";
+		}
 	}
 
 	public function get_owner_id($location_id)

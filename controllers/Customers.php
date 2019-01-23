@@ -253,39 +253,30 @@ class Customers extends Persons
 			$customer_data['sales_tax_code'] = $tax_code;
 		}
 
-		if($this->Customer->check_phone_exists($phone_number))
+		if($this->Customer->save_customer($person_data, $customer_data, $customer_id))
 		{
-			if($this->Customer->save_customer($person_data, $customer_data, $customer_id))
-			{
-				// save customer to Mailchimp selected list
-				$this->mailchimp_lib->addOrUpdateMember($this->_list_id, $email, $first_name, $last_name, $this->input->post('mailchimp_status'), array('vip' => $this->input->post('mailchimp_vip') != NULL));
+			// save customer to Mailchimp selected list
+			$this->mailchimp_lib->addOrUpdateMember($this->_list_id, $email, $first_name, $last_name, $this->input->post('mailchimp_status'), array('vip' => $this->input->post('mailchimp_vip') != NULL));
 
-				// New customer
-				if($customer_id == -1)
-				{
-					echo json_encode(array('success' => TRUE,
-									'message' => $this->lang->line('customers_successful_adding') . ' ' . $first_name . ' ' . $last_name,
-									'id' => $this->xss_clean($customer_data['person_id'])));
-				}
-				else // Existing customer
-				{
-					echo json_encode(array('success' => TRUE,
-									'message' => $this->lang->line('customers_successful_updating') . ' ' . $first_name . ' ' . $last_name,
-									'id' => $customer_id));
-				}
-			}
-			else // Failure
+			// New customer
+			if($customer_id == -1)
 			{
-				echo json_encode(array('success' => FALSE,
-								'message' => $this->lang->line('customers_error_adding_updating') . ' ' . $first_name . ' ' . $last_name,
-								'id' => -1));
+				echo json_encode(array('success' => TRUE,
+								'message' => $this->lang->line('customers_successful_adding') . ' ' . $first_name . ' ' . $last_name,
+								'id' => $this->xss_clean($customer_data['person_id'])));
+			}
+			else // Existing customer
+			{
+				echo json_encode(array('success' => TRUE,
+								'message' => $this->lang->line('customers_successful_updating') . ' ' . $first_name . ' ' . $last_name,
+								'id' => $customer_id));
 			}
 		}
-		else
+		else // Failure
 		{
 			echo json_encode(array('success' => FALSE,
-								'message' => 'Customer Already Exist' . ' ' . $first_name . ' ' . $last_name,
-								'id' => -1));
+							'message' => $this->lang->line('customers_error_adding_updating') . ' ' . $first_name . ' ' . $last_name,
+							'id' => -1));
 		}
 	}
 
