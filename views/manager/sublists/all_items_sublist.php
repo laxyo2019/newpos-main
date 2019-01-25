@@ -22,7 +22,25 @@
     </tr>
   </thead>
   <tbody>
-  <?php foreach ($items as $item): ?>
+  <?php foreach ($items as $item): 
+    $location_qty = $this->db->where(
+      array(
+        'item_id' => $item['item_id'],
+        'location_id' => $location_id
+      ))->get('item_quantities')->row()->quantity;
+
+    $ds = json_decode($item['discounts']);
+    $fp = json_decode($item['cost_price']);
+
+    $ds_retail = (isset($ds->retail)) ? $ds->retail : "";
+    $ds_wholesale = (isset($ds->wholesale)) ? $ds->wholesale : "";
+    $ds_franchise = (isset($ds->franchise)) ? $ds->franchise : "";
+
+    $fp_retail = (isset($fp->retail)) ? $fp->retail : "";
+    $fp_wholesale = (isset($fp->wholesale)) ? $fp->wholesale : "";
+    $fp_franchise = (isset($fp->franchise)) ? $fp->franchise : "";
+    
+  ?>
     <tr style="text-align: center;">
       <td><?php echo $item['item_id']; ?></td>
       <td><?php echo $item['item_number']; ?></td>
@@ -35,13 +53,13 @@
       <td><?php echo $item['custom4']; ?></td>
       <td><?php echo $item['unit_price']; ?></td>
       <td><?php echo $item['custom1']; ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->retail); ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->wholesale); ?></td>
-      <td><?php echo to_quantity_decimals(json_decode($item['discounts'])->franchise); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->retail); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->wholesale); ?></td>
-      <td><?php echo to_currency(json_decode($item['cost_price'])->franchise); ?></td>
-      <td><?php echo $item['quantity']; ?></td>
+      <td><?php echo round($ds_retail); ?></td>
+      <td><?php echo round($ds_wholesale); ?></td>
+      <td><?php echo round($ds_franchise); ?></td>
+      <td><?php echo round($fp_retail); ?></td>
+      <td><?php echo round($fp_wholesale); ?></td>
+      <td><?php echo round($fp_franchise); ?></td>
+      <td><?php echo $location_qty; ?></td>
     </tr>
   <?php endforeach; ?>
   </tbody>

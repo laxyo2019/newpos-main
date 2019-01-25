@@ -16,7 +16,7 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-<?php //echo json_encode($this->session->userdata()); ?>
+<?php //echo json_encode($this->session->userdata('sales_cart')); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -110,23 +110,66 @@ if(isset($success))
 
 	<?php if($this->session->userdata('lock_status')){ ?>
 
-		<?php if(!empty($bogo)){
-			if($bogo){ ?>	
+		<!-- <?php //if(!empty($bogo)){
+			//if($bogo){ ?>	
 			<div class="panel panel-default">
 				<div class="panel-body">
 					<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="process_bogo">APPLY OFFER</button>
 				</div>
 			</div>
-		<?php }} ?>
+		<?php //}} ?> -->
 
-		<?php if(!empty($offer_stats)){
-			if($offer_stats['status']){ ?>
+		<!-- <?php //if(!empty($offer_stats)){
+			//if($offer_stats['status']){ ?>
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="add_special_voucher_payment">APPLY VOUCHER</button>
 					</div>
 				</div>
-		<?php }} ?>
+		<?php //}} ?> -->
+
+		<div class="panel panel-primary">
+			<div class="panel-body">
+				<div class="row" style="padding:5px">
+
+					<?php
+						if(empty($this->session->userdata('redeem_voucher_id')))
+						{
+							echo '<span class="pull-left">
+											<b>Enter Voucher Code</b>
+										</span>';
+							echo '<span class="pull-right">
+											<input type="text" id="vc_input">
+											<button id="try_voucher_code">Apply</button>
+										</span>';
+						}
+						else if($this->session->userdata('redeem_voucher_id') == -1)
+						{
+							echo '<span class="pull-left">
+											<b style="color:red">Invalid Voucher Code...</b>
+										</span>';
+							echo '<span class="pull-right">
+											<input type="text" id="vc_input">
+											<button id="try_voucher_code">Apply</button>
+										</span>';
+						}
+						else if($this->session->userdata('redeem_voucher_id') == 0)
+						{
+							echo '<span class="pull-left">
+											<b style="color:green">Min. purchase not reached</b>
+										</span>';
+						}
+						else
+						{
+							echo '<span class="pull-left">
+											<b style="color:green">Voucher Code Applied!</b>
+										</span>';
+						}
+					?>
+
+				</div>
+			</div>
+		</div>
 
 	<?php } ?>
 
@@ -205,14 +248,7 @@ if(isset($success))
 							?>
 								<td>
 									<?php
-									if($this->Item->check_auth('apnagps')) //allowing to edit price
-									{
-										echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
-									}
-									else
-									{
 										echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'readonly' => 'true', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
-									}
 									?>
 								</td>
 							<?php
@@ -250,14 +286,7 @@ if(isset($success))
 							</td>
 							<td>
 								<?php 
-									if($this->Item->check_auth('apnagps')) //allowing to edit discount
-									{
-										echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
-									}
-									else
-									{
-										echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'readonly'=>'true', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
-									}
+									echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'readonly'=>'true', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));
 								?>
 							</td>
 							
@@ -340,6 +369,13 @@ if(isset($success))
 <!-- Overall Sale -->
 <div id="overall_sale" class="panel panel-default">
 	<div class="panel-body">
+		<section>
+			<?php if(!empty($this->session->userdata('earned_voucher_id')))
+			{
+				echo 'Voucher Eligible Sale!';
+			}
+			?>
+		</section>
 		<?php echo form_open($controller_name."/select_customer", array('id'=>'select_customer_form', 'class'=>'form-horizontal')); ?>
 			<?php
 			if(isset($customer))
@@ -751,21 +787,31 @@ $(document).ready(function()
 
 	$('#lock_bill').on('click', function(){
 		<?php
-		$customer_added = ($this->session->userdata('sales_customer') !== -1) ? TRUE : FALSE;
-		$cashier_added = (!empty($this->session->userdata('cashier_id'))) ? TRUE : FALSE;
+			$customer_added = ($this->session->userdata('sales_customer') !== -1) ? TRUE : FALSE;
+			$cashier_added = (!empty($this->session->userdata('cashier_id'))) ? TRUE : FALSE;
+		?>
 
-		if($customer_added && $cashier_added){ ?> 
+		<?php if($customer_added && $cashier_added){ ?> 
 			$.post('<?php echo site_url($controller_name."/lock_bill");?>', {}, function(data) {
 				if(data == 1){
 					window.location.href = "sales";
 				}else{
 					alert(data);
 				}	
-		});
+			});
 		<?php }else{ ?>
 			alert('Either Customer/Cashier not added');
 		<?php } ?>
   });
+
+	$('#try_voucher_code').on('click', function(){
+		$('#vc_message').html('processing...');
+		var vc_code = $('#vc_input').val();
+		$.post('<?php echo site_url($controller_name."/try_voucher_code"); ?>', {'vc_code': vc_code}, function(data) {
+			alert(data);
+			window.location.href = "sales";
+		});
+	});
 
   $('#billType').on('change', function(){
     var type = $(this).val();
@@ -795,25 +841,27 @@ $(document).ready(function()
   	});
 	});
 
-	$('#add_special_voucher_payment').on('click', function(){
-		<?php if(!empty($offer_stats)){ ?>
-			$(this).hide();
-		  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']."/".$offer_stats['voucher_value']);?>', {}, function(data) {
-				window.location.href = "sales";
-	  	});
-		<?php } ?>
-	});
+	// THIS CODE ADDS UP A DYNAMIC AMT AS PAYMENT (SPECIAL VOUCHER)
+	// $('#add_special_voucher_payment').on('click', function(){
+	// 	<?php if(!empty($offer_stats)){ ?>
+	// 		$(this).hide();
+	// 	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']."/".$offer_stats['voucher_value']);?>', {}, function(data) {
+	// 			window.location.href = "sales";
+	//   	});
+	// 	<?php } ?>
+	// });
 
-	$('#process_bogo').on('click', function(){
-		<?php if($this->session->userdata('lock_status')){ ?>
-			$(this).hide();
-		  $.post('<?php echo site_url($controller_name."/add_custom");?>', {'item': <?php echo $this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value; ?>}, function(data) {
-				window.location.href = "sales";
-	  	});
-		<?php }else{ ?>
-			alert('Please lock the bill first');
-		<?php } ?>
-	});
+	// THIS CODE ADDS UP AN ITEM WITH 1 RUPEE PRICE (AS IN BUY 1 GET 1)
+	// $('#process_bogo').on('click', function(){
+	// 	<?php if($this->session->userdata('lock_status')){ ?>
+	// 		$(this).hide();
+	// 	  $.post('<?php echo site_url($controller_name."/add_custom");?>', {'item': <?php echo $this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value; ?>}, function(data) {
+	// 			window.location.href = "sales";
+	//   	});
+	// 	<?php }else{ ?>
+	// 		alert('Please lock the bill first');
+	// 	<?php } ?>
+	// });
 
 	$("#item").autocomplete(
 	{
@@ -937,11 +985,12 @@ $(document).ready(function()
 	$("#add_payment_button").click(function()
 	{
 		<?php
-		$customer_added = ($this->session->userdata('sales_customer') !== -1) ? TRUE : FALSE;
-		$cashier_added = (!empty($this->session->userdata('cashier_id'))) ? TRUE : FALSE;
-		$bill_locked = ($this->session->userdata('lock_status')) ? TRUE : FALSE;
+			$customer_added = ($this->session->userdata('sales_customer') !== -1) ? TRUE : FALSE;
+			$cashier_added = (!empty($this->session->userdata('cashier_id'))) ? TRUE : FALSE;
+			$bill_locked = ($this->session->userdata('lock_status')) ? TRUE : FALSE;
+		?>
 
-		if($customer_added && $cashier_added && $bill_locked){ ?> 
+		<?php if($customer_added && $cashier_added && $bill_locked){ ?> 
 			$('#add_payment_form').submit();
 		<?php }else{ ?>
 			alert('Either Customer/Cashier not added or Bill Unlocked');

@@ -63,23 +63,6 @@ $(document).ready(function()
 </script>
 
 <div id="title_bar" class="btn-toolbar print_hide">
-<?php if($this->Item->check_auth(array('dbf', 'shop'))) { ?>
-
-	<button class='btn btn-info btn-sm modal-dlg-wide' data-href='<?php echo site_url($controller_name."/request_item_show"); ?>'
-					title='My Item Requests'>
-			<span class="glyphicon glyphicon-shopping-cart">&nbsp</span>My Item Requests
-	</button>
-
-<?php } ?>
-
-<?php if($this->Item->check_auth('hub')) { ?>
-
-	<button class='btn btn-info btn-sm modal-dlg-wide' data-href='<?php echo site_url($controller_name."/request_deck"); ?>'
-					title='Requirements Deck'>
-			<span class="glyphicon glyphicon-shopping-cart">&nbsp</span>Requirements Deck
-	</button>
-
-<?php } ?>
 
 <?php if($this->Item->is_both()) { ?>
 

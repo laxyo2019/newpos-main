@@ -120,7 +120,7 @@ function get_sale_data_row($sale)
 	// $row['receipt'] = anchor($controller_name."/receipt/$sale->sale_id", '<span class="glyphicon glyphicon-usd"></span>',
 	// 	array('title' => $CI->lang->line('sales_show_receipt'))
 	// );
-	if($CI->Item->check_auth(array('superadmin', 'apnagps')))
+	if($CI->Item->check_auth(array('superadmin')))
 	{
 		$row['edit'] = anchor($controller_name."/edit/$sale->sale_id", '<span class="glyphicon glyphicon-edit"></span>',
 		array('class' => 'modal-dlg print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
@@ -437,7 +437,7 @@ function get_item_data_row($item)
 			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_count')));	
 		}
 
-		if($CI->Item->check_auth(array('superadmin', 'admin', 'apnagps')))
+		if($CI->Item->check_auth(array('superadmin', 'admin')))
 		{
 			$items_array['edit'] = anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-edit"></span>',
 					array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update')));

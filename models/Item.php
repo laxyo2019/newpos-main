@@ -239,13 +239,7 @@ class Item extends CI_Model
 		$this->db->from('items as items');
 		$this->db->join('suppliers as suppliers', 'suppliers.person_id = items.supplier_id', 'left');
 		$this->db->join('inventory as inventory', 'inventory.trans_items = items.item_id');
-        if(!empty($filters['priority']))
-        {
-			if($filters['priority'] == "APNAGPS")
-			{
-				$this->db->where('brand', $filters['priority']);
-			}
-        }
+
 		if($filters['stock_location_id'] > -1)
 		{
 			$this->db->join('item_quantities as item_quantities', 'item_quantities.item_id = items.item_id');

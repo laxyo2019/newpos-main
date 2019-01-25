@@ -166,20 +166,32 @@ class Sale extends CI_Model
 		return ($Rupees ? $Rupees . 'Rupees ' : '') . $paise." Only";
 	}
 
+	public function get_earned_voucher($sale_id)
+	{
+		$voucher = $this->db->where('generate_sale_id', $sale_id)->get('special_vc_out')->row();
+		if(!empty($voucher))
+		{
+			$vc_details = $this->db->where('id', $voucher->voucher_id)->get('special_vc')->row();
+
+			return 'Congratulations! You have earned a reward voucher worth <b>'.to_currency($vc_details->vc_value).'</b>. Your voucher code is <b>'.$voucher->voucher_code.'</b>. This voucher can be redeemed on min. purchase of <b>'.to_currency($vc_details->redeem_threshold).'</b> in branded garments, footwear & winter wear.';
+		}
+		else
+		{
+			return "";
+		}
+	}
+
 	public function get_invoice_details($sale_id)
 	{
-		$this->db->where('sale_id', $sale_id);
-		$employee_id = $this->db->get('sales')->row()->employee_id;
+		$employee_id = $this->db->where('sale_id', $sale_id)->get('sales')->row()->employee_id;
 		
-		$this->db->where('location_owner', $employee_id);
-		$query = $this->db->get('stock_locations');
-		$shop_name = $query->row('alias');
-		$shop_address = $query->row('address');
-		$shop_incharge = $query->row('shop_incharge');
-		$tnc = $query->row('tnc');
+		$shop_data = $this->db->where('location_owner', $employee_id)->get('stock_locations')->row();
+		$shop_name = $shop_data->alias;
+		$shop_address = $shop_data->address;
+		$shop_incharge = $shop_data->shop_incharge;
+		$tnc = $shop_data->tnc;
 
-		$this->db->where('person_id', $employee_id);
-		$login_type = $this->db->get('employees')->row()->login_type;
+		$login_type = $this->db->where('person_id', $employee_id)->get('employees')->row()->login_type;
 
 		return array(
 			'shop_name' => $shop_name,
@@ -1309,7 +1321,7 @@ class Sale extends CI_Model
 			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
 		}
 
-		if($this->Item->check_auth(array('hub', 'apnagps')))
+		if($this->Item->check_auth(array('hub')))
 		{
 			$payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
 			$payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');

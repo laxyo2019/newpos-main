@@ -14,7 +14,7 @@ class Manager extends Secure_Controller
   public function index()
   {
     $data['cashiers'] = $this->db->get('cashiers')->result_array();
-    foreach($this->Pricing->get_active_shops(array('dbf', 'shop', 'hub', 'apnagps')) as $row)
+    foreach($this->Pricing->get_active_shops(array('dbf', 'shop', 'hub')) as $row)
 		{
 			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}
@@ -141,13 +141,8 @@ class Manager extends Secure_Controller
 
   public function list_all_items($location_id)
   {
-    $items = $this->db->from('items')
-      ->join('item_quantities', 'item_quantities.item_id = items.item_id')
-      ->where('item_quantities.location_id',  $location_id)
-      ->get()
-      ->result_array();
-
-    $data['items'] = $items; 
+    $data['items'] = $this->db->where('deleted', 0)->get('items')->result_array();
+    $data['location_id'] = $location_id;
 
     $this->load->view('manager/sublists/all_items_sublist', $data);
   }
@@ -167,6 +162,7 @@ class Manager extends Secure_Controller
     $this->db->where('deleted', 0);
     $this->db->where($array);
     $data['items'] = $this->db->get()->result_array();
+    
     $this->load->view('manager/sublists/items_sublist', $data);
   }
 
@@ -359,7 +355,7 @@ class Manager extends Secure_Controller
 
   public function cashier_add()
   {
-    foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub', 'apnagps')) as $row)
+    foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
 		{
 			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
 		}

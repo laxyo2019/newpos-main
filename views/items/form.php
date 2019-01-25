@@ -333,7 +333,7 @@
 			}
 		?>
 			
-		<?php if($this->Item->check_auth(array('superadmin', 'admin', 'apnagps'))){ ?>
+		<?php if($this->Item->check_auth(array('superadmin', 'admin'))){ ?>
 			<div class="form-group form-group-sm">
 				<?php echo form_label('RETAIL', 'retail', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>

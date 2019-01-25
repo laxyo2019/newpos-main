@@ -54,11 +54,6 @@ class Items extends Secure_Controller
 			'is_deleted' => FALSE
 		);
 
-		if($this->Item->check_auth('apnagps'))
-		{
-			$filters['priority'] = "APNAGPS";
-		}
-
 		// check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);
 		$filters = array_merge($filters, $filledup);

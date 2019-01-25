@@ -128,7 +128,7 @@
           'custom2': size,
           'custom3': color
         };
-        $.post('<?php echo site_url($controller_name."/list_filtered_items");?>', {'filter': filterData, 'location_id': location_id}, function(data) {
+        $.post('<?php echo site_url($controller_name."/list_filtered_items/");?>'+location_id, {'filter': filterData}, function(data) {
         $('#table_area').html(data);
           $('#list').DataTable({
                 "scrollX": true,

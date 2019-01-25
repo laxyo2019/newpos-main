@@ -30,26 +30,25 @@ class Home extends Secure_Controller
 			->get('stock_locations')
 			->row();
 
-		if(isset($location_row->location_id))
-		{
-			$items = $this->db->select('*')
-				->from('item_quantities')
-				->join('items', 'items.item_id = item_quantities.item_id')
-				->where('item_quantities.location_id',  $location_row->location_id)
-				->get()
-				->result_array();
-
-			foreach($items as $row)
+			if(isset($location_row->location_id))
 			{
-				$count += $row['quantity'];
-			}
+				$items = $this->db->select('*')
+					->from('item_quantities')
+					->where('item_quantities.location_id',  $location_row->location_id)
+					->get()
+					->result_array();
 
-			$data['count'] = $count;
-		}
-		else
-		{
-			$data['count'] = 0;
-		}
+				foreach($items as $row)
+				{
+					$count += $row['quantity'];
+				}
+
+				$data['count'] = $count;
+			}
+			else
+			{
+				$data['count'] = 0;
+			}
 		
 			echo $data['count'];
 		}

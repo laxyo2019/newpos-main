@@ -4,16 +4,11 @@
     <select id="edit_stock_location" class="form-control">
       <option value="">-- Select Stock Location --</option>
       <option value="laxyohouse">LaxyoHouse</option>
-      <option value="dewasnaka">Dewasnaka</option>
       <option value="indraprastha">Indraprastha</option>
-      <option value="bhanvarkuan">Bhanvarkuan</option>
       <option value="annapurna">Annapurna</option>
-      <option value="amazon">Amazon</option>
       <option value="mahalaxmi">Mahalaxmi</option>
       <option value="ratlam">Ratlam</option>
-      <option value="shivpuri">Shivpuri</option>
       <option value="bapat">Bapat</option>
-      <option value="apnagps">Apnagps</option>
     </select>
   </span>
 </div>

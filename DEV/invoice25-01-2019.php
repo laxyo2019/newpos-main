@@ -231,12 +231,20 @@ $(document).ready(function()
             </tbody>
 					</table>
 				</section>
-
-				<section class="text-center" style="font-size: 11px; padding: 10px"> 
-					<!-- Earned VC Details -->
-					 <?php echo $this->Sale->get_earned_voucher($sale_id_num); ?>
-				</section>
 				
+				<!-- <section style="font-size: 10px;">
+					<div class="text-center"
+					 style="width:60%; float: left; padding-left: 20px; border: 1px solid #ddd;border-left: 0px;border-right: 0px; padding: 5px;">
+						Company's PAN: <b>AABCL3031E</b><br>
+						<p>Declaration: We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.</p>
+					</div>
+					<div style="width:40%; float: left; padding-left: 20px; border: 1px solid #ddd;border-right: 0px; padding: 5px;">
+						Company's Bank Details<br>
+            <p>Bank Name: <b>HDFC Bank A/c 04048470000079</b><br>
+            Branch & IFSC: <b>VIJAY NAGAR & HDFC0000404</b></p>
+					</div>
+				</section> -->
+				<div class="clearfix"></div>
 				<section style="font-size: 10px;">
 					<div class="text-center" style="width: 50%;float: left;border: 1px solid #ddd;border-left: 0px;border-right: 0px; padding: 5px;">
 						Seller's Signature <br><br>
@@ -248,6 +256,8 @@ $(document).ready(function()
 						_______________
 					</div>
 				</section>
+				<div class="clearfix"></div>
+				
 				<div class="clearfix"></div>
 				<br>
 				<section>
