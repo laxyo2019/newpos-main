@@ -122,14 +122,17 @@ if (isset($msg))
 				?>
 				</li>
 				<!-- Add New Item Button Removed -->
-				<li class="pull-right" style="font-weight:bold; font-size:1.2em">
+				<li class="pull-right">
+					<span id="lock_dc" class="btn btn-sm btn-danger glyphicon glyphicon-lock pull-right animated pulse infinite" title="Lock DC"></span>
 					<?php
 						$total_qty = 0;
 						foreach($this->session->userdata('recv_cart') as $row)
 						{
 							$total_qty += $row['quantity'];
 						}
-						echo 'Total Qty: '.$total_qty; 
+						echo '<span style="margin:10px;">Total Quantity: '
+							.$total_qty.
+						'</span>'; 
 					?>
 				</li>
 			</ul>
@@ -172,7 +175,10 @@ if (isset($msg))
 				{
 			?>
 					<?php echo form_open($controller_name."/edit_item/$line", array('class'=>'form-horizontal', 'id'=>'cart_'.$line)); ?>
-						<tr>
+						<tr style=
+							<?php 
+								echo ($item['receiving_quantity'] >= $item['in_stock']) ? "color:#d62c1a" : "";  
+							?>>
 							<td><?php echo anchor($controller_name."/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>');?></td>
 							<td><?php echo $item['item_number'] ?></td>
 							<td style="align:center;">
@@ -415,6 +421,24 @@ $(document).ready(function()
     });
 	});
 
+	$('#lock_dc').on('click', function(){
+		<?php
+			$dispatcher_added = (!empty($this->session->userdata('dispatcher_id'))) ? TRUE : FALSE;
+		?>
+
+		<?php if($dispatcher_added){ ?> 
+			$.post('<?php echo site_url($controller_name."/lock_dc");?>', {}, function(data) {
+				if(data == 1){
+					window.location.href = "receivings";
+				}else{
+					alert(data);
+				}	
+			});
+		<?php }else{ ?>
+			alert('Dispatcher not set');
+		<?php } ?>
+  });
+
 	$('#item').focus();
 
 	$('#item').keypress(function (e) {
@@ -474,10 +498,10 @@ $(document).ready(function()
 
     $("#finish_receiving_button").click(function()
     {
-			<?php if(!empty($this->session->userdata('dispatcher_id'))){ ?> 
+			<?php if($this->session->userdata('dc_lock_status')){ ?> 
    			$('#finish_receiving_form').submit();
 			<?php }else{ ?>	
-				alert('Please select a Dispatcher');
+				alert('please lock DC before finishing');
 			<?php } ?>		 
     });
 

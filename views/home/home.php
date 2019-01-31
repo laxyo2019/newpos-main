@@ -5,10 +5,9 @@
       <center>
        <div class="card"style="background-color: #00cccc;">
          <br>
-        <h1><span class="glyphicon glyphicon-tags" style="color: white;"></span></h1>
-        <h3>Item Count</h3>
-        <h4>All Item Report</h4>
-        <h1 id="itemcount"></h1>
+         <h3>Current Stock</h3>
+         <h1><span class="fa fa-tags" style="color: white;"></span></h1>
+         <h1 id="itemcount"></h1>
        <br>
     </div>
     </center>
@@ -19,10 +18,9 @@
     <center>       
        <div class="card" style="background-color: #ffcc66;">
         <br>
-       <h1><span class="glyphicon glyphicon-shopping-cart" style="color: white;"></span></h1>
-       <h3>Daily Sales</h3>
-       <h4>Daily Sales Report</h4>
-       <h1 id="dailySales"></h1>
+        <h3>Today's Sales</h3>
+        <h1><span class="fa fa-shopping-cart" style="color: white;"></span></h1>
+        <h1 id="dailySales"></h1>
       <br>
       </div>
      </center>
@@ -35,10 +33,9 @@
       <center>
       <div class="card" style="background-color: #ff704d;">
         <br>
-      <h1><span class="glyphicon glyphicon-usd" style="color: white;"></span></h1>
-      <h3>Total Sales</h3>
-      <h4>Total Sales Report</h4>
-      <h1 id="totalSales"></h1>
+        <h3>Today's Earning</h3>
+        <h1><span class="fa fa-inr" style="color: white;"></span></h1>
+        <h1 id="totalSales"></h1>
      <br>
     </div>
     </center>

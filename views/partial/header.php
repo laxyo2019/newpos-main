@@ -78,6 +78,7 @@
 		<!-- start minjs template tags -->
 		<script type="text/javascript" src="dist/opensourcepos.min.js?rel=43af33332b"></script>
 		<!-- end minjs template tags -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<?php endif; ?>
 
 	<?php $this->load->view('partial/header_js'); ?>

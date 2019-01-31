@@ -726,17 +726,16 @@ class Sale extends CI_Model
 				}
 				else
 				{
-					$this->db->where('return_sale_id', $sale_id);
-					$this->db->where('deleted', 0);
-					if($this->db->count_all_results('sales_returns') > 0)
+					if($this->db->where(array('return_sale_id' => $sale_id, 'deleted' => 0))->count_all_results('sales_returns') > 0)
 					{
 						return 'PROCESSED';
 					}
 					else
 					{
-						$this->db->where('redeem_sale_id', $sale_id);
-						$this->db->where('deleted', 0);
-						if($this->db->count_all_results('sales_returns') > 0)
+						$cn_redeem_count = $this->db->where(array('redeem_sale_id' => $sale_id, 'deleted' => 0))->count_all_results('sales_returns');
+						$vc_redeem_count = $this->db->where(array('redeem_sale_id' => $sale_id, 'redeemed_at !=' => NULL))->count_all_results('special_vc_out');
+
+						if($cn_redeem_count > 0 || $vc_redeem_count > 0)
 						{
 							return 'NON_RETURNABLE_INVOICE';
 						}

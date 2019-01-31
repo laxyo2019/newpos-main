@@ -620,9 +620,19 @@ class Sale_lib
 		$this->CI->session->set_userdata('redeem_voucher_id', $id);
 	}
 
+	public function set_redeem_voucher_code($code)
+	{
+		$this->CI->session->set_userdata('redeem_voucher_code', $code);
+	}
+
 	public function remove_redeem_voucher_id()
 	{
 		$this->CI->session->unset_userdata('redeem_voucher_id');
+	}
+
+	public function remove_redeem_voucher_code()
+	{
+		$this->CI->session->unset_userdata('redeem_voucher_code');
 	}
 
 	// -----------------------------------------------------------------
@@ -1334,6 +1344,7 @@ class Sale_lib
 		$this->remove_credit_note();
 		$this->remove_earned_voucher_id();
 		$this->remove_redeem_voucher_id();
+		$this->remove_redeem_voucher_code();
 		$this->remove_bill();
 		$this->clear_cash_flags();
 	}

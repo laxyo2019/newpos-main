@@ -869,13 +869,14 @@ class Sales extends Secure_Controller
 				$earned_voucher_id = $this->session->userdata('earned_voucher_id');
 				if(!empty($earned_voucher_id))
 				{
-					$this->store_reward_vc($earned_voucher_id, $data['sale_id_num']);
+					$this->store_reward_vc($earned_voucher_id, $data['sale_id_num']);  //create voucher
 				}
 
 				$redeem_voucher_id = $this->session->userdata('redeem_voucher_id');
+				$redeem_voucher_code = $this->session->userdata('redeem_voucher_code');
 				if(!empty($redeem_voucher_id))
 				{
-					$this->redeem_reward_vc($redeem_voucher_id, $data['sale_id_num']);
+					$this->redeem_reward_vc($redeem_voucher_id, $redeem_voucher_code, $data['sale_id_num']);  //use voucher
 				}
 					
 				// Resort and filter cart lines for printing
@@ -1387,11 +1388,15 @@ class Sales extends Secure_Controller
 		$available_vc = $this->db->where(array(
 				'voucher_code' => $vc_code,
 				'person_id' => $this->session->userdata('sales_customer')
-			))->get('special_vc_out')->row();
+			))
+			->where('redeemed_at', NULL)
+			->get('special_vc_out')->row();	
 
 		if(!empty($available_vc)) // IF VC CODE CORRECT
 		{
 			$voucher_id = $available_vc->voucher_id;
+			$voucher_code = $available_vc->voucher_code;
+
 			$vc_data = $this->db->where('id', $voucher_id)->get('special_vc')->row();
 
 			$cart_total = $this->get_cart_total();
@@ -1400,6 +1405,7 @@ class Sales extends Secure_Controller
 			if($cart_total >= $vc_threshold) // REDEEM THRESHOLD CHECK
 			{
 				$this->sale_lib->set_redeem_voucher_id($voucher_id);
+				$this->sale_lib->set_redeem_voucher_code($voucher_code);
 				$this->sale_lib->add_payment('Reward Voucher', $vc_data->vc_value);
 				echo 'Voucher Code Applied! - '.$available_vc->voucher_code;
 				
@@ -1418,22 +1424,23 @@ class Sales extends Secure_Controller
 		}
 	}
 
-	public function redeem_reward_vc($voucher_id, $sale_id)
+	public function redeem_reward_vc($voucher_id, $voucher_code, $sale_id)
 	{
 		$person_id = $this->session->userdata('sales_customer');
-		$earned_ = $this->random_code(8); // random 8 digit code
 
-		$data = array(
+
+		$where_array = array(
 			'person_id' => $person_id,
-			'voucher_id' => $voucher_id
+			'voucher_id' => $voucher_id,
+			'voucher_code' => $voucher_code
 		);
 
-		$data2 = array(
+		$update_array = array(
 			'redeem_sale_id' => $sale_id,
 			'redeemed_at' => date('Y-m-d H:i:s')
 		);
 
-		return ($this->db->where($data)->update('special_vc_out', $data2)) ? TRUE : FALSE;
+		return ($this->db->where($where_array)->update('special_vc_out', $update_array)) ? TRUE : FALSE;
 	}
 	// REWARD VOUCHER FUNCTIONS #end
 
@@ -1571,12 +1578,12 @@ class Sales extends Secure_Controller
 		if($this->session->userdata('sales_mode') != 'return') 
 		{
 			// code for earning Rs.500 voucher
-			$voucher_id = 2; // hard-coded for now
+			// $voucher_id = 2; // hard-coded for now
 
-			if($this->check_reward_vc($voucher_id))
-			{
-				$this->sale_lib->set_earned_voucher_id($voucher_id);
-			}
+			// if($this->check_reward_vc($voucher_id))
+			// {
+			// 	$this->sale_lib->set_earned_voucher_id($voucher_id);
+			// }
 		}
 
 		foreach($this->get_custom_fields('billtype', 'custom_fields') as $row)

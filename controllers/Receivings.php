@@ -274,6 +274,27 @@ class Receivings extends Secure_Controller
 		$this->session->set_userdata('dispatcher_id', $this->input->post('dispatcher_id'));
 	}
 
+	public function lock_dc()
+	{
+		$recv_cart = $this->session->userdata('recv_cart');
+		$low_count = 0;
+		foreach($recv_cart as $row)
+		{
+			if($row['receiving_quantity'] > $row['in_stock'])
+			{
+				$low_count += 1;
+			}
+		}
+
+		if($low_count == 0){
+			$this->sale_lib->set_dc_lock();
+			echo TRUE;
+		}else{
+			echo 'Item stock low, please update stock!';
+		}
+		
+	}
+
 	public function get_all_challans()
 	{
 		$data['challans'] = $this->db->get('receivings')->result_array();
