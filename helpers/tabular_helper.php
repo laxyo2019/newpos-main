@@ -130,6 +130,54 @@ function get_sale_data_row($sale)
 	return $row;
 }
 
+function get_sale_data_row1($sale)
+{
+	$CI =& get_instance();
+	$controller_name = $CI->uri->segment(1);
+
+	$row = array (
+		'sale_id' => $sale->sale_id,
+		'sale_time' => date($CI->config->item('dateformat') . ' ' . $CI->config->item('timeformat'), strtotime($sale->sale_time)),
+		'customer_name' => $sale->customer_name,
+		'amount_due' => to_currency($sale->amount_due),
+		'amount_tendered' => to_currency($sale->amount_tendered),
+		'change_due' => to_currency($sale->change_due),
+		'payment_type' => $sale->payment_type
+	);
+
+	if($CI->config->item('invoice_enable'))
+	{
+		$row['tally_number'] = $sale->tally_number;
+		$row['invoice_number'] = $sale->invoice_number;
+		$row['sale_status'] = $sale->sale_status;
+		$row['invoice'] = empty($sale->invoice_number) ? '' : anchor($controller_name."/invoice/$sale->sale_id", '<span class="glyphicon glyphicon-list-alt"></span>',
+			array('title'=>$CI->lang->line('sales_show_invoice'), 'target' => '_blank')
+		);
+	}
+
+	if($CI->Sale->get_sale_type($sale->sale_id) == 4)
+	{
+		$row['credit_note'] = empty($sale->invoice_number) ? '' : anchor($controller_name."/credit_note/$sale->sale_id", '<span class="glyphicon glyphicon-shopping-cart"></span>',
+			array('title'=>$CI->lang->line('sales_show_credit_note'))
+		);
+	}
+
+	$row['invoice_excel'] = anchor($controller_name."/invoice_excel/$sale->sale_id", '<span class="glyphicon glyphicon-barcode"></span>',
+		array('class' => 'print_hide', 'title' => $CI->lang->line('invoice_excel')
+		));
+	// $row['receipt'] = anchor($controller_name."/receipt/$sale->sale_id", '<span class="glyphicon glyphicon-usd"></span>',
+	// 	array('title' => $CI->lang->line('sales_show_receipt'))
+	// );
+	if($CI->Item->check_auth(array('superadmin', 'apnagps')))
+	{
+		$row['edit'] = anchor($controller_name."/edit/$sale->sale_id", '<span class="glyphicon glyphicon-edit"></span>',
+		array('class' => 'modal-dlg print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+		);
+	}
+
+	return $row;
+}
+
 /*
 Get the html data last row for the sales
 */

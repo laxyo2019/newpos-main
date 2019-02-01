@@ -217,12 +217,18 @@ class Manager extends Secure_Controller
   //   $this->load->view('manager/sublists/report_sales', $data);
   // }
 
+  public function tally_report()
+  {
+    $this->load->view('manager/modals/tally_report');
+  }
+
   public function tally_format()
   {
     $start_date = $this->input->post('start_date');
     $end_date = $this->input->post('end_date');
     $result_items = array();
-    
+    foreach($locations as $location) {
+    }
     $this->db->select('
     sales.sale_id AS sale_id,
     sales.sale_time AS sale_time,
@@ -243,6 +249,77 @@ class Manager extends Secure_Controller
     $data['report_results'] = $this->db->get()->result_array();
     $this->load->view('manager/sublists/tally_format', $data);
   }
+
+  public function monthly_report()
+  {
+    $data['stock_locations'] = $this->Stock_location->get_allowed_locations();
+    $this->load->view('manager/modals/monthly_report',$data);
+  }
+
+  public function monthly_sales_format()
+  {
+      $filters = array(
+      'sale_type' => 'all',
+      'start_date' => $this->input->post('start_date'),
+      'end_date' => $this->input->post('end_date'),
+      'only_cash' => FALSE,
+      'only_due' => FALSE,
+      'only_check' => FALSE,
+      'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
+    );
+    
+    $filters['location_id'] =  $this->input->post('location_id');
+    $filledup = array_fill_keys(array(), TRUE);
+    $filters = array_merge($filters, $filledup);
+
+    $sales = $this->Sale->search(array(), $filters);
+    $payments = $this->Sale->get_payments_summary(array(), $filters);
+    $payment_summary = $this->xss_clean(get_sales_manage_payments_summary($payments, $sales));
+
+    $data_rows = array();
+    foreach($sales->result() as $sale)
+    {
+      $data_rows[] = $this->xss_clean(get_sale_data_row1($sale));
+    }
+     $data['report'] = $data_rows;
+     $this->load->view('manager/sublists/monthly_format', $data);
+  }
+
+  public function custom_report()
+  {
+      $data['stock_locations'] = $this->Stock_location->get_allowed_locations();
+      $this->load->view('manager/modals/custom_report',$data);
+  }
+  
+  public function custom_sales_format()
+  {
+      $filters = array(
+      'sale_type' => 'all',
+      'start_date' => $this->input->post('start_date'),
+      'end_date' => $this->input->post('end_date'),
+      'only_cash' => FALSE,
+      'only_due' => FALSE,
+      'only_check' => FALSE,
+      'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
+    );
+    
+    $filters['location_id'] =  $this->input->post('location_id');
+    $filledup = array_fill_keys(array(), TRUE);
+    $filters = array_merge($filters, $filledup);
+
+    $sales = $this->Sale->search(array(), $filters);
+    $payments = $this->Sale->get_payments_summary(array(), $filters);
+    $payment_summary = $this->xss_clean(get_sales_manage_payments_summary($payments, $sales));
+
+    $data_rows = array();
+    foreach($sales->result() as $sale)
+    {
+      $data_rows[] = $this->xss_clean(get_sale_data_row1($sale));
+    }
+     $data['report'] = $data_rows;
+     $this->load->view('manager/sublists/custom_format', $data);
+  }
+
 
   public function fetch_stockup_items()
   {
