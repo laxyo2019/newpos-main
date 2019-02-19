@@ -74,23 +74,22 @@ class Receiving extends CI_Model
 		}
 	}
 
-	public function get_transfers($id, $type)
+	public function get_transfer_list()
 	{
-		$this->db->from('receivings');
-		$array = array(
-			'destination' => $id,
+		$data = $this->db->where(array(
 			'completed' => 0
-		);
-		$this->db->where($array);
-		if($type == 'count')
-		{
-			return $this->db->count_all_results();
-		}
-		else if($type == 'rows')
-		{
-			return $this->db->get();
-		}
+		))->get('receivings')->result_array();
 
+		return $data;
+	}
+
+	public function get_transfer_count()
+	{
+		$data = $this->db->where(array(
+			'completed' => 0
+		))->count_all_results('receivings');
+
+		return $data;
 	}
 
 	public function get_dispatchers()

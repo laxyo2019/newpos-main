@@ -8,7 +8,8 @@
        <th>Invoice Number</th>
       <th> Total Amount</th>
       <th>Payment Mode</th>
-      <th>Sale Status</th>
+      <th>Sale Type</th>
+      <th>Bill Type</th>
     </tr>
   </thead>
   <tbody>
@@ -22,7 +23,8 @@
         <td><?php echo $row['invoice_number']; ?></td>
         <td><?php echo $row['amount_tendered']; ?></td>
         <td><?php echo $row['payment_type']; ?></td>
-        <td><?php echo ($row['sale_status'] == 0) ? "Active" : "Cancelled"; ?></td>
+        <td><?php echo ($row['sale_type'] == 1) ? "Invoice" : "Credit Note"; ?></td>
+        <td><?php echo ($row['bill_type'] == 'ys') ? "Special Approval" : ucfirst($row['bill_type']); ?></td>
       </tr>
     <?php endforeach; ?>
   </tbody>

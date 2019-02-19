@@ -583,25 +583,25 @@ class Sale_lib
 		$this->CI->session->unset_userdata('applied_credit_note');
 	}
 
-	// public function apply_special_voucher($voucher_id)
-	// {
-	// 	$this->CI->session->set_userdata('applied_special_voucher', $voucher_id);
-	// }
+	public function set_free_jewellery_status()
+	{
+		$this->CI->session->set_userdata('free_jewellery_status', TRUE);
+	}
 
-	// public function remove_special_voucher()
-	// {
-	// 	$this->CI->session->unset_userdata('applied_special_voucher');
-	// }
+	public function remove_free_jewellery_status()
+	{
+		$this->CI->session->unset_userdata('free_jewellery_status');
+	}
 
-	// public function set_bogo_value($bogo_value)
-	// {
-	// 	$this->CI->session->set_userdata('bogo_value', $bogo_value);
-	// }
+	public function set_bogo_status()
+	{
+		$this->CI->session->set_userdata('bogo_status', TRUE);
+	}
 
-	// public function remove_bogo()
-	// {
-	// 	$this->CI->session->unset_userdata('bogo_value');
-	// }
+	public function remove_bogo_status()
+	{
+		$this->CI->session->unset_userdata('bogo_status');
+	}
 
 	// --------------------------------------------------------------
 
@@ -1342,11 +1342,20 @@ class Sale_lib
 		$this->remove_customer();
 		$this->remove_return_sale_id();
 		$this->remove_credit_note();
+
+		$this->clear_custom_flags(); // Custom Bulk Clear Action
+
+		$this->remove_bill();
+		$this->clear_cash_flags();
+	}
+
+	public function clear_custom_flags()
+	{
 		$this->remove_earned_voucher_id();
 		$this->remove_redeem_voucher_id();
 		$this->remove_redeem_voucher_code();
-		$this->remove_bill();
-		$this->clear_cash_flags();
+		$this->remove_bogo_status();
+		$this->remove_free_jewellery_status();
 	}
 
 	public function clear_cash_flags()

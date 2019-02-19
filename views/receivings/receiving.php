@@ -35,18 +35,14 @@ if (isset($msg))
 			Pending Transfers
 		</button>
 
-		<button id="challan_list" class="btn btn-sm btn-danger pull-right modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_all_challans"); ?>'
-		title='Challan List'>
-			Transfer Log
-		</button>
+		<!-- <button id="challan_list" class="btn btn-sm btn-info pull-right modal-dlg-wide", data-href='<?php //echo site_url($controller_name."/get_all_challans"); ?>'
+		title='Challan List'> -->
+			<!-- Stock Movement -->
+		<!-- </button> -->
 
 		<?php
-			if(!empty($pending_transfers)){ 
-				if($pending_transfers){
-				echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
-				array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
-				}
-			} 
+			echo anchor('receivings/stock_movement', '<span class="btn btn-sm btn-info pull-right">Stock Movement</span>',
+			array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Manage Stock Transfers'));
 		?>	
 	<br><br>
 
@@ -177,7 +173,7 @@ if (isset($msg))
 					<?php echo form_open($controller_name."/edit_item/$line", array('class'=>'form-horizontal', 'id'=>'cart_'.$line)); ?>
 						<tr style=
 							<?php 
-								echo ($item['receiving_quantity'] >= $item['in_stock']) ? "color:#d62c1a" : "";  
+								echo ($item['receiving_quantity'] > $item['in_stock']) ? "color:#d62c1a" : "";  
 							?>>
 							<td><?php echo anchor($controller_name."/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>');?></td>
 							<td><?php echo $item['item_number'] ?></td>

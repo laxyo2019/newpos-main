@@ -57,22 +57,20 @@ if(isset($error_message))
             <td><select>
               <option value=""></option>
               <option value="">LEL INDORE</option>
-              <option value="">DEWASNAKA</option>
               <option value="">DBF MAHALAXMI</option>
-              <option value="">DBF BHANVARKUAN</option>
               <option value="">DBF INDRAPRASTHA</option>
-              <option value="">LAXYO ANNAPURNA</option>
-              <option value="">LAXYO BAPAT</option>
+              <option value="">DBF ANNAPURNA</option>
+              <option value="">DBF BAPAT</option>
+              <option value="">DBF SHOP114</option>
             </select></td>
             <td><select>
               <option value=""></option>
               <option value="">LEL INDORE</option>
-              <option value="">DEWASNAKA</option>
               <option value="">DBF MAHALAXMI</option>
-              <option value="">DBF BHANVARKUAN</option>
               <option value="">DBF INDRAPRASTHA</option>
-              <option value="">LAXYO ANNAPURNA</option>
-              <option value="">LAXYO BAPAT</option>
+              <option value="">DBF ANNAPURNA</option>
+              <option value="">DBF BAPAT</option>
+              <option value="">DBF SHOP114</option>
             </select></td>
             <td><input style="border:none;" value="" type="text"></td>
             <td><input style="border:none;" value="MP.43.C.1596" type="text"></td>

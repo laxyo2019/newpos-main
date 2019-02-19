@@ -139,9 +139,9 @@ function get_sale_data_row1($sale)
 		'sale_id' => $sale->sale_id,
 		'sale_time' => date($CI->config->item('dateformat') . ' ' . $CI->config->item('timeformat'), strtotime($sale->sale_time)),
 		'customer_name' => $sale->customer_name,
-		'amount_due' => to_currency($sale->amount_due),
-		'amount_tendered' => to_currency($sale->amount_tendered),
-		'change_due' => to_currency($sale->change_due),
+		'amount_due' => $sale->amount_due,
+		'amount_tendered' => $sale->amount_tendered,
+		'change_due' => $sale->change_due,
 		'payment_type' => $sale->payment_type
 	);
 

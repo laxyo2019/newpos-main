@@ -6,5 +6,8 @@
 
 class Manage extends CI_Model
 {
-  
+  public function get_cashier_name()
+  {
+    
+  }
 }

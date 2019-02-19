@@ -500,6 +500,107 @@ class Sales extends Secure_Controller
 
 		$this->_reload($data);
 	}
+
+	public function get_cart_calculated($type, $check_array = NULL)
+	{
+		$cart_data = $this->session->userdata('sales_cart');
+		$calc = 0;
+
+		switch ($type) {
+			case "category":
+				foreach($cart_data as $row){
+					if(in_array($this->db->where('item_id', $row['item_id'])->get('items')->row()->$type, $check_array))
+					{
+						$calc += $row['discounted_total'];
+					}
+				}
+				break;
+			case "subcategory":
+				foreach($cart_data as $row){
+					if(in_array($this->db->where('item_id', $row['item_id'])->get('items')->row()->$type, $check_array))
+					{
+						$calc += $row['discounted_total'];
+					}
+				}
+				break;
+			case "brand":
+				foreach($cart_data as $row){
+					if(in_array($this->db->where('item_id', $row['item_id'])->get('items')->row()->$type, $check_array))
+					{
+						$calc += $row['discounted_total'];
+					}
+				}
+				break;
+			case "item_id":
+				foreach($cart_data as $row){
+					$total_val = array();
+					if(in_array($row['item_id'], $check_array))
+					{
+						$total_val[number_format($row['price'])] += $row['quantity'];
+					}
+
+					foreach($total_val as $key=>$value)
+					{
+						$loop = 3 * $key * (23.8/100);
+						$multiplier = floor($value/3);
+						$calc += ($loop * $multiplier);
+					}
+				}
+				break;		
+			default:
+				echo "//";
+		}
+
+		return $calc;
+	}
+
+	public function process_jewellery_offer()
+	{
+		$check_array = array("MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR");
+		// 1 is multiplier (100% discount) + 2 is scale value
+		$potential_val = bcmul($this->get_cart_calculated('category', $check_array), 1, 2);
+
+		$offer_array = array('JEWELLERY');
+		$pointer_val = $this->get_cart_calculated('category', $offer_array);
+
+		//compare potential value and scanned jewellery value
+		if($potential_val > $pointer_val)
+		{
+			$discount_val = $pointer_val;
+		}
+		else if($potential_val < $pointer_val)
+		{
+			$discount_val = $potential_val;
+		}
+		else
+		{
+			$discount_val = $pointer_val;
+		}
+
+		$payment_type = "spl_jewellery_dsc";
+		$amount_tendered = round($discount_val);
+		
+		if($amount_tendered > 0)
+		{
+			$this->sale_lib->set_bogo_status();
+			$this->sale_lib->add_payment($payment_type, $amount_tendered);
+		}
+	}
+
+	// For Rajasthani Kurti Discount
+	public function process_bogo()
+	{
+		$discount_val = $this->get_cart_calculated('item_id', array(8363));
+	
+		$payment_type = "spl_rajasthani_kurti_dsc";
+		$amount_tendered = round($discount_val);
+		
+		if($amount_tendered > 0)
+		{
+			$this->sale_lib->set_bogo_status();
+			$this->sale_lib->add_payment($payment_type, $amount_tendered);
+		}
+	}
 	
 	public function add_credit_note_payment()
 	{
@@ -1545,17 +1646,31 @@ class Sales extends Secure_Controller
 		return $this->xss_clean($data);
 	}
 
+	public function check_and_apply_promotions()
+	{
+		if(!$this->session->userdata('bogo_status')){ 
+			$this->process_bogo(); // THIS CODE ADDS UP A DISCOUNT VOUCHER FOR RAJASTHANI KURTI
+		}
+
+		// if(!$this->session->userdata('free_jewellery_status')){
+		// 	$this->process_jewellery_offer();
+		// }
+
+	}
+
 	public function lock_bill()
 	{
 		$customer_id = $this->session->userdata('sales_customer');
-		if($this->session->userdata('sales_mode') == 'return')
+		if($this->session->userdata('sales_mode') == 'return') //lock bill directly
 		{
 			$this->sale_lib->lock_bill();
 			echo TRUE;
 		}
 		else
 		{
-			$purchase_limits = $this->check_purchase_limits($customer_id);
+			$this->check_and_apply_promotions();
+
+			$purchase_limits = $this->check_purchase_limits($customer_id); //check purchase limits
 			if($purchase_limits === TRUE)
 			{
 				$this->sale_lib->lock_bill();
@@ -1584,6 +1699,8 @@ class Sales extends Secure_Controller
 			// {
 			// 	$this->sale_lib->set_earned_voucher_id($voucher_id);
 			// }
+
+			// $this->detect_bogo2();
 		}
 
 		foreach($this->get_custom_fields('billtype', 'custom_fields') as $row)
@@ -1701,9 +1818,10 @@ class Sales extends Secure_Controller
 			// $data['customer_required'] = $this->lang->line('sales_customer_required');
 		}
 		elseif($this->sale_lib->get_mode() == 'return')
+		// checks made during credit note 
 		{
 			$data['mode_label'] = $this->lang->line('sales_return');
-			$data['selected_payment_type'] = 'Credit Note';
+			$data['selected_payment_type'] = $this->lang->line('sales_credit_note');
 			$return_payment_options = array(
 				$this->lang->line('sales_credit_note') => $this->lang->line('sales_credit_note')
 			);
@@ -2089,7 +2207,7 @@ class Sales extends Secure_Controller
 
 		return (empty($disputed)) ? TRUE : json_encode($disputed);
 	}
-	
+
 }
 
 ?>

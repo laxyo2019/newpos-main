@@ -1,37 +1,37 @@
-<?php $this->load->view("partial/header"); ?>
-
-<?php
-if(isset($error_message))
-{
-	echo "<div class='alert alert-dismissible alert-danger'>".$error_message."</div>";
-	exit;
-}
-?>
-
-<div class="row">
-	<div class='col-xs-8'>
-		<?php echo form_dropdown('receivings', $receivings, 'test', array('class'=>'form-control', 'id'=>'recv')); ?>
-	</div>
-	<button id="accept" class="btn btn-danger pull-right">CLOSURE</button>
-</div>	
 <hr>
+<?php //echo json_encode($transfer_list); ?>
+<!-- <div class="row">
+	<button id="accept" class="btn btn-danger pull-right">CLOSURE</button>
+</div>	 -->
+<!-- <hr> -->
 <div class="table_list">
 	<table id="list" class="display" style="width:100%">
 		<thead>
 			<tr>
-				<th>Data</th>
+				<th>Challan ID</th>
+        <th>Date & Time</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Dispatched By</th>
+        <th>Description</th>
+        <th>Status</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				<td></td>
-			</tr>
+      <?php foreach($transfer_list as $row){ ?>
+        <tr>
+          <td><?php echo $row['receiving_id']; ?></td>
+          <td><?php echo $row['receiving_time']; ?></td>
+          <td><?php echo $this->Stock_location->get_location_name2($row['employee_id']); ?></td>
+          <td><?php echo $this->Stock_location->get_location_name2($row['destination']); ?></td>
+          <td><?php echo $row['dispatcher_id']; ?></td>
+          <td><?php //echo $row['comment']; ?></td>
+          <td><?php echo $row['completed']; ?></td>
+        </tr>
+      <?php } ?>
 		</tbody>
 	</table>
 </div>
-<hr>
-<label for="comment">Comments</label>
-<textarea class="form-control" id="final_comment" cols="30" rows="3"></textarea>
 
 <script type="text/javascript">
 $(document).ready(function()

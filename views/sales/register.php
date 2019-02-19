@@ -16,7 +16,7 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-<?php //echo json_encode($this->session->userdata('sales_cart')); ?>
+<?php //echo json_encode($this->session->userdata()); ?>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -109,24 +109,6 @@ if(isset($success))
 	<?php echo form_close(); ?>
 
 	<?php if($this->session->userdata('lock_status')){ ?>
-
-		<!-- <?php //if(!empty($bogo)){
-			//if($bogo){ ?>	
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="process_bogo">APPLY OFFER</button>
-				</div>
-			</div>
-		<?php //}} ?> -->
-
-		<!-- <?php //if(!empty($offer_stats)){
-			//if($offer_stats['status']){ ?>
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<button class="btn btn-success btn-sm pull-right animated pulse infinite" id="add_special_voucher_payment">APPLY VOUCHER</button>
-					</div>
-				</div>
-		<?php //}} ?> -->
 
 		<div class="panel panel-primary">
 			<div class="panel-body">
@@ -843,25 +825,14 @@ $(document).ready(function()
 
 	// THIS CODE ADDS UP A DYNAMIC AMT AS PAYMENT (SPECIAL VOUCHER)
 	// $('#add_special_voucher_payment').on('click', function(){
-	// 	<?php if(!empty($offer_stats)){ ?>
+	// 	<?php //if(!empty($offer_stats)){ ?>
 	// 		$(this).hide();
-	// 	  $.post('<?php echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']."/".$offer_stats['voucher_value']);?>', {}, function(data) {
+	// 	  $.post('<?php //echo site_url($controller_name."/add_special_voucher_payment/".$offer_stats['voucher_id']."/".$offer_stats['voucher_value']);?>', {}, function(data) {
 	// 			window.location.href = "sales";
 	//   	});
-	// 	<?php } ?>
+	// 	<?php //} ?>
 	// });
 
-	// THIS CODE ADDS UP AN ITEM WITH 1 RUPEE PRICE (AS IN BUY 1 GET 1)
-	// $('#process_bogo').on('click', function(){
-	// 	<?php if($this->session->userdata('lock_status')){ ?>
-	// 		$(this).hide();
-	// 	  $.post('<?php echo site_url($controller_name."/add_custom");?>', {'item': <?php echo $this->db->where('tag', 'spl_offer')->get('custom_fields')->row()->int_value; ?>}, function(data) {
-	// 			window.location.href = "sales";
-	//   	});
-	// 	<?php }else{ ?>
-	// 		alert('Please lock the bill first');
-	// 	<?php } ?>
-	// });
 
 	$("#item").autocomplete(
 	{

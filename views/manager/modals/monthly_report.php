@@ -13,8 +13,19 @@
     </span>
      <span class="col-md-3">
      <div class="form-group">
+      <select class="form-control" id="sale_type">
+       <option value="all">All</option>
+       <option value="1">Credit Note</option>
+       <option value="0">Invoice</option>
+       </select> 
+    </div>
+    </span>
+
+    </div>
+    <div class="row">
+    <span class="col-md-3">
+    <div class="form-group">
        <select class="form-control" id="select_month">
-       <option value="">SELECT MONTH</option>
        <option value="01">JANUARY</option>
        <option value="02">FEBRUARY</option>
        <option value="03">MARCH</option>
@@ -27,21 +38,21 @@
        <option value="10">OCTOBER</option>
        <option value="11">NOVEMBER</option>
        <option value="12">DECEMBER</option>
-       </select>  
-    </div>
-    </span>
-    
-    <span class="col-md-3">
-    <div class="form-group">
-       <select class="form-control" id="select_year">
-       <option value="">SELECT YEAR</option>
-       <option value="2018">2018</option>
-       <option value="2019">2019</option>
-       </select>  
+       </select> 
     </div>
     </span>
 
-    <span class="col-md-3">
+    
+
+  <span class="col-md-3">
+    <div class="form-group">
+      <select class="form-control" id="select_year">
+       <option value="2018">2018</option>
+       <option value="2019">2019</option>
+       </select>    
+    </div>
+  </span>
+  <span class="col-md-3">
     <div class="form-group">
          <button class="btn btn-sm btn-primary" id="monthlyFormat">Get Sales</button>
     </div>

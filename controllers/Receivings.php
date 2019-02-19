@@ -287,7 +287,7 @@ class Receivings extends Secure_Controller
 		}
 
 		if($low_count == 0){
-			$this->sale_lib->set_dc_lock();
+			$this->receiving_lib->set_dc_lock();
 			echo TRUE;
 		}else{
 			echo 'Item stock low, please update stock!';
@@ -375,20 +375,10 @@ class Receivings extends Secure_Controller
 		$this->load->view('receivings/challan_excel', $data);
 	}
 
-	public function stock_in()
+	public function stock_movement()
 	{
-		$transfers = $this->get_transfers($this->session->userdata('person_id'), 'rows');
-		$receivings = array('' => $this->lang->line('items_none'));
-
-		foreach($transfers->result_array() as $row)
-		{
-			$receiving_detail = $this->Stock_location->get_location_name2($row['employee_id']).' | '.$row['receiving_time'].' | Challan ID- '.$row['receiving_id'];
-			// to be continued...
-			$receivings[$this->xss_clean($row['receiving_id'])] = $this->xss_clean($receiving_detail);
-		}
-		$data['receivings'] = $receivings;
-
-		$this->load->view('receivings/stock_in', $data);
+		$data['transfer_list'] = $this->Receiving->get_transfer_list();
+		$this->load->view('receivings/stock_movement', $data);
 	}
 
 	public function st_fetch_instance() // to fetch a particular transfer
@@ -670,28 +660,9 @@ class Receivings extends Secure_Controller
 		$this->receiving_lib->clear_all();
 	}
 
-	public function get_transfers($id, $type)
-	{
-		$this->db->from('receivings');
-		$array = array(
-			'destination' => $id,
-			'completed' => 0
-		);
-		$this->db->where($array);
-		if($type == 'count')
-		{
-			return $this->db->count_all_results();
-		}
-		else if($type == 'rows')
-		{
-			return $this->db->get();
-		}
-
-	}
-
 	private function _reload($data = array())
 	{
-		if($this->Receiving->get_transfers($this->session->userdata('person_id'), 'count') > 0)
+		if($this->Receiving->get_transfer_count($this->session->userdata('person_id')) > 0)
 		{
 			$data['pending_transfers'] = TRUE;
 		}

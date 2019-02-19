@@ -11,8 +11,16 @@
       </select>
     </div>
     </span>
-     
-    <span class="col-md-4">
+    <span class="col-md-3">
+     <div class="form-group">
+      <select class="form-control" id="sale_type">
+       <option value="all">All</option>
+       <option value="1" style="margin-bottom: 50px;">Credit Note</option>
+       <option value="0" style="margin-bottom: 50px;">Invoice</option>
+       </select> 
+    </div>
+    </span>
+    <span class="col-md-3">
     <div class="form-group">
       <?php echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input', 'id'=>'daterangepicker')); ?> 
     </div>
@@ -23,14 +31,6 @@
          <button class="btn btn-sm btn-primary" id="monthlyFormat">Get Sales</button>
     </div>
     </span>
-
-    <!-- <span class="col-md-3">
-     <button class="btn btn-sm btn-primary" id="monthlyFormat">Monthly Format</button>
-     </span> -->
-   
-    <!-- <span class="pull-right">
-    <?php //echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input-sm', 'id'=>'daterangepicker')); ?>
-  </span>  -->
 </div>
 <hr>
 <div id="report_table_area"></div>
