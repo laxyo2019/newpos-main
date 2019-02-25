@@ -113,41 +113,42 @@ if(isset($success))
 		<div class="panel panel-primary">
 			<div class="panel-body">
 				<div class="row" style="padding:5px">
-
-					<?php
-						if(empty($this->session->userdata('redeem_voucher_id')))
-						{
-							echo '<span class="pull-left">
-											<b>Enter Voucher Code</b>
-										</span>';
-							echo '<span class="pull-right">
-											<input type="text" id="vc_input">
-											<button id="try_voucher_code">Apply</button>
-										</span>';
-						}
-						else if($this->session->userdata('redeem_voucher_id') == -1)
-						{
-							echo '<span class="pull-left">
-											<b style="color:red">Invalid Voucher Code...</b>
-										</span>';
-							echo '<span class="pull-right">
-											<input type="text" id="vc_input">
-											<button id="try_voucher_code">Apply</button>
-										</span>';
-						}
-						else if($this->session->userdata('redeem_voucher_id') == 0)
-						{
-							echo '<span class="pull-left">
-											<b style="color:green">Min. purchase not reached</b>
-										</span>';
-						}
-						else
-						{
-							echo '<span class="pull-left">
-											<b style="color:green">Voucher Code Applied!</b>
-										</span>';
-						}
-					?>
+					<span class="pull-left">
+						<b>Enter Voucher Code</b>
+					</span>
+					<span class="pull-right">
+						<select id="vc_type">
+							<option value="">--</option>	
+							<option value="voucher_gifts">GV</option>
+							<option value="voucher_rewards">RV</option>
+							<option value="voucher_earns">EV</option>
+						<select>
+						<input type="text" id="vc_input">
+						<button onclick="handle_voucher_input()">Apply</button>
+					</span>
+						<!-- // }
+						// else if($this->session->userdata('redeem_voucher_id') == -1)
+						// {
+						// 	echo '<span class="pull-left">
+						// 					<b style="color:red">Invalid Voucher Code...</b>
+						// 				</span>';
+						// 	echo '<span class="pull-right">
+						// 					<input type="text" id="vc_input">
+						// 					<button id="try_voucher_code">Apply</button>
+						// 				</span>';
+						// }
+						// else if($this->session->userdata('redeem_voucher_id') == 0)
+						// {
+						// 	echo '<span class="pull-left">
+						// 					<b style="color:green">Min. purchase not reached</b>
+						// 				</span>';
+						// }
+						// else
+						// {
+						// 	echo '<span class="pull-left">
+						// 					<b style="color:green">Voucher Code Applied!</b>
+						// 				</span>';
+						// } -->
 
 				</div>
 			</div>
@@ -730,6 +731,30 @@ if(isset($success))
 </div>
 
 <script type="text/javascript">
+
+const handle_voucher_input = () => {
+	let vc_type = $('#vc_type').val();
+	let vc_input = $('#vc_input').val();
+
+	console.log('vc_type', vc_type);
+	console.log('vc_input', vc_input);
+
+	if(vc_type != "" && vc_input != ""){
+		$.post('<?php echo site_url($controller_name."/handle_voucher_input");?>', 
+		{
+			'vc_type': vc_type,
+			'vc_code': vc_input
+		},
+		function(data) {
+			alert(data);
+			window.location.href = "sales";
+	  	});
+	}else{
+		alert('Select VC_TYPE & Enter VC_CODE');
+	}
+  
+}
+
 $(document).ready(function()
 {
 	<?php if($this->session->userdata('sales_mode') != 'return'){ ?>

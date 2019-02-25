@@ -1301,28 +1301,29 @@ class Sale extends CI_Model
 	{
 		$payments = array();
 
-		if($this->config->item('payment_options_order') == 'debitcreditcash')
-		{
+		// if($this->config->item('payment_options_order') == 'debitcreditcash')
+		// {
+		// 	$payments[$this->lang->line('sales_debit')] = $this->lang->line('sales_debit');
+		// 	$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
+		// 	$payments[$this->lang->line('sales_cash')] = $this->lang->line('sales_cash');
+		// }
+		// elseif($this->config->item('payment_options_order') == 'debitcashcredit')
+		// {
+		// 	$payments[$this->lang->line('sales_debit')] = $this->lang->line('sales_debit');
+		// 	$payments[$this->lang->line('sales_cash')] = $this->lang->line('sales_cash');
+		// 	$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
+		// }
+		// else // default: if($this->config->item('payment_options_order') == 'cashdebitcredit')
+		// {
+			$payments[$this->lang->line('sales_cash')] = $this->lang->line('sales_cash');
 			$payments[$this->lang->line('sales_debit')] = $this->lang->line('sales_debit');
 			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
-			$payments[$this->lang->line('sales_cash')] = $this->lang->line('sales_cash');
-		}
-		elseif($this->config->item('payment_options_order') == 'debitcashcredit')
-		{
-			$payments[$this->lang->line('sales_debit')] = $this->lang->line('sales_debit');
-			$payments[$this->lang->line('sales_cash')] = $this->lang->line('sales_cash');
-			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
-		}
-		else // default: if($this->config->item('payment_options_order') == 'cashdebitcredit')
-		{
-			$payments[$this->lang->line('sales_cash')] = $this->lang->line('sales_cash');
-			$payments[$this->lang->line('sales_debit')] = $this->lang->line('sales_debit');
-			$payments[$this->lang->line('sales_credit')] = $this->lang->line('sales_credit');
-		}
+			$payments[$this->lang->line('sales_paytm')] = $this->lang->line('sales_paytm');
+		// }
 
-		if($this->Item->check_auth(array('hub')))
+		if($this->Item->check_auth(array('hub'))) //3 extra payment types
 		{
-			$payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
+			// $payments[$this->lang->line('sales_due')] = $this->lang->line('sales_due');
 			$payments[$this->lang->line('sales_check')] = $this->lang->line('sales_check');
 			$payments[$this->lang->line('sales_neft')] = $this->lang->line('sales_neft');
 			$payments[$this->lang->line('sales_rtgs')] = $this->lang->line('sales_rtgs');

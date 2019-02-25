@@ -577,7 +577,6 @@ class Sale_lib
 	{
 		$this->CI->session->set_userdata('applied_credit_note', $credit_note_number);
 	}
-
 	public function remove_credit_note()
 	{
 		$this->CI->session->unset_userdata('applied_credit_note');
@@ -587,7 +586,6 @@ class Sale_lib
 	{
 		$this->CI->session->set_userdata('free_jewellery_status', TRUE);
 	}
-
 	public function remove_free_jewellery_status()
 	{
 		$this->CI->session->unset_userdata('free_jewellery_status');
@@ -597,45 +595,21 @@ class Sale_lib
 	{
 		$this->CI->session->set_userdata('bogo_status', TRUE);
 	}
-
 	public function remove_bogo_status()
 	{
 		$this->CI->session->unset_userdata('bogo_status');
 	}
 
+	public function set_voucher_status($array)
+	{
+		$this->CI->session->set_userdata('voucher_data', $array);
+	}
+	public function remove_voucher_status()
+	{
+		$this->CI->session->unset_userdata('voucher_data');
+	}
+
 	// --------------------------------------------------------------
-
-	public function set_earned_voucher_id($id)
-	{
-		$this->CI->session->set_userdata('earned_voucher_id', $id);
-	}
-
-	public function remove_earned_voucher_id()
-	{
-		$this->CI->session->unset_userdata('earned_voucher_id');
-	}
-
-	public function set_redeem_voucher_id($id)
-	{
-		$this->CI->session->set_userdata('redeem_voucher_id', $id);
-	}
-
-	public function set_redeem_voucher_code($code)
-	{
-		$this->CI->session->set_userdata('redeem_voucher_code', $code);
-	}
-
-	public function remove_redeem_voucher_id()
-	{
-		$this->CI->session->unset_userdata('redeem_voucher_id');
-	}
-
-	public function remove_redeem_voucher_code()
-	{
-		$this->CI->session->unset_userdata('redeem_voucher_code');
-	}
-
-	// -----------------------------------------------------------------
 
 	public function remove_invoice_mode()
 	{
@@ -1351,9 +1325,7 @@ class Sale_lib
 
 	public function clear_custom_flags()
 	{
-		$this->remove_earned_voucher_id();
-		$this->remove_redeem_voucher_id();
-		$this->remove_redeem_voucher_code();
+		$this->remove_voucher_status();
 		$this->remove_bogo_status();
 		$this->remove_free_jewellery_status();
 	}

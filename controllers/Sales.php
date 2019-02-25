@@ -967,19 +967,32 @@ class Sales extends Secure_Controller
 						)->update('sales_returns', $redeem_data);
 				}
 
-				$earned_voucher_id = $this->session->userdata('earned_voucher_id');
-				if(!empty($earned_voucher_id))
+				if($this->session->userdata('voucher_data')['gift_vc']['status'])
 				{
-					$this->store_reward_vc($earned_voucher_id, $data['sale_id_num']);  //create voucher
+					$this->db->where(
+							array(
+								'voucher_id' => $this->session->userdata('voucher_data')['gift_vc']['voucher_id'],
+								'voucher_code' => $this->session->userdata('voucher_data')['gift_vc']['voucher_code']
+							)
+						)->update('voucher_gifts', array(
+							'redeem_sale_id' => $data['sale_id_num'],
+							'redeem_at' => date('Y-m-d H:i:s')
+						));
 				}
 
-				$redeem_voucher_id = $this->session->userdata('redeem_voucher_id');
-				$redeem_voucher_code = $this->session->userdata('redeem_voucher_code');
-				if(!empty($redeem_voucher_id))
+				if($this->session->userdata('voucher_data')['earn_vc']['status'])
 				{
-					$this->redeem_reward_vc($redeem_voucher_id, $redeem_voucher_code, $data['sale_id_num']);  //use voucher
+					$this->db->where(
+							array(
+								'voucher_id' => $this->session->userdata('voucher_data')['earn_vc']['voucher_id'],
+								'voucher_code' => $this->session->userdata('voucher_data')['earn_vc']['voucher_code']
+							)
+						)->update('voucher_earns', array(
+							'redeem_sale_id' => $data['sale_id_num'],
+							'redeem_at' => date('Y-m-d H:i:s')
+						));
 				}
-					
+
 				// Resort and filter cart lines for printing
 				$data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
 
@@ -1333,217 +1346,363 @@ class Sales extends Secure_Controller
 	// 	return FALSE;
 	// }
 
-	public function detect_bogo1() // HOTFIX
-	{
-		$cart_data = $this->session->userdata('sales_cart');
-		$discount_val = 0;
-		$addUp = array(); 
+	// public function detect_bogo1() // HOTFIX
+	// {
+	// 	$cart_data = $this->session->userdata('sales_cart');
+	// 	$discount_val = 0;
+	// 	$addUp = array(); 
 
-		foreach($cart_data as $row)
-		{
-			$item_info = $this->Item->get_info($row['item_id']);
-			if($item_info->brand == 'WS')
-			{
-				$addUp[number_format($row['price'])] += $row['quantity'];
-			}
-		}
+	// 	foreach($cart_data as $row)
+	// 	{
+	// 		$item_info = $this->Item->get_info($row['item_id']);
+	// 		if($item_info->brand == 'WS')
+	// 		{
+	// 			$addUp[number_format($row['price'])] += $row['quantity'];
+	// 		}
+	// 	}
 
-		foreach($addUp as $key=>$value)
-		{
-			$loop = ( (2 * $key * round( ($value/2), 0, PHP_ROUND_HALF_DOWN )) * 0.3 );
-			$discount_val += $loop;
-		}
+	// 	foreach($addUp as $key=>$value)
+	// 	{
+	// 		$loop = ( (2 * $key * round( ($value/2), 0, PHP_ROUND_HALF_DOWN )) * 0.3 );
+	// 		$discount_val += $loop;
+	// 	}
 
-		if($discount_val > 0)
-		{
-			$discount_val *= -1;
-			$this->sale_lib->set_bogo_value($discount_val);
-			return TRUE;
-		}
-		return FALSE;
-	}
+	// 	if($discount_val > 0)
+	// 	{
+	// 		$discount_val *= -1;
+	// 		$this->sale_lib->set_bogo_value($discount_val);
+	// 		return TRUE;
+	// 	}
+	// 	return FALSE;
+	// }
 
-	public function get_offer_stats($customer_id)
-	{
-		if($this->Sale->check_my_voucher($customer_id))
-		{
-			$cart_data = $this->session->userdata('sales_cart');
-			$calculation = 0;
-			$offer_subcategories = ["MEN'S WOOLLEN", "WOMEN'S WOOLLEN", "KID'S WOOLLEN", "UNISEX WOOLLEN", "MEN'S BLAZER", "MEN'S JACKET COLLAR", "MEN'S WAISTCOAT", "MEN'S SWEATSHIRT", "MEN'S SCARF", "WOMEN'S JACKET"];
-			/*
-			MEN'S BLAZER
-			MEN'S JACKET COLLAR
-			MEN'S WAISTCOAT
-			MEN'S SWEATSHIRT
-			MEN'S WOOLLEN
-			MEN'S SCARF
-			WOMEN'S WOOLLEN
-			WOMEN'S JACKET
-			*/
-			foreach($cart_data as $items)
-			{
-				if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->subcategory, $offer_subcategories))
-				{
-					$calculation += $items['discounted_total'];
-				}
-			}
+	// public function get_offer_stats($customer_id)
+	// {
+	// 	if($this->Sale->check_my_voucher($customer_id))
+	// 	{
+	// 		$cart_data = $this->session->userdata('sales_cart');
+	// 		$calculation = 0;
+	// 		$offer_subcategories = ["MEN'S WOOLLEN", "WOMEN'S WOOLLEN", "KID'S WOOLLEN", "UNISEX WOOLLEN", "MEN'S BLAZER", "MEN'S JACKET COLLAR", "MEN'S WAISTCOAT", "MEN'S SWEATSHIRT", "MEN'S SCARF", "WOMEN'S JACKET"];
+	// 		/*
+	// 		MEN'S BLAZER
+	// 		MEN'S JACKET COLLAR
+	// 		MEN'S WAISTCOAT
+	// 		MEN'S SWEATSHIRT
+	// 		MEN'S WOOLLEN
+	// 		MEN'S SCARF
+	// 		WOMEN'S WOOLLEN
+	// 		WOMEN'S JACKET
+	// 		*/
+	// 		foreach($cart_data as $items)
+	// 		{
+	// 			if(in_array($this->db->where('item_id', $items['item_id'])->get('items')->row()->subcategory, $offer_subcategories))
+	// 			{
+	// 				$calculation += $items['discounted_total'];
+	// 			}
+	// 		}
 
-			// $voucher_val *= 0.1;
-			if($calculation > 0)
-			{
-				$voucher_discount = 0.1; //10 percent discount
-				$scale_value = 2;
-				$voucher_val = bcmul($calculation, $voucher_discount, $scale_value);
+	// 		// $voucher_val *= 0.1;
+	// 		if($calculation > 0)
+	// 		{
+	// 			$voucher_discount = 0.1; //10 percent discount
+	// 			$scale_value = 2;
+	// 			$voucher_val = bcmul($calculation, $voucher_discount, $scale_value);
 				
 
-				return array(
-					'status' => TRUE,
-					'voucher_id' => 3,
-					'voucher_code' => 'WINTER10',
-					'voucher_value' => $voucher_val
-				);
-			}
-			else
-			{
-				return array(
-					'status' => FALSE,
-				);
-			}
-		}
-		else
-		{
-			return array(
-				'status' => FALSE,
-			);
-		}
-	}
+	// 			return array(
+	// 				'status' => TRUE,
+	// 				'voucher_id' => 3,
+	// 				'voucher_code' => 'WINTER10',
+	// 				'voucher_value' => $voucher_val
+	// 			);
+	// 		}
+	// 		else
+	// 		{
+	// 			return array(
+	// 				'status' => FALSE,
+	// 			);
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		return array(
+	// 			'status' => FALSE,
+	// 		);
+	// 	}
+	// }
 
 	public function random_code($limit)
 	{
 		return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, $limit);
 	}
 
-	public function get_cart_total()
-	{
-		$cart_total = 0;
-		$sales_cart = $this->session->userdata('sales_cart');
+	// -------------------------------------------------------------------------------------
 
-		$offer_categories = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
+	// VOUCHER FUNCTIONS #start
+	// public function check_reward_vc($id)
+	// {
+	// 	$vc_data = $this->db->where('id', $id)->get('special_vc')->row();
+
+	// 	$cart_total = $this->get_cart_total();
+	// 	$vc_threshold = $vc_data->earn_threshold;
+		
+	// 	return ($cart_total >= $vc_threshold) ? TRUE : FALSE; // EARN THRESHOLD CHECK
+	// }
+
+	// public function store_reward_vc($voucher_id, $sale_id)
+	// {
+	// 	$person_id = $this->session->userdata('sales_customer');
+	// 	$earned_vc_code = $this->random_code(8); // random 8 digit code
+
+	// 	$data = array(
+	// 		'person_id' => $person_id,
+	// 		'voucher_id' => $voucher_id,
+	// 		'voucher_code' => $earned_vc_code,
+	// 		'generate_sale_id' => $sale_id
+	// 	);
+
+	// 	return ($this->db->insert('special_vc_out', $data)) ? TRUE : FALSE;
+	// }
+
+	public function try_voucher_code($vc_type, $vc_code)
+	{
+		switch ($vc_type) {
+			case "voucher_gifts":
+				$voucher_row = $this->db->where(array
+					(
+						'voucher_code' => $vc_code,
+						'redeem_at' => NULL
+					))->get('voucher_gifts')->row();
+				break;
+			case "voucher_earns":
+				$voucher_row = $this->db->where(array
+					(
+						'voucher_code' => $vc_code,
+						'person_id' => $this->session->userdata('sales_customer'),
+						'redeem_at' => NULL
+					))->get('voucher_earns')->row();
+				break;
+			case "voucher_rewards":
+				$voucher_row = $this->db->where(array
+					(
+						'voucher_code' => $vc_code,
+						'person_id' => $this->session->userdata('sales_customer'),
+						'redeem_at' => NULL
+					))->get($vc_type)->row();	
+				break;
+			default:
+					//
+		}
+
+		// echo json_encode($voucher_row);
+		return $voucher_row;
+	}
+
+	public function handle_voucher_input()
+	{
+		$input_vc_type = $this->input->post('vc_type'); // vc_type input by cashier
+		$input_vc_code = $this->input->post('vc_code'); // vc_code input by cashier
+		
+		switch ($input_vc_type)
+		{
+			case 'voucher_gifts':
+				if(!$this->session->userdata('voucher_data')['gift_vc']['status'])
+				{
+					$this->process_gift_voucher($input_vc_code);
+				}else{echo "Gift Voucher Already Applied!";}
+				break;
+			case 'voucher_rewards':
+				if(!$this->session->userdata('voucher_data')['reward_vc']['status'])
+				{
+					$this->process_reward_voucher($input_vc_code);
+				}else{echo "Reward Voucher Already Applied!";}
+				break;
+			case 'voucher_earns':
+				if(!$this->session->userdata('voucher_data')['earn_vc']['status'])
+				{
+					$this->process_earned_voucher($input_vc_code);
+				}else{echo "Earned Voucher Already Applied!";}
+			default:
+					//
+		}
+	}
+
+	public function validate_gv_constraint()
+	{
+		$cart_total = $wearables_val = $electronics_val = 0;
+		$sales_cart = $this->session->userdata('sales_cart');
+		$wearables_array = array(
+			"MEN'S CLOTHING",
+			"MEN'S FOOTWEAR",
+			"WOMEN'S CLOTHING",
+			"WOMEN'S FOOTWEAR",
+			"KID'S CLOTHING",
+			"KID'S FOOTWEAR",
+			"OPTICS",
+			"LIFE STYLE",
+			"UNISEX WEARABLES"
+		);
+		$electronics_array = array(
+			"IT",
+			"SPEAKERS",
+			"ELECTRONICS",
+			"HEADPHONE",
+			"HOME AND KITCHEN APPLIANCES",
+		);
 
 		foreach($sales_cart as $row)
 		{
-			if(in_array($this->Item->get_info($row['item_id'])->category, $offer_categories))
+			$item_category = $this->db->where('item_id', $row['item_id'])->get('items')->row()->category;
+			$cart_total += $row['discounted_total'];
+			if(in_array($item_category, $wearables_array))
+			{
+				$wearables_val += $row['discounted_total'];
+			}
+			if(in_array($item_category, $electronics_array))
+			{
+				$electronics_val += $row['discounted_total'];
+			}
+		}
+
+		if($wearables_val >= ($cart_total * 0.6) && $electronics_val <= ($cart_total * 0.3))
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	public function process_gift_voucher($input_vc_code)
+	{
+		$status = 0;
+		$vc_session = array();
+		$vc_row = $this->try_voucher_code('voucher_gifts', $input_vc_code);
+
+		if(!empty($vc_row)) // If Voucher Found
+		{
+			$status = 1;
+			$cart_total = 0;
+			$vc_master_data = $this->db->where('id', $vc_row->voucher_id)
+				->get('vc_gift_master')
+				->row();
+
+			foreach($this->session->userdata('sales_cart') as $row)
 			{
 				$cart_total += $row['discounted_total'];
 			}
-		}
 
-		return $cart_total;
-	}
+			$voucher_value = $vc_master_data->vc_value;
 
-	// GIFT VOUCHER FUNCTIONS #start
-	public function populate_gift_vc()
-	{
-
-	}
-
-	public function redeem_gift_vc()
-	{
-		
-	}
-	// GIFT VOUCHER FUNCTIONS #end
-
-
-	// -------------------------------------------------------------------------------------
-
-	// REWARD VOUCHER FUNCTIONS #start
-	public function check_reward_vc($id)
-	{
-		$vc_data = $this->db->where('id', $id)->get('special_vc')->row();
-
-		$cart_total = $this->get_cart_total();
-		$vc_threshold = $vc_data->earn_threshold;
-		
-		return ($cart_total >= $vc_threshold) ? TRUE : FALSE; // EARN THRESHOLD CHECK
-	}
-
-	public function store_reward_vc($voucher_id, $sale_id)
-	{
-		$person_id = $this->session->userdata('sales_customer');
-		$earned_vc_code = $this->random_code(8); // random 8 digit code
-
-		$data = array(
-			'person_id' => $person_id,
-			'voucher_id' => $voucher_id,
-			'voucher_code' => $earned_vc_code,
-			'generate_sale_id' => $sale_id
-		);
-
-		return ($this->db->insert('special_vc_out', $data)) ? TRUE : FALSE;
-	}
-
-	public function try_voucher_code()
-	{
-		$vc_code = $this->input->post('vc_code'); // vc_code input by cashier from customer's bill
-		
-		$available_vc = $this->db->where(array(
-				'voucher_code' => $vc_code,
-				'person_id' => $this->session->userdata('sales_customer')
-			))
-			->where('redeemed_at', NULL)
-			->get('special_vc_out')->row();	
-
-		if(!empty($available_vc)) // IF VC CODE CORRECT
-		{
-			$voucher_id = $available_vc->voucher_id;
-			$voucher_code = $available_vc->voucher_code;
-
-			$vc_data = $this->db->where('id', $voucher_id)->get('special_vc')->row();
-
-			$cart_total = $this->get_cart_total();
-			$vc_threshold = $vc_data->redeem_threshold;
-
-			if($cart_total >= $vc_threshold) // REDEEM THRESHOLD CHECK
-			{
-				$this->sale_lib->set_redeem_voucher_id($voucher_id);
-				$this->sale_lib->set_redeem_voucher_code($voucher_code);
-				$this->sale_lib->add_payment('Reward Voucher', $vc_data->vc_value);
-				echo 'Voucher Code Applied! - '.$available_vc->voucher_code;
-				
+			if(!$this->validate_gv_constraint()){
+				$status = 2;
 			}
-			else
-			{
-				$this->sale_lib->set_redeem_voucher_id(0);
-				echo 'Minimum Purchase: '.to_currency($vc_data->redeem_threshold);
+
+			if($cart_total > $voucher_value){
+				$add_payment = $voucher_value;
 			}
+			else if($cart_total < $voucher_value){
+				$add_payment = $cart_total;
+			}
+			else if($cart_total == $voucher_value){
+				$add_payment = $cart_total;
+			}
+			else{
+				$status = -1;
+			}
+
+			$vc_session['gift_vc']['status'] = TRUE;
+			$vc_session['gift_vc']['voucher_id'] = $vc_row->voucher_id;
+			$vc_session['gift_vc']['voucher_code'] = $vc_row->voucher_code;
 			
+			$this->sale_lib->set_voucher_status($vc_session);
+
+			$this->sale_lib->add_payment('Gift Voucher', $add_payment); // add payment
 		}
-		else
-		{
-			$this->sale_lib->set_redeem_voucher_id(-1);
-			echo 'Invalid Voucher Code...';
+
+		switch ($status) { //response message
+			case 0:
+				echo 'Invalid Voucher Code...';
+				break;
+			case 1:
+				echo 'Voucher Successfully Applied!';
+				break;
+			case 2:
+				echo 'Min. 60% Garments and Footwear & Max. 30% Electronics';
+				break;	
+			default:
+					//
 		}
 	}
 
-	public function redeem_reward_vc($voucher_id, $voucher_code, $sale_id)
+	public function process_reward_voucher()
 	{
-		$person_id = $this->session->userdata('sales_customer');
-
-
-		$where_array = array(
-			'person_id' => $person_id,
-			'voucher_id' => $voucher_id,
-			'voucher_code' => $voucher_code
-		);
-
-		$update_array = array(
-			'redeem_sale_id' => $sale_id,
-			'redeemed_at' => date('Y-m-d H:i:s')
-		);
-
-		return ($this->db->where($where_array)->update('special_vc_out', $update_array)) ? TRUE : FALSE;
+		//
 	}
-	// REWARD VOUCHER FUNCTIONS #end
+
+	public function process_earned_voucher($input_vc_code)
+	{
+		$status = 0;
+		$vc_session = array();
+		$vc_row = $this->try_voucher_code('voucher_earns', $input_vc_code);
+
+		if(!empty($vc_row)) // If Voucher Found
+		{
+			$status = 1;
+			$cart_total = 0;
+			$vc_master_data = $this->db->where('id', $vc_row->voucher_id)
+				->get('vc_earn_master')
+				->row();
+
+			foreach($this->session->userdata('sales_cart') as $row)
+			{
+				$cart_total += $row['discounted_total'];
+			}
+
+			$voucher_value = $vc_master_data->vc_value;
+			$redeem_threshold = $vc_master_data->redeem_threshold;
+
+			if($redeem_threshold > $cart_total){
+				$status = 2;
+			}
+
+			if($cart_total > $voucher_value){
+				$add_payment = $voucher_value;
+			}
+			else if($cart_total < $voucher_value){
+				$add_payment = $cart_total;
+			}
+			else if($cart_total == $voucher_value){
+				$add_payment = $cart_total;
+			}
+			else{
+				$status = -1;
+			}
+
+			$vc_session['earn_vc']['status'] = TRUE;
+			$vc_session['earn_vc']['voucher_id'] = $vc_row->voucher_id;
+			$vc_session['earn_vc']['voucher_code'] = $vc_row->voucher_code;
+			
+			$this->sale_lib->set_voucher_status($vc_session);
+
+			$this->sale_lib->add_payment('Earned Voucher', $add_payment); // add payment
+		}
+
+		switch ($status) { //response message
+			case 0:
+				echo 'Invalid Voucher Code...';
+				break;
+			case 1:
+				echo 'Voucher Successfully Applied!';
+				break;
+			case 2:
+				echo 'Min. Purchase of '.$redeem_threshold.' Required';
+				break;	
+			default:
+					//
+		}
+	}
+
+	// VOUCHER FUNCTIONS #end
 
 	// --------------------------------------------------------------------------------------
 

@@ -37,8 +37,11 @@ class Items extends Secure_Controller
 		$search = $this->input->get('search');
 		$limit = $this->input->get('limit');
 		$offset = $this->input->get('offset');
-		$sort = $this->input->get('sort');
-		$order = $this->input->get('order');
+
+		// $sort = $this->input->get('sort');
+		$sort = 'item_id';
+		// $order = $this->input->get('order');
+		$order = 'desc';
 
 		$this->item_lib->set_item_location($this->input->get('stock_location'));
 

@@ -160,6 +160,7 @@ class Manager extends Secure_Controller
     $this->db->join('item_quantities', 'item_quantities.item_id = items.item_id');
     $this->db->where('location_id', $location_id);
     $this->db->where('deleted', 0);
+    $this->db->limit(5);
     $this->db->where($array);
     $data['items'] = $this->db->get()->result_array();
     

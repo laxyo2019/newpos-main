@@ -387,7 +387,7 @@ function get_items_manage_table_headers()
 
 	$headers = array(
 		array('items.item_id' => $CI->lang->line('common_id')),
-		array('item_number' => $CI->lang->line('items_item_number')),
+		array('item_number' => $CI->lang->line('items_item_number')), //Barcode
 		array('custom1' => 'HSN Code'),
 		array('name' => $CI->lang->line('items_name')),
 		array('category' => $CI->lang->line('items_category')),

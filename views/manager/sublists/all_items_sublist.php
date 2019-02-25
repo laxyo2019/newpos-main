@@ -12,6 +12,9 @@
       <th>Model</th>
       <th>MRP</th>
       <th>HSN</th>
+      <th>CGST</th>
+      <th>SGST</th>
+      <th>IGST</th>
       <th>Disc % (Retail)</th>
       <th>Disc % (Wholesale)</th>
       <th>Disc % (Franchise)</th>
@@ -28,6 +31,9 @@
         'item_id' => $item['item_id'],
         'location_id' => $location_id
       ))->get('item_quantities')->row()->quantity;
+
+
+    $tax_info = $this->Item_taxes->get_specific_tax($item['item_id']);  
 
     $ds = json_decode($item['discounts']);
     $fp = json_decode($item['cost_price']);
@@ -53,6 +59,9 @@
       <td><?php echo $item['custom4']; ?></td>
       <td><?php echo $item['unit_price']; ?></td>
       <td><?php echo $item['custom1']; ?></td>
+      <td><?php echo $tax_info['cgst']; ?></td>
+      <td><?php echo $tax_info['sgst']; ?></td>
+      <td><?php echo $tax_info['igst']; ?></td>
       <td><?php echo round($ds_retail); ?></td>
       <td><?php echo round($ds_wholesale); ?></td>
       <td><?php echo round($ds_franchise); ?></td>
