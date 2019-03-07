@@ -485,5 +485,37 @@ class Employee extends Person
 
 		return $success;
 	}
+	public function get_cashiers($loc_owner){
+		$this->db->select('u.id, u.name, u.status, u.contact, u.webkey', false);
+		$this->db->from('cashiers2 as u');
+		$this->db->join('cashier_shops as c', 'u.id = c.cashier_id');
+		$this->db->where(array('c.person_id'=>$loc_owner));
+		$query = $this->db->get();
+		return $query->result();
+	}
+	public function get_shop_details($loc_owner)
+	{	
+		$this->db->select('*');
+		$this->db->from('stock_locations');
+		$this->db->where('location_owner', $loc_owner);
+		$query = $this->db->get();
+		return $query->result();
+	}
+	public function update_row($tblname,$where,$data){
+		$this->db->set($data);
+		$this->db->where($where);
+		$query = $this->db->update($tblname);
+		if($query){
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+	public function select_row($tblname,$where){
+		$this->db->where($where);
+		$query = $this->db->get($tblname);
+		return $query->row();		
+	}	
 }
 ?>

@@ -108,6 +108,9 @@
 	<!-- DATATABLE CDN -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	<!----Editer for control pannel---->
+<!---	<script src="https://cdn.ckeditor.com/4.11.2/basic/ckeditor.js"></script>--->
+	<script src="https://cdn.ckeditor.com/4.11.3/full/ckeditor.js"></script>
 </head>
 
 <body>

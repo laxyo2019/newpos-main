@@ -11,38 +11,42 @@ class Home extends Secure_Controller
 
 	public function index()
 	{
-		$this->load->view('home/home');
+	
+		if($this->session->userdata('person_id')==16||$this->session->userdata('person_id')==15){
+			
+			$this->db->where('deleted',0);
+			$query = $this->db->get('stock_locations');	
+			$data['shops']=$query->result();
+			$this->db->where(array('deleted'=>0));
+			$this->db->get('stock_locations');
+			$this->load->view('home/admin_home',$data);
+		}else{			
+			$this->load->view('home/home');
+		}
 	}
 
 	public function exists($location_id = -1)
 	{
 		$this->db->from('stock_locations');
 		$this->db->where('location_id', $location_id);
-
 		return ($this->db->get()->num_rows() >= 1);
 	}
 
 	public function item_count()
 	{
 		$count = 0;
-
-		$location_row = $this->db->where('location_owner', $this->session->userdata('person_id'))
+	$location_row = $this->db->where('location_owner', $this->session->userdata('person_id'))
+	//	$location_row = $this->db->where('location_owner',13)
 			->get('stock_locations')
 			->row();
+			//$location_row->location_id--- 11 for mh_shop
 
 			if(isset($location_row->location_id))
 			{
-				$items = $this->db->select('*')
-					->from('item_quantities')
-					->where('item_quantities.location_id',  $location_row->location_id)
-					->get()
-					->result_array();
-
-				foreach($items as $row)
-				{
-					$count += $row['quantity'];
-				}
-
+				$this->db->select_sum('quantity');
+				$this->db->where('location_id',$location_row->location_id);
+				$query = 	$this->db->get('item_quantities');
+				$count= $query->row()->quantity;
 				$data['count'] = $count;
 			}
 			else
@@ -54,7 +58,8 @@ class Home extends Secure_Controller
 		}
 		
     public function sales_count()
-    {
+    {	
+
 			$a = date('Y-m-d');
 			$b = date('Y-m-d');                      ;
     	$sales = $this->db->select('*')
@@ -63,32 +68,55 @@ class Home extends Secure_Controller
     	  ->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
 				->get()
 				->result_array();
-
         echo count($sales); 
      }
  
 	
     public function total_sales()
     {
-			$count = 0;
 			$a = date('Y-m-d');
 			$b = date('Y-m-d');                      
-    	$total_sales = $this->db->select('payment_type,payment_amount')
+    	$total_sales = $this->db->select_sum('payment_amount')
 				->from('sales_payments')
 				->join('sales', 'sales_payments.sale_id = sales.sale_id')
 				->where('employee_id', $this->session->userdata('person_id'))
 				->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
-				->get()->result_array();
-
-			foreach($total_sales as $row)
-			{
-				$count += $row['payment_amount'];
-			}
-								 
-			echo $count;
+				->get()->result_array();				
+				$earning = $total_sales[0]['payment_amount']?$total_sales[0]['payment_amount']:0;				 
+			echo $earning;
     }
-  
-    
+	
+		public function admin_count(){
+			$location_id= $this->input->get('loc');
+			$location_ow= $this->input->get('per');
+			//Total
+			$this->db->select_sum('quantity');
+			$this->db->where('location_id',$location_id);
+			$query = 	$this->db->get('item_quantities');
+			$data['itemcount']= $query->row()->quantity?$query->row()->quantity:0; 
+
+			//Today's sell
+			$a = date('Y-m-d');
+			$b = date('Y-m-d');                      ;
+    	$sales = $this->db->select('*')
+				->from('sales')
+				->where('employee_id', $location_ow)
+    	  ->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
+				->get()
+				->result_array();
+				$data['dailySales']= count($sales)?count($sales):0; 
+				
+				//Total sell
+				$total_sales = $this->db->select_sum('payment_amount')
+				->from('sales_payments')
+				->join('sales', 'sales_payments.sale_id = sales.sale_id')
+				->where('employee_id', $location_ow)
+				->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
+				->get()->result_array();	
+			$totSell= $total_sales[0]['payment_amount'];
+			$data['totalSales']= $totSell?$totSell:0; 
+			echo json_encode($data);
+		}
 
 	public function logout()
 	{

@@ -1,3 +1,4 @@
+<?php $this->load->view("partial/header"); ?>
 <div class="row">
   <h3 class="text-center">Create Limit</h3>
 

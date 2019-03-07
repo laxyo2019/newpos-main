@@ -57,7 +57,17 @@ class Stock_location extends CI_Model
 
 		return $stock_locations;
 	}
+	public function get_allowed_locations2($module_id = 'items')
+	{
+		$stock = $this->get_undeleted_all($module_id)->result_array();
+		$stock_locations = array();
+		foreach($stock as $location_data)
+		{
+			$stock_locations[$location_data['location_owner']] = $location_data['location_name'];
+		}
 
+		return $stock_locations;
+	}
 	public function is_allowed_location($location_id, $module_id = 'items')
 	{
 		$this->db->from('stock_locations');

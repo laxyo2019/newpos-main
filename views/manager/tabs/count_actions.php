@@ -2,10 +2,12 @@
 <div class="row">
   <span class="col-md-6">
     <div class="form-group">
-      <select class="form-control" multiple="multiple" id="count_locations">
+      <select class="form-control"  id="count_locations">
+        <option value="<?php echo json_encode(array_keys($stock_locations)); ?>">All Locations</option>
         <?php foreach($stock_locations as $key=>$value): ?>
           <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
         <?php endforeach; ?>
+
       </select>
     </div>
     <button class="btn btn-sm btn-info" id="getAll">All Items</button>
@@ -88,7 +90,7 @@
 
 <script>
   $(document).ready(function(){
-    $('#count_locations').select2();
+    // $('#count_locations').select2();
     
     $('#category').on('change',function(){
       var level1 = $(this).val();

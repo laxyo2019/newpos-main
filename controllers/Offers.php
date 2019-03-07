@@ -11,9 +11,7 @@ class Offers extends Secure_Controller
 
 	public function index()
 	{
-		$data['plans'] = $this->Pricing->get_core_plans();
-		$data['mci_data'] = $this->Item->get_mci_data('all');
-		$this->load->view('offers/dashboard', $data);
+		$this->load->view('offers/dashboard');
 	}
 
 	// --------------------------------- TESTING FUNCTIONS --------------------------------------
@@ -225,6 +223,7 @@ class Offers extends Secure_Controller
 
 	public function get_dynamic_prices()
 	{
+		//echo"<pre>";print_r($this->session->userdata());
 		$data['dynamic_prices'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
 
 		$this->load->view('offers/sublists/dynamic_prices', $data);
@@ -396,5 +395,110 @@ class Offers extends Secure_Controller
 	{
 		$this->load->view('offers/sublists/active_plimit_window');
 	}
+	// Control Pannel ----- Cashiers
+	public function get_cashiers()
+	{	
+		$loc_owner =  $this->input->get('loc_owner');
+		$data['shop_details'] = $this->Employee->get_shop_details($loc_owner);
+		$data['cashiers'] = $this->Employee->get_cashiers($loc_owner);
+		$this->load->view('offers/subviews/shop_cpanel', $data);
 	
+	}
+	public function save_cp_changes(){
+		$loc_owner =  $this->input->get('loc_id');
+		$update_data = $this->input->get('update_data');
+		$type=$this->input->get('type');
+
+		$result = $this->Employee->update_row('stock_locations',array('location_owner'=>$loc_owner),array($type=>$update_data));
+		 if($result){
+			 echo "Updated Successfully!";
+		 }else{
+			 echo "Something went wrong....";
+		 }
+	}
+	public function edit_cashier($id){
+
+		$data['cashier_data'] = $this->Employee->select_row('cashiers',array('id'=>$id));
+		$this->load->view('offers/subviews/edit_cashier_form',$data);
+	}
+	public function update_cashier_data(){
+			print_r( $this->input->post('data'));
+
+			$data= $this->form_validation->set_rules('name', 'First Name',"numeric"); 
+			if ($this->form_validation->run() == FALSE){
+				$errors= $this->form_validation->error_array();
+			echo"<pre>";	print_r($errors);
+				
+			}else{
+				echo "success";
+			}
+	}
+
+	public function cashier_toggle()
+  {
+    $status = ($this->input->post('status') == 'true') ? 'checked' : '';
+    $data = array(
+      'status' => $status
+    );
+    $this->db->where('id', $this->input->post('id'));
+    echo ($this->db->update('cashiers2', $data)) ? 'success' : 'failed';
+  }
+	
+	public function edit_cashier_data(){
+		$data = $this->input->post();
+		$update_array = array(
+			$data['col'] => $data['data']
+		);
+		 $query = $this->db->where('id',$data['id'])
+		 ->update('cashiers2',$update_array);
+			echo $data['col']." updated successfully!";
+	}
+	public function create_voucher(){
+		$this->load->view("offers/submodules/create_vouchers");
+	}
+	public function sub_gc_detail(){
+		$response['vc_bg_img'] = $this->input->post('vc_bg_img');
+		$vc_count = $this->input->post('vc_count');
+		$insert_ids = array();
+		   $data['voucher_id'] = $this->input->post('vc_value');
+		 	 $data['exp_date'] = $this->input->post('vc_exp_date');
+		   $data['created_at']= date('Y-m-d H:i:s',time());
+		for($i=1;$i<=$vc_count;$i++){
+			$data['code'] = strtoupper($this->Giftcard->random_code(8));
+			$this->db->insert('voucher_gifts', $data);
+			$insert_ids[] = $this->db->insert_id();
+		}
+		$response['insert_ids']=$insert_ids;
+		$rows = $this->db->get('voucher_gifts')->result_array();
+		print_R($rows);
+	}
+
+	public function get_gift_vc_options(){
+		$data="";
+		$query = $this->db->get('vc_gift_master')->result_array();
+		foreach($query as $row){
+				$data .= '<option value="'.$row['id'].'">'.$row['title'].' - '.$row['vc_value'].'</option>';
+		}
+		 echo $data;
+	}
+
+	public function view_dynamic_pricing(){	
+		$data['plans'] = $this->Pricing->get_core_plans();
+		$this->load->view("offers/submodules/dynamic_pricing",$data);
+	}
+
+	public function view_vouchers(){
+		$this->load->view("offers/submodules/vouchers");
+	}
+
+	public function view_purchase_limits(){
+		$data['mci_data'] = $this->Item->get_mci_data('all');
+		$this->load->view("offers/submodules/purchase_limits",$data);
+	}
+
+	public function view_control_panel(){
+		$data['locations'] = $this->Stock_location->get_allowed_locations2();
+		$this->load->view("offers/submodules/control_panel",$data);
+	}
+
 }

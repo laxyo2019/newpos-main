@@ -110,21 +110,19 @@ class Manager extends Secure_Controller
 
   public function count_all_items()
   {
-    $count = 0;
     $locations = $this->input->post('locations');
-    $this->db->where('deleted', 0);
-    $items = $this->db->get('items')->result_array();
 
+    $locations = (!is_array($locations)) ? json_decode($locations) : $locations;
 
-    foreach($locations as $location) {
-      foreach($items as $row) {
-        $this->db->where('location_id', $location);
-        $this->db->where('item_id', $row['item_id']);
-        $count += $this->db->get('item_quantities')->row()->quantity;
-      }
-    }
-    
-    echo $count;
+    $this->db->select_sum('quantity');
+    $this->db->from('item_quantities AS first');
+    $this->db->join('items AS sec','first.item_id = sec.item_id','inner');
+    $this->db->where_in('first.location_id', $locations);
+    $this->db->where('sec.deleted',0);
+    $query = $this->db->get();  
+    $count = $query->row();
+    //echo $this->db->last_query();
+    echo $count->quantity;
   }
 
   public function mci_livesearch()
@@ -141,9 +139,22 @@ class Manager extends Secure_Controller
 
   public function list_all_items($location_id)
   {
-    $data['items'] = $this->db->where('deleted', 0)->get('items')->result_array();
-    $data['location_id'] = $location_id;
+   
+    //$data['items'] = $this->db->where('deleted', 0)->limit(5)->get('items')->result_array();
+    //$data['location_id'] = $location_id;
 
+  
+    $this->db->select('items.*, item_quantities.quantity, GROUP_CONCAT(percent) AS percent');
+    $this->db->from('items');
+    $this->db->join('item_quantities','item_quantities.item_id=items.item_id','inner');
+    $this->db->join('items_taxes','items_taxes.item_id=items.item_id','inner');
+    $this->db->where(array('item_quantities.location_id'=>$location_id));
+    $this->db->where(array('items.deleted'=> 0));
+    $this->db->limit(50);
+    $this->db->group_by('item_quantities.item_id');
+    $query= $this->db->get();
+    $data['items']=$query->result();
+   // echo $this->db->last_query();
     $this->load->view('manager/sublists/all_items_sublist', $data);
   }
 
@@ -228,8 +239,6 @@ class Manager extends Secure_Controller
     $start_date = $this->input->post('start_date');
     $end_date = $this->input->post('end_date');
     $result_items = array();
-    foreach($locations as $location) {
-    }
     $this->db->select('
     sales.sale_id AS sale_id,
     sales.sale_time AS sale_time,

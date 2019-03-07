@@ -1,3 +1,4 @@
+<?php $this->load->view("partial/header");?>
 <div class="row">
   <span class="col-md-2 pull-right">
 		<select id="select_plan" class="form-control">
@@ -10,8 +11,8 @@
       ?>
 		</select>
 	</span>
-  <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url($controller_name."/view_basic"); ?>'
-            title='Create New Offer'>
+  <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url("offers/sub_gc_detail"); ?>'
+      title='Create New Vouchers'>
       Create
   </button>
 
@@ -39,16 +40,3 @@
 
 	});
 </script>
-
-
-  <!-- <div class="col-md-6 col-md-offset-3">
-    <ul class="nav nav-tabs">
-    <?php //foreach($plans as $row): ?>
-        <li><a href="#" onclick="event.preventDefault();" id="<?php //echo $row['varchar_value']; ?>" class="text-warning"><?php //echo $row['title']; ?></a></li>
-      <?php //endforeach; ?>
-    </ul>
-  </div>
-
-  <a class="modal-dlg-wide" href="<?php //echo site_url($controller_name."/view_basic"); ?>">
-    <span class="glyphicon glyphicon-plus"></span>
-  </a> -->

@@ -33,7 +33,7 @@ class Login extends CI_Controller
 	public function login_check($username)
 	{
 		$password = $this->input->post('password');
-
+		
 		if(!$this->_installation_check())
 		{
 			$this->form_validation->set_message('login_check', $this->lang->line('login_invalid_installation'));
@@ -47,14 +47,6 @@ class Login extends CI_Controller
 
 			return FALSE;
 		}
-
-		// Custom session data grab
-		// $c_sess = array(
-		// 	'ip_address' => $this->input->ip_address(),
-		// 	'employee_id' => $this->session->userdata('person_id'),
-		// 	'time' => date('Y-m-d H:i:s')
-		// );
-		// $this->db->insert('sessions_custom', $c_sess);
 
 		// trigger any required upgrade before starting the application
 		$this->load->library('migration');

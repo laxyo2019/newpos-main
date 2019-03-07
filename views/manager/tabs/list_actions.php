@@ -62,7 +62,7 @@
     </div>
   </div>
   <div class="col-md-3">
-    <div class="form-group">
+    <div class="form-group">height
       <select name="color2" id="color2" class="form-control">
         <option value="">Select Color</option>
         <?php foreach($mci_data['colors'] as $row)

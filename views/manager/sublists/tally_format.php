@@ -35,6 +35,7 @@
       $discounted_price = $row['item_price'] - bcmul($row['item_price'], bcdiv($row['item_discount'], 100));
       $tax_data = $this->Item_taxes->get_sales_tax($row['sale_id'], $row['item_id']);
 
+
       $total_tax = ((empty($tax_data['tax_percents']['CGST'])) ? 0.00 : $tax_data['tax_percents']['CGST']) + ((empty($tax_data['tax_percents']['SGST'])) ? 0.00 : $tax_data['tax_percents']['SGST']) + ((empty($tax_data['tax_percents']['IGST'])) ? 0.00 : $tax_data['tax_percents']['IGST']);
 
       $price = bcmul($discounted_price, $row['quantity']);

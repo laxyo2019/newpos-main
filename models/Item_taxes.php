@@ -114,13 +114,9 @@ class Item_taxes extends CI_Model
 		foreach($tax_data as $row)
 		{
 			$response1[$row['name']] = $row['percent'];
-		}
-
-		foreach($tax_data as $row)
-		{
 			$response2[$row['name']] = $row['item_tax_amount'];
 		}
-
+		
 		return array(
 			'tax_percents' => $response1,
 			'tax_amounts' => $response2

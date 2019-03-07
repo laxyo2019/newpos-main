@@ -250,7 +250,7 @@ $(document).ready(function()
 				</section>
 				<div class="clearfix"></div>
 				<br>
-				<section>
+				<section style="padding: 0px 5px;">
 					<?php echo $this->Sale->get_invoice_details($sale_id_num)['tnc']; ?>
 				</section>
 				
