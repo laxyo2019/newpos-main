@@ -9,6 +9,10 @@ foreach($cashiers as $row){
     
 }
 ?>
+<style>
+    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
+    .toggle.ios .toggle-handle { border-radius: 20px; }
+</style>
 <div class="row">
 
 <?php if($cashiers){ ?>

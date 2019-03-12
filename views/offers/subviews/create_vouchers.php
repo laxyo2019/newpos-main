@@ -1,7 +1,15 @@
+<style>
+.select_bg{
+    background: #8f9498;
+    color: #fff;
+    padding: 10px;
+    margin-top: 10px;
+}
+</style>
 <div clsss="row">
-<div class="col-md-12">
-<form onsubmit="return false">
-   <div class="col-md-3">
+<div class="col-sm-12">
+<?php echo form_open_multipart('offers/sub_gc_detail','target="_blank"'); ?>
+   <div class="col-sm-5">
         <div class="form-group">
             <label>Voucher Value</label>
             <select class="form-control" id="vc_value" name="vc_value" required>
@@ -23,43 +31,39 @@
             </div>
       </div>
    </div>
-   <div class="col-md-5 col-md-offset-2">
+   <div class="col-sm-7">
         <div class="form-group">
             <label>Select BackgroundColor</label>
             <div id="slider">
-                <img class="" id="vc_bg_img" src="<?php echo base_url('images/vouchers/gift_vc_bg1.png');?>" width="400px">
+                <img class="" id="vc_bg_img" src="<?php echo base_url('images/vouchers/gift_vc_bg1.png');?>" style="max-width:100%;">
                 <div class="clearfix"></div>
-                <a href="javascript:void(0)" class="btn btn-sm btn-success pull-left" style="margin-top:10px;" onclick="change_bg_img();">New background</a>
+                <select name="vc_bg_img" class="select_bg" onchange="change_bg_image(this)">
+                <?php for($i=1;$i<=6;$i++){?>
+                    <option value="gift_vc_bg<?php echo $i; ?>.png">Background Image <?php echo $i;?></option>
+                <?php } ?>
+                </select>
+                <button class="btn btn-info pull-right" type="submit" style="margin: 10px 0 0 15px ;">Submit</button>
                 <input type="hidden" value="1" id="current_bg">
             </div>
         </div> 
    </div>
    <div class="clearfix"></div>
-   <div class="col-sm-offset-1">
-        <br>
-        <button class="btn btn-info" type="submit" style="margin-left:15px;">Submit</button>
-    </div>
 </form>
 </div>
 </div>
 <script>
+function change_bg_image(e){
+    var x = $(e).val();
+    var path = "<?php echo base_url('images/vouchers/" + x +"');?>";
+    $("#vc_bg_img").attr('src',path);
+}
+
 $('#vc_value').on( 'mouseenter',function(){
     $.get('<?php echo site_url('offers/get_gift_vc_options')?>',
     function(data){
         $('#vc_value').html(data);
      }
    ); 
-});
-$("form").submit(function(e){
-    e.preventDefault();
-    var vc_value = $('#vc_value').val();
-    var vc_count = $('#vc_count').val();
-    var vc_exp_date = $('#vc_exp_date').val();
-    var vc_bg_img = $('#vc_bg_img').attr('src').substring(($('#vc_bg_img').attr('src')).lastIndexOf('/')+1);
-    $.post('<?php echo site_url('offers/sub_gc_detail') ?>',{vc_value:vc_value,vc_count:vc_count,vc_exp_date:vc_exp_date,vc_bg_img:vc_bg_img},
-        function(data){ 
-        alert(data);
-    });
 });
 
 $('.datetimepicker').datetimepicker({
@@ -69,17 +73,16 @@ $('.datetimepicker').datetimepicker({
       autoclose: true
     });
 
-function change_bg_img(e){
-  
-    var x = parseInt( $("#current_bg").val());
-    x = x==6?1:x+1;
-   $("#current_bg").val(x);
-    var path = "<?php echo base_url('images/vouchers/gift_vc_bg" + x + ".png');?>";
-    $("#vc_bg_img").attr('src',path);
-
-}
 $(document).ready(function () {
-    $('#myTable').DataTable();
+    
+    $("#vc_count").on("blur",function(){
+      var x =  $("#vc_count").val();
+      if(x==0){
+        $("#errmsg").html("Value must be more than 0").show().fadeOut("slow");
+        $("#vc_count").val('');
+      }
+    }); 
+
     $("#vc_count").on("contextmenu",function(){
        return false;
     }); 

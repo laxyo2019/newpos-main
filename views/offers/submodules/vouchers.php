@@ -14,12 +14,6 @@
             </li>
         </ul>
     </div>
-    <div class="col-sm-12">
-            <button class='btn btn-info pull-right modal-dlg-wide' data-href='<?php echo site_url("offers/sub_gc_detail"); ?>'
-                    title='Create New Vouchers'>
-            Create
-          </button>
-    </div>
     <hr>
     <div class="clearfix"> </div>
     <div class="tab-content" style="margin-top:30px;">

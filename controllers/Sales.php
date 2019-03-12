@@ -556,7 +556,7 @@ class Sales extends Secure_Controller
 
 	public function process_jewellery_offer()
 	{
-		$check_array = array("MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR");
+		$check_array = array("MEN'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S CLOTHING", "KID'S FOOTWEAR", "TOYS", "BABY CARE", "COSMETICS AND BEAUTY", "LIFE STYLE", "OPTICS", "FRAGRANCES", "WATCHES", "BAG", "UNISEX WEARABLES");
 		// 1 is multiplier (100% discount) + 2 is scale value
 		$potential_val = bcmul($this->get_cart_calculated('category', $check_array), 1, 2);
 
@@ -582,7 +582,7 @@ class Sales extends Secure_Controller
 		
 		if($amount_tendered > 0)
 		{
-			$this->sale_lib->set_bogo_status();
+			$this->sale_lib->set_free_jewellery_status();
 			$this->sale_lib->add_payment($payment_type, $amount_tendered);
 		}
 	}
@@ -1811,9 +1811,9 @@ class Sales extends Secure_Controller
 			$this->process_bogo(); // THIS CODE ADDS UP A DISCOUNT VOUCHER FOR RAJASTHANI KURTI
 		}
 
-		// if(!$this->session->userdata('free_jewellery_status')){
-		// 	$this->process_jewellery_offer();
-		// }
+		if(!$this->session->userdata('free_jewellery_status')){
+			$this->process_jewellery_offer();
+		}
 
 	}
 

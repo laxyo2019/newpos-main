@@ -36,3 +36,4 @@
     }
   }
 </script>
+<?php $this->load->view("partial/footer"); ?>

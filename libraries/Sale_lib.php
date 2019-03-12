@@ -781,18 +781,21 @@ class Sale_lib
 			$sp_data = $this->CI->Pricing->check_active_offers($item_id);
 			$sp_status = ($sp_data == "NO_MATCH" || empty($sp_data) || $sales_mode == 'return') ? FALSE : TRUE;
 
-			//if($sp_status && $unit_price != 0.00 && $item_info->brand != "WS")
-			if($sp_status)
+			if($sp_status && $unit_price != 0.00) //discounted_item
 			{
 				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : $unit_price;
 				$discount = $sp_data['discount'];
 			}
-			else
+			else if($sp_status && $unit_price == 0.00) // fixed price
+			{
+				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : json_decode($item_info->cost_price)->$billtype;
+				$discount = $sp_data['discount'];
+			}
+			else // no dynamic price offer
 			{
 				if($unit_price == 0.00){ //FIXED PRICE ITEM
 					$price = json_decode($item_info->cost_price)->$billtype;
-					// $discount = 0.00;
-					$discount = $sp_data['discount'];
+					$discount = 0.00;
 				}else{ //DISCOUNTED ITEM
 					$price = $unit_price;
 				}

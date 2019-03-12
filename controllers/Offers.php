@@ -224,8 +224,8 @@ class Offers extends Secure_Controller
 	public function get_dynamic_prices()
 	{
 		//echo"<pre>";print_r($this->session->userdata());
-		$data['dynamic_prices'] = $this->db->where('plan', $this->input->post('plan'))->get('special_prices')->result_array();
-
+		$data['dynamic_prices'] = $this->db->get('special_prices')->result_array();
+		//echo $this->db->last_query();
 		$this->load->view('offers/sublists/dynamic_prices', $data);
 	}
 
@@ -454,23 +454,22 @@ class Offers extends Secure_Controller
 			echo $data['col']." updated successfully!";
 	}
 	public function create_voucher(){
-		$this->load->view("offers/submodules/create_vouchers");
+		$this->load->view("offers/subviews/create_vouchers");
 	}
 	public function sub_gc_detail(){
-		$response['vc_bg_img'] = $this->input->post('vc_bg_img');
+		$response['ids'] = array();
+		$response['bg_img'] = $this->input->post('vc_bg_img');
 		$vc_count = $this->input->post('vc_count');
-		$insert_ids = array();
-		   $data['voucher_id'] = $this->input->post('vc_value');
-		 	 $data['exp_date'] = $this->input->post('vc_exp_date');
-		   $data['created_at']= date('Y-m-d H:i:s',time());
+		$data['voucher_id'] = $this->input->post('vc_value');
+		$data['exp_date'] = $this->input->post('vc_exp_date');
+		$data['created_at']= date('Y-m-d H:i:s',time());
+		
 		for($i=1;$i<=$vc_count;$i++){
 			$data['code'] = strtoupper($this->Giftcard->random_code(8));
 			$this->db->insert('voucher_gifts', $data);
-			$insert_ids[] = $this->db->insert_id();
+			$response['ids'][] = $this->db->insert_id();
 		}
-		$response['insert_ids']=$insert_ids;
-		$rows = $this->db->get('voucher_gifts')->result_array();
-		print_R($rows);
+		$this->load->view("offers/subviews/display_created_vc",$response);
 	}
 
 	public function get_gift_vc_options(){
@@ -501,4 +500,20 @@ class Offers extends Secure_Controller
 		$this->load->view("offers/submodules/control_panel",$data);
 	}
 
+	public function display_created_vouchers(){
+		$data['result']= $this->input->get('data');
+		$this->load->view("offers/subviews/display_created_vc",$data);
+	}
+
+	public function delete_gift_vc(){
+		$id = $this->input->post(id);
+		$this->db->delete('voucher_gifts',array('id'=>$id));
+		echo "Deleted Succesfully";
+	}
+	public function delete_all_gift_vc(){
+		$this->db->empty_table('voucher_gifts');
+		echo "Deleted Succesfully";
+	}
 }
+
+

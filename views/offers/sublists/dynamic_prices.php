@@ -3,6 +3,7 @@
     <tr>
       <th>Delete</th>
       <th>Offer ID</th>
+      <th>Plan</th>
       <th>Location</th>
       <th>Pointer</th>
       <th>Price</th>
@@ -17,6 +18,7 @@
     <tr id="<?php echo $row['id']; ?>">
       <td><span style="cursor:pointer" class="glyphicon glyphicon-trash delete-basic"></span></td>
       <td><?php echo $row['id']; ?></td>
+      <td><?php echo $row['plan']; ?></td>
       <td><?php echo $this->Stock_location->get_location_name2($row['locations']); ?></td>
       <td><?php echo $row['pointer']; ?></td>
       <td><?php echo $row['price']; ?></td>
