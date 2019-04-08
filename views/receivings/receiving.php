@@ -35,14 +35,18 @@ if (isset($msg))
 			Pending Transfers
 		</button>
 
-		<!-- <button id="challan_list" class="btn btn-sm btn-info pull-right modal-dlg-wide", data-href='<?php //echo site_url($controller_name."/get_all_challans"); ?>'
-		title='Challan List'> -->
-			<!-- Stock Movement -->
-		<!-- </button> -->
+		<button id="challan_list" class="btn btn-sm btn-danger pull-right modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_all_challans"); ?>'
+		title='Challan List'>
+			Transfer Log
+		</button>
 
 		<?php
-			echo anchor('receivings/stock_movement', '<span class="btn btn-sm btn-info pull-right">Stock Movement</span>',
-			array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Manage Stock Transfers'));
+			if(!empty($pending_transfers)){ 
+				if($pending_transfers){
+				echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
+				array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
+				}
+			} 
 		?>	
 	<br><br>
 
@@ -118,17 +122,14 @@ if (isset($msg))
 				?>
 				</li>
 				<!-- Add New Item Button Removed -->
-				<li class="pull-right">
-					<span id="lock_dc" class="btn btn-sm btn-danger glyphicon glyphicon-lock pull-right animated pulse infinite" title="Lock DC"></span>
+				<li class="pull-right" style="font-weight:bold; font-size:1.2em">
 					<?php
 						$total_qty = 0;
 						foreach($this->session->userdata('recv_cart') as $row)
 						{
 							$total_qty += $row['quantity'];
 						}
-						echo '<span style="margin:10px;">Total Quantity: '
-							.$total_qty.
-						'</span>'; 
+						echo 'Total Qty: '.$total_qty; 
 					?>
 				</li>
 			</ul>
@@ -171,10 +172,7 @@ if (isset($msg))
 				{
 			?>
 					<?php echo form_open($controller_name."/edit_item/$line", array('class'=>'form-horizontal', 'id'=>'cart_'.$line)); ?>
-						<tr style=
-							<?php 
-								echo ($item['receiving_quantity'] > $item['in_stock']) ? "color:#d62c1a" : "";  
-							?>>
+						<tr>
 							<td><?php echo anchor($controller_name."/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>');?></td>
 							<td><?php echo $item['item_number'] ?></td>
 							<td style="align:center;">
@@ -417,24 +415,6 @@ $(document).ready(function()
     });
 	});
 
-	$('#lock_dc').on('click', function(){
-		<?php
-			$dispatcher_added = (!empty($this->session->userdata('dispatcher_id'))) ? TRUE : FALSE;
-		?>
-
-		<?php if($dispatcher_added){ ?> 
-			$.post('<?php echo site_url($controller_name."/lock_dc");?>', {}, function(data) {
-				if(data == 1){
-					window.location.href = "receivings";
-				}else{
-					alert(data);
-				}	
-			});
-		<?php }else{ ?>
-			alert('Dispatcher not set');
-		<?php } ?>
-  });
-
 	$('#item').focus();
 
 	$('#item').keypress(function (e) {
@@ -494,10 +474,10 @@ $(document).ready(function()
 
     $("#finish_receiving_button").click(function()
     {
-			<?php if($this->session->userdata('dc_lock_status')){ ?> 
+			<?php if(!empty($this->session->userdata('dispatcher_id'))){ ?> 
    			$('#finish_receiving_form').submit();
 			<?php }else{ ?>	
-				alert('please lock DC before finishing');
+				alert('Please select a Dispatcher');
 			<?php } ?>		 
     });
 

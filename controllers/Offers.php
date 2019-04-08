@@ -456,20 +456,20 @@ class Offers extends Secure_Controller
 	public function create_voucher(){
 		$this->load->view("offers/subviews/create_vouchers");
 	}
-	public function sub_gc_detail(){
-		$response['ids'] = array();
-		$response['bg_img'] = $this->input->post('vc_bg_img');
-		$vc_count = $this->input->post('vc_count');
+	public function sub_gc_detail(){	
 		$data['voucher_id'] = $this->input->post('vc_value');
-		$data['exp_date'] = $this->input->post('vc_exp_date');
-		$data['created_at']= date('Y-m-d H:i:s',time());
-		
-		for($i=1;$i<=$vc_count;$i++){
-			$data['code'] = strtoupper($this->Giftcard->random_code(8));
-			$this->db->insert('voucher_gifts', $data);
-			$response['ids'][] = $this->db->insert_id();
-		}
-		$this->load->view("offers/subviews/display_created_vc",$response);
+		$data['created_at'] = date('Y-m-d H:i:s',time());
+		$data['voucher_code'] = strtoupper($this->Giftcard->random_code(8));
+		//Duration of Expiry
+		$this->db->select();
+		$this->db->where('tag','vc_expiry_duration');
+		$duration = $this->db->get('custom_fields')->row()->int_value;
+		//Addition of Duration and current time
+		$expiry_date = date_create($data['created_at']);
+		date_add($expiry_date,date_interval_create_from_date_string($duration."days"));
+		$data['expiry_date'] = date_format($expiry_date,"Y-m-d");
+		$this->db->insert('voucher_gifts', $data);
+		echo "success";
 	}
 
 	public function get_gift_vc_options(){
@@ -490,6 +490,24 @@ class Offers extends Secure_Controller
 		$this->load->view("offers/submodules/vouchers");
 	}
 
+	public function all_gc_views(){
+		$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value');
+		$this->db->from('voucher_gifts');
+		$this->db->join('vc_gift_master','voucher_gifts.voucher_id=vc_gift_master.id','inner');
+		$data['vc_info'] = $this->db->get()->result();
+		$this->load->view('offers/sublists/gift_vc',$data);
+	}
+
+	public function edit_gift_vc($id){
+		$data['id']=$id;
+		$this->load->view("offers/subviews/edit_gift_vc",$data);
+	}
+
+	public function view_gift_vc($id){
+		$data['id']=$id;
+		$this->load->view("offers/subviews/display_created_vc",$data);
+	}
+	
 	public function view_purchase_limits(){
 		$data['mci_data'] = $this->Item->get_mci_data('all');
 		$this->load->view("offers/submodules/purchase_limits",$data);

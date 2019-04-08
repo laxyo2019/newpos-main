@@ -789,7 +789,15 @@ class Sale_lib
 			else if($sp_status && $unit_price == 0.00) // fixed price
 			{
 				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : json_decode($item_info->cost_price)->$billtype;
-				$discount = $sp_data['discount'];
+
+				if($this->CI->session->userdata('person_id') == 8138)
+				{
+					$discount = 0.00;
+				}
+				else
+				{
+					$discount = $sp_data['discount'];
+				}
 			}
 			else // no dynamic price offer
 			{

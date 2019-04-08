@@ -10,7 +10,10 @@ class Items extends Secure_Controller
 
 		$this->load->library('item_lib');
 	}
-
+	public function test(){
+		$custom_attributes = $this->Appconfig->get_additional_ten_col_name();
+		echo "<pre>"; print_R($custom_attributes);
+	}
 	public function index()
 	{
 		$data['table_headers'] = $this->xss_clean(get_items_manage_table_headers());
@@ -592,7 +595,7 @@ class Items extends Secure_Controller
 			'custom3' => $this->input->post('custom3') == NULL ? '' : $this->input->post('custom3'),
 			'custom4' => $this->input->post('custom4') == NULL ? '' : $this->input->post('custom4'),
 			'custom5' => $this->input->post('custom5') == NULL ? '' : $this->input->post('custom5'),
-			// 'custom6' => $this->input->post('custom6') == NULL ? '' : $this->input->post('custom6'),
+			'custom6' => $this->input->post('custom6') == NULL ? '' : $this->input->post('custom6'),
 			// 'custom7' => $this->input->post('custom7') == NULL ? '' : $this->input->post('custom7'),
 			// 'custom8' => $this->input->post('custom8') == NULL ? '' : $this->input->post('custom8'),
 			// 'custom9' => $this->input->post('custom9') == NULL ? '' : $this->input->post('custom9'),
@@ -992,10 +995,11 @@ class Items extends Secure_Controller
 			'brand' => $item_data['brand'],
 			'custom2' => $item_data['custom2'], //size
 			'custom3' => $item_data['custom3'], //color
+			'custom5' => $item_data['custom5'], //expiry date
 			'deleted' => 0
 		);
 
-		if($item_data['unit_price'] < 1)
+		if($item_data['unit_price'] == 0.00)
 		{
 			$array['cost_price'] = $item_data['cost_price'];
 		}
@@ -1060,7 +1064,13 @@ class Items extends Secure_Controller
 						'franchise' => $data[15] == NULL ? '0.00' : number_format($data[15], 2, '.', ''),
 						'ys' => $data[16] == NULL ? '0.00' : number_format($data[16], 2, '.', ''),
 					);
-
+					// if($data[17]!="" ){
+					// 	$expiry_date= date('Y-m-d',strtotime($data[17]));
+					// }else{
+					// 	$expiry_date="";
+					// }
+					
+					$expiry_date = $data[17]!="" ? date('Y-m-d',strtotime($data[17])) : "";
 					/* haven't touched this so old templates will work, or so I guess... */
 					if(sizeof($data) >= 24)
 					{
@@ -1081,12 +1091,19 @@ class Items extends Secure_Controller
 							'custom2'				=> strtoupper(trim($data[22])), // Size
 							'custom3'				=> strtoupper(trim($data[21])), // Color
 							'custom4'				=> strtoupper(trim($data[20])),	// Model
-							'custom5'				=> strtoupper(trim($data[19])), // Pointer
-							// 'custom6'				=> $data[18],
-							// 'custom7'				=> $data[20],
-							// 'custom8'				=> $data[21],
-							// 'custom9'				=> $data[22],
-							// 'custom10'				=> $data[23]
+							'custom5'				=> $expiry_date, // Expiry Date
+							 'custom6'				=> strtoupper(trim($data[18])),	// Stock Edition
+							 'column1'				=> $data[27],
+							 'column2'				=> $data[28],
+							 'column3'				=> $data[29],
+							 'column4'				=> $data[30],
+							 'column5'				=> $data[31],
+							 'column6'				=> $data[32],
+							 'column7'				=> $data[33],
+							 'column8'				=> $data[34],
+							 'column9'				=> $data[35],
+							 'column10'				=> $data[36],
+							
 						);
 					}
 
@@ -1183,7 +1200,9 @@ class Items extends Secure_Controller
 							// AUTOMATED BARCODING
 							$save_item = array('item_number' => $this->Item->barcode_factory($item_data['item_id']));
 							// update the item in the database in order to save the barcode field
-							$this->Item->save($save_item, $item_data['item_id']);
+							//$this->Item->save($save_item, $item_data['item_id']);
+							$this->db->where('item_id', $item_data['item_id']);
+							$this->db->update('items', $save_item);
 
 							$new_sheet = $this->Item->get_info($item_data['item_id']);
 							$new_sheet_array = array( // 10 fields
@@ -1301,6 +1320,12 @@ class Items extends Secure_Controller
 		$this->load->view('items/form_excel_update', NULL);
 	}
 
+
+	public function Update_exp_date() #EXP date and Stock edition
+	{
+		
+	}
+
 	public function do_excel_stock_up() #excel-stockup
 	{
 		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
@@ -1326,8 +1351,8 @@ class Items extends Secure_Controller
 					$barcode = $data[0];
 					$location_id = $data[1];
 					$location_quantity = $data[2];
-					$pointer1 = strtoupper(trim($data[3]));
-					$pointer2 = strtoupper(trim($data[4]));
+					// $pointer1 = strtoupper(trim($data[3]));
+					// $pointer2 = strtoupper(trim($data[4]));
 
 					$this->db->where('item_number', $barcode);
 					$count = $this->db->count_all_results('items');
@@ -1344,23 +1369,23 @@ class Items extends Secure_Controller
 							'quantity' => $new_quantity
 						);
 
-						$db_pointer1 = json_decode($this->db->where('item_id', $item_id)->get('items')->row()->custom5);
+						//$db_pointer1 = json_decode($this->db->where('item_id', $item_id)->get('items')->row()->custom5);
 						
-						$db_pointer2 = json_decode($this->db->where('item_id', $item_id)->get('items')->row()->custom6);
+						//$db_pointer2 = json_decode($this->db->where('item_id', $item_id)->get('items')->row()->custom6);
 
-						if(!in_array($pointer1, $db_pointer1))
-						{
-							$db_pointer1[] = $pointer1;
-							$new_pointer1 = array('custom5' => json_encode($db_pointer1));
-							$this->db->where('item_id', $item_id)->update('items', $new_pointer1);
-						}
+						// if(!in_array($pointer1, $db_pointer1))
+						// {
+						// 	$db_pointer1[] = $pointer1;
+						// 	$new_pointer1 = array('custom5' => json_encode($db_pointer1));
+						// 	$this->db->where('item_id', $item_id)->update('items', $new_pointer1);
+						// }
 
-						if(!in_array($pointer2, $db_pointer2))
-						{
-							$db_pointer2[] = $pointer2;
-							$new_pointer2 = array('custom6' => json_encode($db_pointer2));
-							$this->db->where('item_id', $item_id)->update('items', $new_pointer2);
-						}
+						// if(!in_array($pointer2, $db_pointer2))
+						// {
+						// 	$db_pointer2[] = $pointer2;
+						// 	$new_pointer2 = array('custom6' => json_encode($db_pointer2));
+						// 	$this->db->where('item_id', $item_id)->update('items', $new_pointer2);
+						// }
 
 				
 						if($this->Item_quantity->save($location_detail, $item_id, $location_id))

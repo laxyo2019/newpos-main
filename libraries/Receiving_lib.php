@@ -55,16 +55,6 @@ class Receiving_lib
 		$this->CI->session->unset_userdata('recv_supplier');
 	}
 
-	public function set_dc_lock()
-	{
-		$this->CI->session->set_userdata('dc_lock_status', TRUE);
-	}
-
-	public function unset_dc_lock()
-	{
-		$this->CI->session->unset_userdata('dc_lock_status');
-	}
-
 	public function get_mode()
 	{
 		if(!$this->CI->session->userdata('recv_mode'))
@@ -337,7 +327,6 @@ class Receiving_lib
 		$this->clear_mode();
 		$this->empty_cart();
 		$this->remove_supplier();
-		$this->unset_dc_lock();
 		$this->clear_comment();
 		$this->clear_reference();
 	}

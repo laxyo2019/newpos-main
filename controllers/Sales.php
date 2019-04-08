@@ -1471,7 +1471,7 @@ class Sales extends Secure_Controller
 				$voucher_row = $this->db->where(array
 					(
 						'voucher_code' => $vc_code,
-						'redeem_at' => NULL
+					//	'redeem_at' => NULL
 					))->get('voucher_gifts')->row();
 				break;
 			case "voucher_earns":
@@ -1580,58 +1580,91 @@ class Sales extends Secure_Controller
 
 		if(!empty($vc_row)) // If Voucher Found
 		{
-			$status = 1;
-			$cart_total = 0;
-			$vc_master_data = $this->db->where('id', $vc_row->voucher_id)
-				->get('vc_gift_master')
-				->row();
-
-			foreach($this->session->userdata('sales_cart') as $row)
-			{
-				$cart_total += $row['discounted_total'];
-			}
-
-			$voucher_value = $vc_master_data->vc_value;
-
-			if(!$this->validate_gv_constraint()){
-				$status = 2;
-			}
-
-			if($cart_total > $voucher_value){
-				$add_payment = $voucher_value;
-			}
-			else if($cart_total < $voucher_value){
-				$add_payment = $cart_total;
-			}
-			else if($cart_total == $voucher_value){
-				$add_payment = $cart_total;
+			if($vc_row->redeem_at!= NULL){ //Check if it is redeemed
+				$status = 3;
 			}
 			else{
-				$status = -1;
+				$current_time = date('Y-m-d',time());
+				if($vc_row->expiry_date > $current_time){
+					$check_exp = False;
+				}else{
+					$check_exp = TRUE;
+				}
+				if($check_exp){
+					$status = 4;
+				}
+				else{
+					$status = 1;
+					$cart_total = 0;
+					$vc_master_data = $this->db->where('id', $vc_row->voucher_id)
+						->get('vc_gift_master')
+						->row();
+	
+					foreach($this->session->userdata('sales_cart') as $row)
+					{
+						$cart_total += $row['discounted_total'];
+					}
+	
+					$voucher_value = $vc_master_data->vc_value;
+	
+					if(!$this->validate_gv_constraint()){
+						$status = 2;
+					}
+	
+					if($cart_total > $voucher_value){
+						$add_payment = $voucher_value;
+					}
+					else if($cart_total < $voucher_value){
+						$add_payment = $cart_total;
+					}
+					else if($cart_total == $voucher_value){
+						$add_payment = $cart_total;
+					}
+					else{
+						$status = -1;
+					}
+				}	
 			}
-
-			$vc_session['gift_vc']['status'] = TRUE;
-			$vc_session['gift_vc']['voucher_id'] = $vc_row->voucher_id;
-			$vc_session['gift_vc']['voucher_code'] = $vc_row->voucher_code;
 			
-			$this->sale_lib->set_voucher_status($vc_session);
 
-			$this->sale_lib->add_payment('Gift Voucher', $add_payment); // add payment
+			// $vc_session['gift_vc']['status'] = TRUE;
+			// $vc_session['gift_vc']['voucher_id'] = $vc_row->voucher_id;
+			// $vc_session['gift_vc']['voucher_code'] = $vc_row->voucher_code;
+			
+			// $this->sale_lib->set_voucher_status($vc_session);
+
+			// $this->sale_lib->add_payment('Gift Voucher', $add_payment); // add payment
 		}
 
 		switch ($status) { //response message
 			case 0:
-				echo 'Invalid Voucher Code...';
+				echo 'Wrong Voucher Code...';
+				$vc_session['gift_vc']['status'] = FALSE;
 				break;
 			case 1:
 				echo 'Voucher Successfully Applied!';
+				$vc_session['gift_vc']['status'] = TRUE;
+				$vc_session['gift_vc']['voucher_id'] = $vc_row->voucher_id;
+				$vc_session['gift_vc']['voucher_code'] = $vc_row->voucher_code;
+
+				$this->sale_lib->add_payment('Offer Gift Voucher', $add_payment); // add payment
 				break;
 			case 2:
 				echo 'Min. 60% Garments and Footwear & Max. 30% Electronics';
+				$vc_session['gift_vc']['status'] = FALSE;
 				break;	
+			case 3:
+				echo 'Voucher already used.';
+				$vc_session['gift_vc']['status'] = FALSE;
+				break;
+			case 4:
+				echo 'Expired Voucher.';
+				$vc_session['gift_vc']['status'] = FALSE;
+				break;
 			default:
 					//
 		}
+		$this->sale_lib->set_voucher_status($vc_session);
 	}
 
 	public function process_reward_voucher()

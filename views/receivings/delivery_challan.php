@@ -62,6 +62,7 @@ if(isset($error_message))
               <option value="">DBF ANNAPURNA</option>
               <option value="">DBF BAPAT</option>
               <option value="">DBF SHOP114</option>
+              <option value="">DBF KHANDWA ROAD</option>
             </select></td>
             <td><select>
               <option value=""></option>
@@ -71,6 +72,7 @@ if(isset($error_message))
               <option value="">DBF ANNAPURNA</option>
               <option value="">DBF BAPAT</option>
               <option value="">DBF SHOP114</option>
+              <option value="">DBF KHANDWA ROAD</option>
             </select></td>
             <td><input style="border:none;" value="" type="text"></td>
             <td><input style="border:none;" value="MP.43.C.1596" type="text"></td>

@@ -1,6 +1,8 @@
 <?php
-$CGST=$IGST=$SGST=";"
- ?>
+$CGST=$IGST=$SGST="";
+$custom_attributes = $this->Appconfig->get_additional_ten_col_name();
+?>
+
 <table id="list" class="display nowrap" style="width:100%">
   <thead>
     <tr>
@@ -25,12 +27,17 @@ $CGST=$IGST=$SGST=";"
       <th>FP (Wholesale)</th>
       <th>FP (Franchise)</th>
       <th>Quantity</th>
+      <?php
+        foreach($custom_attributes as $custom_attribute){
+          echo "<th>".$custom_attribute->value."</th>";
+        }
+      ?>
     </tr>
   </thead>
   <tbody>
   
   <?php foreach ($items as $item): 
-   $tax_info = $this->Item_taxes->get_specific_tax($item->item_id); 
+  // $tax_info = $this->Item_taxes->get_specific_tax($item->item_id); 
     $ds = json_decode($item->discounts);
     $fp = json_decode($item->cost_price);
 
@@ -76,6 +83,16 @@ $CGST=$IGST=$SGST=";"
       <td><?php echo round($fp_wholesale); ?></td>
       <td><?php echo round($fp_franchise); ?></td>
       <td><?php echo $item->quantity; ?></td>
+      <td><?php echo $item->column10; ?></td>
+      <td><?php echo $item->column1; ?></td>
+      <td><?php echo $item->column2; ?></td>
+      <td><?php echo $item->column3; ?></td>
+      <td><?php echo $item->column4; ?></td>
+      <td><?php echo $item->column5; ?></td>
+      <td><?php echo $item->column6; ?></td>
+      <td><?php echo $item->column7; ?></td>
+      <td><?php echo $item->column8; ?></td>
+      <td><?php echo $item->column9; ?></td>
     </tr>
   <?php endforeach; ?>
   </tbody>

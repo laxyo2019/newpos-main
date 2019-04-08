@@ -21,6 +21,15 @@ class Appconfig extends CI_Model
 
 		return $this->db->get();
 	}
+	//column1 to olumn10 only
+	public function get_additional_ten_col_name()
+	{	$names= array('column1_name','column2_name','column3_name','column4_name','column5_name','column6_name',				'column7_name','column8_name','column9_name','column10_name');
+		$this->db->where_in('key',$names);
+		$this->db->from('app_config');
+
+		return $this->db->get()->result();
+	}
+
 
 	public function get($key)
 	{

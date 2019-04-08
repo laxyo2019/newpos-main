@@ -612,7 +612,7 @@ if(isset($success))
 							{
 							?>
 								<tr>
-									<td><?php echo anchor($controller_name."/delete_payment/$payment_id", '<span class="glyphicon glyphicon-trash"></span>'); ?></td>
+									<td><?php if(substr($payment['payment_type'],0,'5')!='Offer'){echo anchor($controller_name."/delete_payment/$payment_id", '<span class="glyphicon glyphicon-trash"></span>'); }?></td>
 									<td><?php echo $payment['payment_type']; ?></td>
 									<td style="text-align: right;"><?php echo to_currency( $payment['payment_amount'] ); ?></td>
 								</tr>

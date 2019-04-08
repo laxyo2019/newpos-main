@@ -20,9 +20,7 @@
 						);?>
 						<!-- <div id="livesearch"></div> -->
 			</div>
-
 		</div>
-
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_category'), 'category', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-6'>
@@ -303,14 +301,27 @@
 			</div>
 		</div>
 
+		<!-----Expiry Date-->
 		<div class="form-group form-group-sm">
-			<?php echo form_label('Pointer', 'custom5', array('class'=>'control-label col-xs-3')); ?>
+			<?php echo form_label('Expiry', 'expiry', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-6'>
 				<?php echo form_input(array(
 						'name'=>'custom5',
-						'id'=>'custom5',
+						'id'=>'expiry',
 						'class'=>'form-control input-sm',
 						'value'=>$item_info->custom5)
+						);?>
+			</div>
+		</div>
+		<!------Stock Locations---->
+		<div class="form-group form-group-sm">
+			<?php echo form_label('Stock Edition', 'stock_edition', array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-6'>
+				<?php echo form_input(array(
+						'name'=>'custom6',
+						'id'=>'stock_edition',
+						'class'=>'form-control input-sm',
+						'value'=>$item_info->custom6)
 						);?>
 			</div>
 		</div>
@@ -394,19 +405,6 @@
 //validation and submit handling
 $(document).ready(function()
 {
-// 	$('#name').on('keyup', function(){
-// 		var name = $(this).val();
-// 		$.post('<?php //echo site_url($controller_name."/items_livesearch");?>', {'keyword': name}, function(data) {
-// 	        $('#livesearch').html(data);
-//       });
-// 	});
-
-	// $('#livesearch').on('click', '.liveresults', function(){
-	// 	var text = $(this).text();
-	// 	$('#name').val(text);
-	// 	$('#livesearch').html('');
-	// });
-
 	$('#unit_price').on('keyup', function(){
 		var unit_price = $(this).val();
 		if(unit_price == 0.00)
@@ -607,5 +605,12 @@ $(document).ready(function()
 			}
 		}
 	}, form_support.error));
+
+	$('#expiry').datetimepicker({
+            format: 'yyyy-mm-dd',
+            // minView: 2,
+            // maxView: 4,    
+            autoclose: true
+            });
 });
 </script>

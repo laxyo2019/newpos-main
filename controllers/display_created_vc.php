@@ -1,5 +1,5 @@
 <?php $this->load->view("partial/header");
-$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value , vc_gift_master.bg_img as bg_img');
+$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value');
 $this->db->from('voucher_gifts');
 $this->db->where('voucher_gifts.id',$id);
 $this->db->join('vc_gift_master','voucher_gifts.voucher_id=vc_gift_master.id','inner');
@@ -19,7 +19,7 @@ $voucher = $this->db->get()->result();
                     <div style='text-align:center'><img class='dbf_logo' src='".base_url()."images/dbf_mini_logo.png'></div>
                     <p class='gift_voucher'>GIFT VOUCHER</p>
                     <p class='vc_value'>".to_currency($row->vc_value)."</p>
-                    <p class='code'>CODE : ".$row->voucher_code."</p>
+                    <p class='code'>CODE : ".$row->code."</p>
                     <p class='tnc'>T&C Apply</p>
                 </div>
             </div>

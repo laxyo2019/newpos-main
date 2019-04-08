@@ -8,7 +8,8 @@
         <?php endforeach; ?>
       </select>
     </div>
-    <button class="btn btn-sm btn-primary" id="allItems">All Items</button>
+   <!-- <button class="btn btn-sm btn-primary" id="allItems">All Items</button> -->
+    <a class="btn btn-sm btn-primary" id="excelExport" href='<?php echo site_url($controller_name."/list_all_items/4");?>'>All Items</a>
     <button class="btn btn-sm btn-warning" id="filterItems">Filter Items</button>
     <button class="btn btn-sm btn-default" id="stockupItems">Stockup Items</button>
     <button class="btn btn-sm btn-success" id="newItems">New Items</button>
@@ -62,7 +63,7 @@
     </div>
   </div>
   <div class="col-md-3">
-    <div class="form-group">height
+    <div class="form-group">
       <select name="color2" id="color2" class="form-control">
         <option value="">Select Color</option>
         <?php foreach($mci_data['colors'] as $row)
@@ -92,24 +93,29 @@
       }
     });
 
-    $('#allItems').on('click', function(){
-      var location_id = $('#location_id').val();
-      console.log('location_id', location_id);
+//     $('#allItems').on('click', function(){
+//       var location_id = $('#location_id').val();
+//       console.log('location_id', location_id);
 
-      $('#table_area').html('<img src="<?php echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
+//       $('#table_area').html('<img src="<?php  //echo base_url('images/pacman-loader.gif'); ?>" alt="loading" />');
 
-      $.get('<?php echo site_url($controller_name."/list_all_items/");?>'+location_id, function(data) {
-        $('#table_area').html(data);
-        $('#list').DataTable({
-          "scrollX": true,
-          dom: 'Bfrtip',
-          buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-          ]
-        });
-      });
+//       $.get('<?php // echo site_url($controller_name."/list_all_items/");?>'+location_id, function(data) {
+//         $('#table_area').html(data);
+//         $('#list').DataTable({
+//           "scrollX": true,
+//           dom: 'Bfrtip',
+//           buttons: [
+//             'copy', 'csv', 'excel', 'pdf', 'print'
+//           ]
+//         });
+//       });
+//     });
+    $('#location_id').on('change',function(){
+      location_id = $(this).val();
+      url = '<?php echo site_url().$controller_name."/list_all_items/";?>'+location_id;
+      console.log(url);
+      $('#excelExport').attr('href',url);
     });
-    
     $('#filterItems').on('click', function(){
       var location_id = $('#location_id').val();
       var category = $('#category2').val();

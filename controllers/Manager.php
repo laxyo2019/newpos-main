@@ -137,26 +137,119 @@ class Manager extends Secure_Controller
     }
   }
 
-  public function list_all_items($location_id)
-  {
+  // public function list_all_items($location_id)
+  // {
    
-    //$data['items'] = $this->db->where('deleted', 0)->limit(5)->get('items')->result_array();
-    //$data['location_id'] = $location_id;
+  //   //$data['items'] = $this->db->where('deleted', 0)->limit(5)->get('items')->result_array();
+  //   //$data['location_id'] = $location_id;
 
   
+  //   $this->db->select('items.*, item_quantities.quantity, GROUP_CONCAT(percent) AS percent');
+  //   $this->db->from('items');
+  //   $this->db->join('item_quantities','item_quantities.item_id=items.item_id','inner');
+  //   $this->db->join('items_taxes','items_taxes.item_id=items.item_id','inner');
+  //   $this->db->where(array('item_quantities.location_id'=>$location_id));
+  //   $this->db->where(array('items.deleted'=> 0));
+  //  // $this->db->limit(50);
+  //   $this->db->group_by('item_quantities.item_id');
+  //   $query= $this->db->get();
+  //   $data['items']=$query->result();
+  //  // echo $this->db->last_query();
+  //   $this->load->view('manager/sublists/all_items_sublist', $data);
+  // }
+
+  public function list_all_items($location_id)
+ {
+ 
+   //$data['items'] = $this->db->where('deleted', 0)->limit(5)->get('items')->result_array();
+   //$data['location_id'] = $location_id;
+
     $this->db->select('items.*, item_quantities.quantity, GROUP_CONCAT(percent) AS percent');
-    $this->db->from('items');
-    $this->db->join('item_quantities','item_quantities.item_id=items.item_id','inner');
-    $this->db->join('items_taxes','items_taxes.item_id=items.item_id','inner');
-    $this->db->where(array('item_quantities.location_id'=>$location_id));
-    $this->db->where(array('items.deleted'=> 0));
-    $this->db->limit(50);
-    $this->db->group_by('item_quantities.item_id');
-    $query= $this->db->get();
-    $data['items']=$query->result();
+   $this->db->from('items');
+   $this->db->join('item_quantities','item_quantities.item_id=items.item_id','inner');
+   $this->db->join('items_taxes','items_taxes.item_id=items.item_id','inner');
+   $this->db->where(array('item_quantities.location_id'=>$location_id));
+   $this->db->where(array('items.deleted'=> 0));
+   //$this->db->limit(50);
+   $this->db->group_by('item_quantities.item_id');
+   $query= $this->db->get();
+   $items=$query->result();
    // echo $this->db->last_query();
-    $this->load->view('manager/sublists/all_items_sublist', $data);
-  }
+   // $this->load->view('manager/sublists/all_items_sublist', $data);
+
+   $filename = 'DBF POS'.date('d-m').'.csv';
+   header("Content-Description: File Transfer");
+   header("Content-Disposition: attachment; filename=$filename");
+   header("Content-Type: application/csv; ");
+
+   // file creation
+   $file = fopen('php://output', 'w');
+   $custom_attributes = $this->Appconfig->get_additional_ten_col_name();
+   foreach($custom_attributes as $custom_attribute){
+        $custom_col[]=$custom_attribute->value;
+    }
+   $header = array("ID","Barcode","Item Name","Category","SubCategory","Brand","Size","Color","Model","MRP","HSN","CGST","SGST","IGST","Disc % (Retail)","Disc % (Wholesale)","Disc % (Franchise)","FP (Retail)","FP (Wholesale)","FP (Franchise)","Quantity",$custom_col[1],$custom_col[2],$custom_col[3],$custom_col[4],$custom_col[5],$custom_col[6],$custom_col[7],$custom_col[8],$custom_col[9],$custom_col[0]);
+   fputcsv($file, $header);
+
+   foreach ($items as $item){
+
+     $ds = json_decode($item->discounts);
+     $fp = json_decode($item->cost_price);
+     $tax_array= explode(',',$item->percent);
+     // print_R($tax_array);die;
+    
+    $CGST= isset($tax_array[0]) ? $tax_array[0] : 0;
+    $IGST= isset($tax_array[1]) ? $tax_array[1] : 0;
+    $SGST= isset($tax_array[2]) ? $tax_array[2] : 0;
+    
+      $ds_retail = (isset($ds->retail)) ? $ds->retail : "";
+      $ds_wholesale = (isset($ds->wholesale)) ? $ds->wholesale : "";
+      $ds_franchise = (isset($ds->franchise)) ? $ds->franchise : "";
+ 
+      $fp_retail = (isset($fp->retail)) ? $fp->retail : "";
+      $fp_wholesale = (isset($fp->wholesale)) ? $fp->wholesale : "";
+      $fp_franchise = (isset($fp->franchise)) ? $fp->franchise : "";
+
+       fputcsv($file,array(
+        $item->item_id ,
+           $item->item_number,
+           $item->name,
+           $item->category,
+           $item->subcategory,
+           $item->brand,
+           $item->custom2,
+           $item->custom3,
+           $item->custom4,
+           $item->unit_price,
+           $item->custom1,
+           $CGST ,
+           $SGST,
+           $IGST,
+           round($ds_retail),
+           round($ds_wholesale),
+           round($ds_franchise),
+           round($fp_retail),
+           round($fp_wholesale),
+           round($fp_franchise),
+           $item->quantity,
+           $item->column1,
+           $item->column2,
+           $item->column3,
+           $item->column4,
+           $item->column5,
+           $item->column6,
+           $item->column7,
+           $item->column8,
+           $item->column9,
+           $item->column10
+                         ));
+   }
+
+   fclose($file);
+   exit;
+
+ }
+
 
   public function list_filtered_items($location_id)
   {
