@@ -1,5 +1,9 @@
-<hr>
+<?php $this->load->view("partial/header"); ?>
+
 <div class="row">
+	<div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
+      <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> MCI 
+  </div>
 	<span class="col-md-2 pull-right">
 		<select id="select_mci" class="form-control">
 			<option value="">Select MCI</option>

@@ -1,5 +1,7 @@
-<?php $this->load->view("partial/header"); ?>
-
+<?php $this->load->view("partial/header"); 
+$sale_mode = $this->session->userdata('sales_mode');
+?>
+<input type='hidden' id='sale_mode' value='<?php echo $sale_mode ; ?>'>
 <?php
 if(isset($error))
 {
@@ -580,7 +582,12 @@ if(isset($success))
 							<tr>
 								<td><span id="amount_tendered_label"><?php echo $this->lang->line('sales_amount_tendered'); ?></span></td>
 								<td>
-									<?php echo form_input(array('name'=>'amount_tendered', 'id'=>'amount_tendered', 'class'=>'form-control input-sm non-giftcard-input', 'value'=>to_currency_no_money($amount_due), 'size'=>'5', 'tabindex'=>++$tabindex, 'onClick'=>'this.select();')); ?>
+								<?php
+									$input_array = array('name'=>'amount_tendered', 'id'=>'amount_tendered', 'class'=>'form-control input-sm non-giftcard-input', 'value'=>to_currency_no_money($amount_due), 'size'=>'5','tabindex'=>++$tabindex, 'onClick'=>'this.select();');
+									if ($sale_mode =='return') {
+										$input_array['readonly']='readonly';
+									}?>
+									<?php echo form_input($input_array); ?>
 									<?php echo form_input(array('name'=>'amount_tendered', 'id'=>'amount_tendered', 'class'=>'form-control input-sm giftcard-input', 'disabled' => true, 'value'=>to_currency_no_money($amount_due), 'size'=>'5', 'tabindex'=>++$tabindex)); ?>
 								</td>
 							</tr>
@@ -757,6 +764,15 @@ const handle_voucher_input = () => {
 
 $(document).ready(function()
 {
+	$('#item').keydown(function (e) {
+		if('<?php echo $this->session->userdata('sales_mode');?>' == 'return'){
+			if (e.keyCode == 13) {
+				e.preventDefault();
+				return false;
+				}
+		}
+	});	
+
 	<?php if($this->session->userdata('sales_mode') != 'return'){ ?>
 		$.post('<?php echo site_url($controller_name."/set_invoice_number_enabled");?>', {sales_invoice_number_enabled: true});
 		$.post('<?php echo site_url($controller_name."/set_invoice_number");?>', {sales_invoice_number: $('#sales_invoice_number').val()});
@@ -948,6 +964,11 @@ $(document).ready(function()
 
 	$("#finish_sale_button").click(function()
 	{
+		amount_due = $('#sale_amount_due').text();
+		if(amount_due.charAt(0)=='-'){
+			alert('Amount Due must be 0 or more.');
+			return False;
+		}
 		<?php if($this->Sale->is_valid_sale_action($total)){ ?>
 			$('#buttons_form').attr('action', '<?php echo site_url($controller_name."/complete"); ?>');
 			$('#buttons_form').submit();
@@ -1004,8 +1025,21 @@ $(document).ready(function()
 		}
 	});
 
-	$("#amount_tendered").keypress(function(event)
+//Not allow minus if sale mode is sale
+$("#amount_tendered").keypress(function(event)
 	{
+	
+		$(this).keypress(function(event)	{
+			sale_mode = $('#sale_mode').val();
+			if(sale_mode == 'sale'){
+					sale_mode = $('#sale_mode').val();
+						if(event.which == 45)
+						{
+							return false;
+						}
+			}
+	});
+		
 		if(event.which == 13)
 		{
 			$('#add_payment_form').submit();

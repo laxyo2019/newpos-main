@@ -1,6 +1,8 @@
-<hr>
+<?php $this->load->view("partial/header"); ?>
 <div class="row">
-
+  <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
+      <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> Extras 
+  </div>
   <div class="col-md-4">
     <button class='btn btn-info btn-sm modal-dlg col-md-6 col-md-offset-3' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/quick_convert"); ?>'
               title='Quick Transfer/Billing'>

@@ -80,90 +80,25 @@ class Offers extends Secure_Controller
 
 	public function view_basic()
 	{
-		$mci_data = $this->Item->get_mci_data('all');
-		$categories = array('' => $this->lang->line('items_none'));
-		foreach($mci_data['categories'] as $row)
-		{
-			$categories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-		}
-		$data['categories'] = $categories;
-
-		$subcategories = array('' => $this->lang->line('items_none'));
-		foreach($mci_data['subcategories'] as $row)
-		{
-			$subcategories[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-		}
-		$data['subcategories'] = $subcategories;
-
-		$brands = array('' => $this->lang->line('items_none'));
-		foreach($mci_data['brands'] as $row)
-		{
-			$brands[$this->xss_clean($row['name'])] = $this->xss_clean($row['name']);
-		}
-		$data['brands'] = $brands;
-
-		foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
-		{
-			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
-		}
-		$data['active_shops'] = $active_shops;
-
-		$data['plans'] = $this->Pricing->get_core_plans();
-		$this->load->view('offers/modals/view_basic_form', $data);
+		$data['pointers']=$this->db->select('id,title')->get_where('offer_pointer_groups',array('deleted'=>0))->result();
+		$data['locations']=$this->db->select('id,title')->get_where('offer_location_groups',array('deleted'=>0))->result();
+		$this->load->view('offers/modals/view_basic_form',$data);
 	}
 
-	public function save_basic()
-	{
+	public function save_basic(){
+		
 		$response = array();
 		$valid_date_range = 0;
 
-		$locations = $this->input->post('locations');
-		$plan = $this->input->post('plan');
-		$pointer = ($plan == 'mixed' || $plan == 'mixed2') ? json_encode($this->input->post('pointer')) : trim($this->input->post('pointer'));
-		$start_time = $this->input->post('start_time');
-		$end_time = $this->input->post('end_time');
+		$array['title'] = $this->input->post('title');
+		$array['location_group_id']  = $this->input->post('locations');
+		$array['pointer_group_id'] = $this->input->post('pointers');
+		$array['start_time'] = $this->input->post('start_time');
+		$array['end_time'] = $this->input->post('end_time');
+		$array['discount'] = $this->input->post('discount');
 
-		if(strtotime(date("Y-m-d H:i:s")) <= strtotime($start_time) && strtotime($start_time) < strtotime($end_time))
-		{
-			$valid_date_range = 1;
-		}
-
-		$this->db->where('locations', $locations);
-		$this->db->where('pointer', $pointer);
-		$offer_count = $this->db->count_all_results('special_prices');
-
-		if($offer_count == 0)
-		{
-			if($valid_date_range == 1)
-			{
-				$data = array(
-					'plan' => $plan,
-					'locations' => $locations,
-					'pointer' => $pointer,
-					'price' => $this->input->post('price'),
-					'discount' => $this->input->post('discount'),
-					'start_time' => $start_time,
-					'end_time' => $end_time
-				); 
-			
-				$this->db->insert('special_prices', $data);
-				$response['type'] = "success";
-				$response['message'] = "Created Successfully";
-			}
-			else
-			{
-				$response['type'] = "error";
-				$response['message'] = "Invalid Date Range";
-			}
-		}
-		else
-		{
-			$response['type'] = 'update';
-			$this->db->where('locations', $locations);
-			$this->db->where('pointer', $pointer);
-			$response['offer_id'] = $this->db->get('special_prices')->row()->id;
-		}
-		echo json_encode($response);
+		$this->db->insert('dynamic_prices', $array);
+		echo "Created Successfully";
 	}
 
 	public function update_basic()
@@ -221,11 +156,21 @@ class Offers extends Secure_Controller
 		echo ($this->db->update('special_prices', $data)) ? 'success' : 'failed';
 	}
 
+	public function offer_toggle2($tblname)  // either 1 or 0 for status
+	{
+		$status = ($this->input->post('status') == 'true') ? 1 : 0;
+		$data = array(
+			'status' => $status
+		);
+		$this->db->where('id', $this->input->post('id'));
+		echo ($this->db->update($tblname, $data)) ? 'success' : 'failed';
+	}
+
 	public function get_dynamic_prices()
 	{
 		//echo"<pre>";print_r($this->session->userdata());
-		$data['dynamic_prices'] = $this->db->get('special_prices')->result_array();
-		//echo $this->db->last_query();
+		$data['dynamic_prices'] = $this->db->order_by('id','DESC')->get('dynamic_prices')->result_array();
+	//echo $this->db->last_query(); die;
 		$this->load->view('offers/sublists/dynamic_prices', $data);
 	}
 
@@ -441,7 +386,7 @@ class Offers extends Secure_Controller
       'status' => $status
     );
     $this->db->where('id', $this->input->post('id'));
-    echo ($this->db->update('cashiers2', $data)) ? 'success' : 'failed';
+    echo ($this->db->update('cashiers', $data)) ? 'success' : 'failed';
   }
 	
 	public function edit_cashier_data(){
@@ -450,7 +395,7 @@ class Offers extends Secure_Controller
 			$data['col'] => $data['data']
 		);
 		 $query = $this->db->where('id',$data['id'])
-		 ->update('cashiers2',$update_array);
+		 ->update('cashiers',$update_array);
 			echo $data['col']." updated successfully!";
 	}
 	public function create_voucher(){
@@ -482,8 +427,8 @@ class Offers extends Secure_Controller
 	}
 
 	public function view_dynamic_pricing(){	
-		$data['plans'] = $this->Pricing->get_core_plans();
-		$this->load->view("offers/submodules/dynamic_pricing",$data);
+		//$data['plans'] = $this->Pricing->get_core_plans();
+		$this->load->view("offers/submodules/dynamic_pricing");
 	}
 
 	public function view_vouchers(){
@@ -517,7 +462,6 @@ class Offers extends Secure_Controller
 		$data['locations'] = $this->Stock_location->get_allowed_locations2();
 		$this->load->view("offers/submodules/control_panel",$data);
 	}
-
 	public function display_created_vouchers(){
 		$data['result']= $this->input->get('data');
 		$this->load->view("offers/subviews/display_created_vc",$data);
@@ -532,6 +476,255 @@ class Offers extends Secure_Controller
 		$this->db->empty_table('voucher_gifts');
 		echo "Deleted Succesfully";
 	}
+	//create locations groups
+	public function create_locations_group(){
+		$this->db->select('username,person_id');
+		$this->db->where(array('deleted'=>0));
+		$data['rows'] = $this->db->get('employees')->result();
+		//echo"<pre>";print_R($data); die;
+		$this->load->view('offers/subviews/create_locations_group',$data);
+	}
+
+	//insert created location groups
+	public function insert_loc_group(){
+		$data['locations'] = json_encode($this->input->post('loc_group'));
+		$data['title'] = $this->input->post('title');
+		$data['created_at']= date('Y-m-d H:i:s',time());
+		 $this->db->insert('offer_location_groups',$data);
+	}
+
+	public function load_cashier(){
+		$data['locations'] = $this->Stock_location->get_allowed_locations2();
+		$this->load->view('offers/subviews/cashier',$data);
+	}
+	
+	public function cashier_add(){
+    foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
+		{
+			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
+		}
+		$data['shops'] = $shops;
+		$this->load->view('offers/modals/add_cashier',$data);
+	}
+
+	public function cashier_edit_view($id){
+	$data['detail'] = 	$this->db->select()->get_where('cashiers',array('id'=>$id))->row();
+		foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
+		{
+			$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
+		}
+		$data['shops'] = $shops;
+		$this->load->view('offers/modals/edit_cashier',$data);
+	}
+	public function cashier_edit(){
+		$data['name'] = $this->input->post('name'); 
+		$data['contact'] = $this->input->post('contact'); 
+		$data['webkey'] = $this->input->post('webkey'); 
+		$cashier_id= $this->input->post('cashier_id'); 
+
+		$this->db->where('id',$cashier_id);
+		$this->db->update('cashiers',$data);
+
+		echo 'Edited Successfully.';
+	}
+	public function edit_loc($action){
+		$loc_id = $this->input->post('loc_id');
+		$cashier_id = $this->input->post('cashier_id');
+		if($action=='insert'){
+			$data = array('cashier_id'=>$cashier_id,
+									'person_id'=>$loc_id,
+									'created_at'=>date('Y-m-d H:i:s')
+								);
+			$this->db->insert('cashier_shops',$data);
+			echo 'Added Successfully.';
+		}else{
+			$data = array('cashier_id'=>$cashier_id,
+									'person_id'=>$loc_id
+								);
+			$this->db->where($data);
+			$this->db->delete('cashier_shops');
+			echo 'Deleted Successfully.';
+		}
+	}
+	public function cashier_save(){
+		$shops = $this->input->post('shops'); //array
+		$data['name'] = $this->input->post('name'); 
+		$data['contact'] = $this->input->post('contact'); 
+		$data['webkey'] = $this->input->post('webkey'); 
+		$row_count = 	$this->db->get_where('cashiers',array('name'=>$data['name']))->num_rows();
+		if($row_count>0){
+			echo TRUE;
+		}else{
+			$this->db->insert('cashiers',$data);
+			$cashierId = $this->db->insert_id();
+			if($shops!=''){
+				foreach($shops as $shop){
+					$data_loc['cashier_id'] = $cashierId;
+					$data_loc['person_id'] = $shop;
+					$data_loc['created_at'] = date('Y-m-d H:i:s');
+					$this->db->insert('cashier_shops',$data_loc);
+				}
+			}
+			echo FALSE;
+		}	
+		
+	}
+	public function load_cashier_details(){
+		$this->load->view('offers/subviews/cashier_details');
+	}
+
+	public function load_loc_group(){
+		$data['loc_group']= $this->db->get_where('offer_location_groups',array('deleted'=>0))->result();
+		$data['locations'] = $this->Stock_location->get_allowed_locations2();
+		$this->load->view('offers/subviews/locations_groups',$data);
+	}
+
+	public function edit_loc_group($id){
+		$this->db->select('username,person_id');
+		$this->db->where(array('deleted'=>0));
+		 $data['users'] = $this->db->get('employees')->result();
+		 $data['row']=$this->db->get_where('offer_location_groups',array('id'=>$id))->row();
+		 $data['id']=$id;
+		$this->load->view('offers/subviews/edit_loc_groups',$data);
+	}
+
+	public function update_loc_group($id){
+		$data['locations'] = json_encode($this->input->post('loc_group'));
+		$data['title'] = $this->input->post('title');
+		$data['updated_at']= date('Y-m-d H:i:s',time());
+		$this->db->set($data);
+		$this->db->where('id',$id);
+		$this->db->update('offer_location_groups');
+	}
+
+	public function delete_cashier(){
+		$location_id = $this->input->post('location_id');
+		$cashier_id = $this->input->post('cashier_id');
+		$where=array('cashier_id'=> $cashier_id,'person_id'=>	$location_id);
+		$this->Control_Panel->delete_entire_row('cashier_shops',$where);
+		echo 'Success';
+	}
+
+	public function view_location_group_table(){
+		$data['loc_group']= $this->db->get_where('offer_location_groups',array('deleted'=>0))->result();
+		$this->load->view('offers/sublists/locations_group_table',$data);
+	}
+
+	public function load_offer_bundle(){
+	//	$data['bundles']=$this->db->get_where('offer_pointer_groups',array('deleted'=>0))->result();
+		$this->load->view("offers/subviews/offer_bundle");
+	}
+
+	public function create_offer_bundle(){
+		$data['categories']=	$this->db->get('master_categories')->result();
+		$this->load->view('offers/subviews/create_bundle',$data);
+	}
+	public function insert_offer_bundle(){
+		if($this->input->post('type')=='tags'){
+			$post_type = 'categories';
+			$tag_ids = $this->input->post('bundle');
+		
+			$this->db->select('GROUP_CONCAT(id) as id');
+			$this->db->where_in('tag',$tag_ids);
+			$category_ids = $this->db->get('master_categories')->row()->id;
+			$post_bundle = explode(',',	$category_ids);
+		}else{
+			$post_bundle = $this->input->post('bundle');
+			$post_type = $this->input->post('type');
+		}
+
+		$parent_id = $this->input->post('parent_id');
+		$bundle = array(
+			'type' =>  $post_type,
+				'parent_id' => $parent_id,
+			'entities' =>$post_bundle
+		);
+		$data['bundle'] = json_encode($bundle);
+		$data['title'] = $this->input->post('title');
+		$data['created_at']= date('Y-m-d H:i:s',time());
+		$this->db->insert('offer_pointer_groups',$data);
+	}
+	public function fetch_subcategory($id){
+		$data = $this->db->get_where('master_subcategories',array('parent_id'=>$id))->result();
+		$result="";
+		foreach($data as $row){
+			$result .= "<option value='".$row->id."'>".$row->name."</option>";
+		}
+		echo $result;
+	}
+	public function fetch_brands(){
+		$data = $this->db->get('master_brands')->result();
+		$result="";
+		foreach($data as $row){
+			$result .= "<option value='".$row->id."'>".$row->name."</option>";
+		}
+		echo $result;
+		}
+
+	public function fetch_categories(){
+		$data = $this->db->get('master_categories')->result();
+		$result="";
+		foreach($data as $row){
+			$result .= "<option value='".$row->id."'>".$row->name."</option>";
+		}
+		echo $result;
+		}
+
+		public function fetch_tags(){
+			$this->db->select('id, alias as name');
+			$this->db->where('tag','category_tag');
+			$data = $this->db->get('custom_fields')->result();
+			$result="";
+			foreach($data as $row){
+				$result .= "<option value='".$row->id."'>".$row->name."</option>";
+			}
+			echo $result;
+		}
+
+		public function view_offer_bundle_table(){
+			$data['bundles']=$this->db->get_where('offer_pointer_groups',array('deleted'=>0))->result();
+			$this->load->view('offers/sublists/offer_bundle_table',$data);
+		}
+
+		public function edit_bundle_group($id){
+			$data['categories']=	$this->db->get('master_categories')->result();	
+			$data['row']=	$this->db->get_where('offer_pointer_groups',array('id'=>$id))->row();	
+			$this->load->view('offers/subviews/edit_bundle',$data);
+		}
+		public function update_bundle_group($id){
+			$parent_id = $this->input->post('parent_id');
+			$bundle = array(
+					'type' =>  $this->input->post('type'),
+						'parent_id' => $parent_id,
+					'entities' =>$this->input->post('bundle')
+				);
+			$data['bundle'] = json_encode($bundle);
+			$data['title'] = $this->input->post('title');
+			$data['updated_at']= date('Y-m-d H:i:s',time());
+			$this->db->where('id',$id);
+			$this->db->update('offer_pointer_groups',$data);
+		}
+
+		public function load_subview($view){
+			$url = "offers/subviews/".$view;
+			$this->load->view($url);
+		}
+
+		public function get_pointer_group($id){
+			$bundle = $this->db->select('bundle')->get_where('offer_pointer_groups',array('id'=>$id))->row()->bundle;
+			$entities =	$this->Control_Panel->fetch_title($bundle);
+			echo substr($entities,0,-2);
+		}
+
+		public function get_loc_group($id){
+			$obj = $this->db->select('locations')->get_where('offer_location_groups',array('id'=>$id))->row()->locations;
+			$locations =	$this->Control_Panel->fetch_username($obj,'employees');
+				 echo substr($locations,0,-2);
+		}
+	public function delete_row($tablename='offer_location_groups', $column='location_group_id', $id=10){
+		$data = $this->db->select()->get_where('dynamic_prices',array('status'=>1,$column=>$id))->row();
+		
+	}	
 }
 
 

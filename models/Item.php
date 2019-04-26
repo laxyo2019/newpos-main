@@ -476,7 +476,36 @@ class Item extends CI_Model
 
 	public function get_mci_id($name, $table)
 	{
-		return $this->db->where('name', $name)->get($table)->row()->id;
+		return $this->db->where('name', $name)->get($table)->row() ? $this->db->where('name', $name)->get($table)->row()->id : '';
+	}
+
+
+	public function barcode_factory2($category,$subcategory,$brand,$size,$color)
+	{
+		$main_array = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];
+
+		if(in_array($category, $main_array)) // 14 or 15 digit barcode
+		{
+			$category_mci = $this->get_mci_id($category, 'master_categories');
+			$subcategory_mci = $this->get_mci_id($subcategory, 'master_subcategories');
+			$size_mci = $this->get_mci_id($size, 'master_sizes');
+			$color_mci = $this->get_mci_id($color, 'master_colors');
+			$brand_mci = "";
+		}
+		else
+		{
+			$category_mci = $this->get_mci_id($category, 'master_categories');
+			$subcategory_mci = $this->get_mci_id($subcategory, 'master_subcategories');
+			$brand_mci = $this->get_mci_id($brand, 'master_brands');
+			$size_mci = "";
+			$color_mci = "";
+		}
+
+		$barcode = '';
+		//$item_index = str_pad($item_id, 6, "0" ,STR_PAD_LEFT);
+		$barcode = $category_mci.$subcategory_mci.$brand_mci.$size_mci.$color_mci; 
+		//8 or 9 digit barcode
+		return (string)$barcode;
 	}
 
 	public function barcode_factory($item_id)
@@ -1030,7 +1059,6 @@ class Item extends CI_Model
 			$row_array = (array) $row;
 			$suggestions[] = array('label' => $row_array['custom'.$field_no]);
 		}
-
 		return $suggestions;
 	}
 
@@ -1079,5 +1107,20 @@ class Item extends CI_Model
 
 		return $this->save($data, $item_id);
 	}
+
+	public function update_row($where,$table,$data){
+		$this->db->where($where);
+		$this->db->update($table,$data);
+	}
+	
+		//give count of redundant row
+	public function get_redundant_data_count($data, $tablename){
+
+		$this->db->from($tablename);
+		$this->db->where($data);
+		return $this->db->count_all_results();
+
+	}
+
 }
 ?>

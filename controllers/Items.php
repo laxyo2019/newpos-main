@@ -10,10 +10,6 @@ class Items extends Secure_Controller
 
 		$this->load->library('item_lib');
 	}
-	public function test(){
-		$custom_attributes = $this->Appconfig->get_additional_ten_col_name();
-		echo "<pre>"; print_R($custom_attributes);
-	}
 	public function index()
 	{
 		$data['table_headers'] = $this->xss_clean(get_items_manage_table_headers());
@@ -553,7 +549,7 @@ class Items extends Secure_Controller
 
 	public function save($item_id = -1) // #save-method for both insert and update
 	{
-		// ---------------------------------------------- Discounts JSON processing
+		//-----Discounts JSON processing----
 		$discounts = array();
 		$retail = $this->input->post('retail');
 		$wholesale = $this->input->post('wholesale');
@@ -1028,7 +1024,8 @@ class Items extends Secure_Controller
 		$this->load->view('items/form_excel_import', NULL);
 	}
 
-	public function do_excel_import() #excel-import
+
+	public function do_excel_import2() #excel-import
 	{
 		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
 		{
@@ -1038,275 +1035,81 @@ class Items extends Secure_Controller
 		{
 			if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
 			{
+				$file_name = strtoupper(PATHINFO($_FILES['file_path']['name'])['filename']); 
 				// Skip the first row as it's the table description
 				fgetcsv($handle);
 				$i = 1;
+				//Insert into ospos_sheet_uploads table--
+				$master_data = array(
+								'sheet_uploader_id' => 25,
+								'name' => $file_name,
+								'created_at' => date('Y-m-d H:i:s')
+								); 
 
-				$failCodes = array();
-				$stock_up_items = array();
-				$new_sheet_items = array();
-
+				$this->db->insert('sheet_uploads', $master_data);
+				$insert_master_id = $this->db->insert_id();
+							 
 				while(($data = fgetcsv($handle)) !== FALSE)
 				{
 					// XSS file data sanity check
 					$data = $this->xss_clean($data);
-
-					$discounts = array(
-						'retail' => $data[9] == NULL ? '0.00' : number_format($data[9], 2, '.', ''),
-						'wholesale' => $data[10] == NULL ? '0.00' : number_format($data[10], 2, '.', ''),
-						'franchise' => $data[11] == NULL ? '0.00' : number_format($data[11], 2, '.', ''),
-						'ys' => $data[12] == NULL ? '0.00' : number_format($data[12], 2, '.', ''),
-					);
-
-					$fixed_prices = array(
-						'retail' => $data[13] == NULL ? '0.00' : number_format($data[13], 2, '.', ''),
-						'wholesale' => $data[14] == NULL ? '0.00' : number_format($data[14], 2, '.', ''),
-						'franchise' => $data[15] == NULL ? '0.00' : number_format($data[15], 2, '.', ''),
-						'ys' => $data[16] == NULL ? '0.00' : number_format($data[16], 2, '.', ''),
-					);
-					// if($data[17]!="" ){
-					// 	$expiry_date= date('Y-m-d',strtotime($data[17]));
-					// }else{
-					// 	$expiry_date="";
-					// }
-					
-					$expiry_date = $data[17]!="" ? date('Y-m-d',strtotime($data[17])) : "";
 					/* haven't touched this so old templates will work, or so I guess... */
 					if(sizeof($data) >= 24)
-					{
+					{	
+						$category = strtoupper(trim($data[2]));
+						$subcategory = strtoupper(trim($data[3]));
+						$brand = strtoupper(trim($data[4]));
+						$color = strtoupper(trim($data[21]));
+						$size = strtoupper(trim($data[22]));
+						$expiry_date = $data[17]!="" ? date('Y-m-d',strtotime($data[17])) : "";
+						$barcode = $this->Item->barcode_factory2($category,$subcategory,$brand,$size,$color);
+
 						$item_data = array(
-							'name'					=> strtoupper(trim($data[0])),
-							'category'			=> strtoupper(trim($data[2])),
-							'subcategory'		=> strtoupper(trim($data[3])),
-							'brand'				  => strtoupper(trim($data[4])),
-							'discounts'			=> json_encode($discounts),	// Discounts (JSON)
-							'cost_price'		=> json_encode($fixed_prices), // Fixed Prices (JSON)
-							'unit_price'		=> $data[5],
-							'reorder_level'	=> $data[24],
-							'description'		=> $data[23],
-							// 'supplier_id'			=> $this->Supplier->exists($data[3]) ? $data[3] : NULL,
-							// 'allow_alt_description'	=> $data[12] != '' ? '1' : '0',
-							// 'is_serialized'			=> $data[13] != '' ? '1' : '0',
-							'custom1'				=> ($data[1] == NULL) ? $this->Item->hsn_factory(strtoupper(trim($data[3]))) : $data[1], // HSN Code
-							'custom2'				=> strtoupper(trim($data[22])), // Size
-							'custom3'				=> strtoupper(trim($data[21])), // Color
-							'custom4'				=> strtoupper(trim($data[20])),	// Model
-							'custom5'				=> $expiry_date, // Expiry Date
-							 'custom6'				=> strtoupper(trim($data[18])),	// Stock Edition
-							 'column1'				=> $data[27],
-							 'column2'				=> $data[28],
-							 'column3'				=> $data[29],
-							 'column4'				=> $data[30],
-							 'column5'				=> $data[31],
-							 'column6'				=> $data[32],
-							 'column7'				=> $data[33],
-							 'column8'				=> $data[34],
-							 'column9'				=> $data[35],
-							 'column10'				=> $data[36],
-							
+							'parent_id'			=> $insert_master_id,
+							'barcode'			=> $barcode,
+							'name'				=> strtoupper(trim($data[0])),
+							'hsn'				=> ($data[1] == NULL) ? $this->Item->hsn_factory($subcategory) : $data[1], // HSN Code
+							'category'			=> $category,
+							'subcategory'		=> $subcategory,
+							'brand'				=> $brand,
+							'price'				=> $data[5], //unit_price
+							'igst'				=> $data[8], 
+							'retail_discount'	=> $data[9] == NULL ? '0.00' : number_format($data	[9], 2, '.', ''), 
+							'wholesale_discount'=> $data[10] == NULL ? '0.00' : number_format($data[10], 2, '.', ''),
+							'franchise_discount'=> $data[11] == NULL ? '0.00' : number_format($data[11], 2, '.', ''),
+							'ys_discount'		=>  $data[12] == NULL ? '0.00' : number_format($data[12], 2, '.', ''),
+							'retail_fp'			=>  $data[13] == NULL ? '0.00' : number_format($data[13], 2, '.', ''),
+							'wholesale_fp'		=> $data[14] == NULL ? '0.00' :  number_format($data[14], 2, '.', ''),
+							'franchise_fp'		=> $data[15] == NULL ? '0.00' :  number_format($data[15], 2, '.', ''),
+							'damaged_fp'		=> $data[16] == NULL ? '0.00' :  number_format($data[16], 2, '.', ''),
+							'expiry_date'		=> $expiry_date, // Expiry Date
+							'stock_edition'		=> strtoupper(trim($data[18])),	// Stock Edition
+							'model'				=> strtoupper(trim($data[20])),	// Model
+							'color'				=> $color, // Color
+							'size'				=> $size, // Size
+							'item_description'	=> $data[23],
+							'reorder_level'		=> $data[24],
+							'location_id'	 	=> $data[25],
+							'location_qty'	 	=> $data[26],
+							'column1'				=> isset($data[27]) == NULL ? '' : $data[27],
+							 'column2'				=> isset($data[28]) == NULL ? '' : $data[28],
+							 'column3'				=> isset($data[29]) == NULL ? '' : $data[29],
+							 'column4'				=> isset($data[30]) == NULL ? '' : $data[30],
+							 'column5'				=> isset($data[31]) == NULL ? '' : $data[31],
+							 'column6'				=> isset($data[32]) == NULL ? '' : $data[32],
+							 'column7'				=> isset($data[33]) == NULL ? '' : $data[33],
+							 'column8'				=> isset($data[34]) == NULL ? '' : $data[34],
+							 'column9'				=> isset($data[35]) == NULL ? '' : $data[35],
+							 'column10'				=> isset($data[36]) == NULL ? '' : $data[36]
 						);
+
+						// insert into sheet_uploads_data Table
+						$this->db->insert('sheet_uploads_data', $item_data);
 					}
-
-					$redundancy_count = $this->get_redundant_item($item_data, "count");
-					$redundant_item = $this->get_redundant_item($item_data, "get");
-
-					if($redundancy_count == 1)
-					{
-						$item_id = $redundant_item[0]['item_id'];
-						$location_id = $data[25];
-
-						$new_quantity = $this->Item_quantity->get_item_quantity($item_id, $location_id)->quantity;
-						$new_quantity += $data[26];
-
-						$location_detail = array(
-							'item_id' => $item_id,
-							'location_id' => $location_id,
-							'quantity' => $new_quantity
-						);
-
-						if($this->Item_quantity->save($location_detail, $item_id, $location_id))
-						{
-							$inv_data = array(
-								'trans_date' => date('Y-m-d H:i:s'),
-								'trans_items' => $item_id,
-								'trans_user' => $this->session->userdata('person_id'),
-								'trans_location' => $location_id,
-								'trans_comment' => 'Qty CSV Imported',
-								'trans_inventory' => $data[26]
-							);
-
-							$this->Inventory->insert($inv_data);
-						}
-
-						$su_data = $this->Item->get_info($redundant_item[0]['item_id']);
-						$su_data_array = array( // 10 fields
-							'item_id' =>  $su_data->item_id,
-							'barcode' => $su_data->item_number,
-							'name' => $su_data->name,
-							'category' => $su_data->category,
-							'subcategory' => $su_data->subcategory,
-							'brand' => $su_data->brand,
-							'size' => $su_data->custom2,
-							'color' => $su_data->custom3,
-							'quantity' => $data[26],
-							'price' => ($su_data->unit_price < 1) ? json_decode($su_data->cost_price)->retail : $su_data->unit_price
-						);
-
-						$stock_up_items[] = $su_data_array;
-					}
-					else if($redundancy_count > 1) // If more than 1 count for an item, then create entry in error log
-					{
-						$rd_item_data = $this->get_redundant_item($item_data, "get");
-						$error_data_array = array(
-							'item_id' => $rd_item_data[0]['item_id'],
-							'item_barcode' => $rd_item_data[0]['item_number'],
-							'item_name' => $rd_item_data[0]['name'],
-							'redundancy_count' => $redundancy_count
-						);
-						$data = array(
-							'error_data' => json_encode($error_data_array),
-							'time' => date('Y-m-d H:i:s')
-						);
-						$this->db->insert('redundancy', $data);
-					}
-					else
-					{
-						if($this->Item->save($item_data)) // Creates a new item in DB
-						{
-							$items_taxes_data = NULL;
-							//tax 1 (CGST)
-							if(is_numeric($data[6]))
-							{
-								$items_taxes_data[] = array('name' => 'CGST', 'percent' => $data[6] );
-							}
-
-							//tax 2 (SGST)
-							if(is_numeric($data[7]))
-							{
-								$items_taxes_data[] = array('name' => 'SGST', 'percent' => $data[7] );
-							}
-
-							//tax 3 (IGST)
-							if(is_numeric($data[8]))
-							{
-								$items_taxes_data[] = array('name' => 'IGST', 'percent' => $data[8] );
-							}
-
-							// save tax values
-							$items_taxes_data1 = (count($items_taxes_data) > 0) ? $items_taxes_data : $this->Item->tax_factory($item_data['item_id']);
-
-							$this->Item_taxes->save($items_taxes_data1, $item_data['item_id']);
-
-							// AUTOMATED BARCODING
-							$save_item = array('item_number' => $this->Item->barcode_factory($item_data['item_id']));
-							// update the item in the database in order to save the barcode field
-							//$this->Item->save($save_item, $item_data['item_id']);
-							$this->db->where('item_id', $item_data['item_id']);
-							$this->db->update('items', $save_item);
-
-							$new_sheet = $this->Item->get_info($item_data['item_id']);
-							$new_sheet_array = array( // 10 fields
-								'item_id' =>  $new_sheet->item_id,
-								'barcode' => $new_sheet->item_number,
-								'name' => $new_sheet->name,
-								'category' => $new_sheet->category,
-								'subcategory' => $new_sheet->subcategory,
-								'brand' => $new_sheet->brand,
-								'size' => $new_sheet->custom2,
-								'color' => $new_sheet->custom3,
-								'quantity' => $data[26],
-								'price' => ($new_sheet->unit_price < 1) ? json_decode($new_sheet->cost_price)->retail : $new_sheet->unit_price
-							);
-
-							$new_sheet_items[] = $new_sheet_array;
-
-							// quantities & inventory Info
-							$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
-							$emp_info = $this->Employee->get_info($employee_id);
-							$comment ='Qty CSV Imported';
-
-							$cols = count($data);
-
-							// array to store information if location got a quantity
-							$allowed_locations = $this->Stock_location->get_allowed_locations();
-							for($col = 25; $col < $cols; $col = $col + 2)
-							{
-								$location_id = $data[$col];
-								if(array_key_exists($location_id, $allowed_locations))
-								{
-									$item_quantity_data = array(
-										'item_id' => $item_data['item_id'],
-										'location_id' => $location_id,
-										'quantity' => $data[$col + 1],
-									);
-									$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
-
-									$excel_data = array(
-										'trans_items' => $item_data['item_id'],
-										'trans_user' => $employee_id,
-										'trans_comment' => $comment,
-										'trans_location' => $data[$col],
-										'trans_inventory' => $data[$col + 1]
-									);
-
-									$this->Inventory->insert($excel_data);
-									unset($allowed_locations[$location_id]);
-								}
-							}
-
-							/*
-							* now iterate through the array and check for which location_id no entry into item_quantities was made yet
-							* those get an entry with quantity as 0.
-							* unfortunately a bit duplicate code from above...
-							*/
-							foreach($allowed_locations as $location_id => $location_name)
-							{
-								$item_quantity_data = array(
-									'item_id' => $item_data['item_id'],
-									'location_id' => $location_id,
-									'quantity' => 0,
-								);
-								$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $data[$col]);
-
-								$excel_data = array(
-									'trans_items' => $item_data['item_id'],
-									'trans_user' => $employee_id,
-									'trans_comment' => $comment,
-									'trans_location' => $location_id,
-									'trans_inventory' => 0
-								);
-
-								$this->Inventory->insert($excel_data);
-							}
-						}
-						else //insert or update item failure
-						{
-							$failCodes[] = $i;
-						}
-					}
-
 					++$i;
 
 				} // while loop ends here
-
-				// Insert stock up items in db
-				$upload_items_array = array(
-					'stock_ups' => json_encode($stock_up_items),
-					'new_items' => json_encode($new_sheet_items),
-					'time' => date('Y-m-d H:i:s')
-				);
-				$this->db->insert('upload_items', $upload_items_array);
-
-				if(count($failCodes) > 0)
-				{
-					$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
-
-					echo json_encode(array('success' => FALSE, 'message' => $message));
-				}
-				else
-				{
-					echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
-				}
+				echo json_encode(array('success' => TRUE, 'message' => 'Waiting for Approving'));
 			}
 			else
 			{
@@ -1314,16 +1117,501 @@ class Items extends Secure_Controller
 			}
 		}
 	}
+	//Discard the uploaded sheet 
+	public function discard_sheet_data_items($parent_id=1){
+		//upload sheet_uploads_data table
+		$this->Item->update_row(array('parent_id'=>$parent_id),'sheet_uploads_data',array('status'=>'discarded'));
+
+		//update sheet_uploads table
+		$this->Item->update_row(array('id'=>$parent_id),'sheet_uploads',array('status'=>'discarded','updated_at'=>date('Y-m-d H:i:s')));
+	}
+	//Approve the uploaded sheet
+	public function upload_sheet_data_items($parent_id=1){
+		$items = $this->db->select()->get_where('sheet_uploads_data',array('parent_id'=>$parent_id))->result();
+		foreach($items as $item){
+			$discounts = array(
+				'retail' =>	$item->retail_discount,
+				'wholesale' => $item->wholesale_discount,
+				'franchise' => $item->franchise_discount,
+				'ys' => $item->ys_discount
+			);
+			$fixed_prices = array(
+				'retail' => $item->retail_fp,
+				'wholesale' => $item->wholesale_fp,
+				'franchise' => $item->franchise_fp,
+				'ys' => $item->damaged_fp
+			);
+			$item_data = array(
+							'name'				=> $item->name,
+							'category'			=> $item->category,
+							'subcategory'		=> $item->subcategory,
+							'brand'				=> $item->brand,
+							'discounts'			=> json_encode($discounts),	// Discounts (JSON)
+							'cost_price'		=> json_encode($fixed_prices), // Fixed Prices (JSON)
+							'unit_price'		=> $item->price,
+							'reorder_level'		=> $item->reorder_level,
+							'description'		=> $item->item_description,
+							'custom1'			=> $item->hsn, // HSN Code
+							'custom2'			=> $item->size, // Size
+							'custom3'			=> $item->color, // Color
+							'custom4'			=> $item->model,	// Model
+							'custom5'			=> $item->expiry_date, // Expiry Date
+							'custom6'			=> $item->stock_edition,	// Stock Edition
+							'column1'			=> $item->column1,
+							'column2'			=> $item->column2,
+							'column3'			=> $item->column3,
+							'column4'			=> $item->column4,
+							'column5'			=> $item->column5,
+							'column6'			=> $item->column6,
+							'column7'			=> $item->column7,
+							'column8'			=> $item->column8,
+							'column9'			=> $item->column9,
+							'column10'			=> $item->column10	
+						);
+			$redundancy_count = $this->get_redundant_item($item_data, "count");
+			$redundant_item = $this->get_redundant_item($item_data, "get");		
+			if($redundancy_count == 1)
+			{
+		
+				$item_id = $redundant_item[0]['item_id'];
+				$location_id = $item->location_id;
+				$new_quantity = $this->Item_quantity->get_item_quantity($item_id, $location_id)->quantity;
+				$new_quantity += $item->location_qty;
+
+				$location_detail = array(
+					'item_id' => $item_id,
+					'location_id' => $location_id,
+					'quantity' => $new_quantity
+				);
+
+				if($this->Item_quantity->save($location_detail, $item_id, $location_id))
+				{
+					$inv_data = array(
+						'trans_date' => date('Y-m-d H:i:s'),
+						'trans_items' => $item_id,
+						'trans_user' => $this->session->userdata('person_id'),
+						'trans_location' => $location_id,
+						'trans_comment' => 'Qty CSV Imported',
+						'trans_inventory' => $item->location_qty
+					);
+
+					$this->Inventory->insert($inv_data);
+				}
+				$this->Item->update_row(array('id'=>$item->id),'sheet_uploads_data',array('status'=>'stock_up'));
+				$processed_data = array(
+					'parent_id' => $parent_id,
+					'item_id' => $item_id,
+					'barcode' => $redundant_item[0]['item_number'],
+					'name' => $item->name,
+					'category' => $item->category,
+					'subcategory' => $item->subcategory,
+					'brand' =>	$item->brand,
+					'price' => $item->price,
+					'color' => $item->color,
+					'size' => $item->size
+					);
+				if($this->Item->get_redundant_data_count($processed_data,'sheet_processed_data')==0){
+					$processed_data['quantity']= $item->location_qty;
+					$this->db->insert('sheet_processed_data',$processed_data);
+				}else{
+					$this->db->set('quantity', 'quantity+1', FALSE);
+					$this->db->where($processed_data);
+					$this->db->update('sheet_processed_data');
+				}
+				
+			}	
+			else if($redundancy_count > 1) // If more than 1 count for an item, then create entry in error log
+			{
+				$rd_item_data = $this->get_redundant_item($item_data, "get");
+				$error_data_array = array(
+					'item_id' => $rd_item_data[0]['item_id'],
+					'item_barcode' => $rd_item_data[0]['item_number'],
+					'item_name' => $rd_item_data[0]['name'],
+					'redundancy_count' => $redundancy_count
+				);
+				$data = array(
+					'error_data' => json_encode($error_data_array),
+					'time' => date('Y-m-d H:i:s')
+				);
+				$this->db->insert('redundancy', $data);
+			}
+			else
+			{
+				if($this->Item->save($item_data)) // Creates a new item in DB
+				{
+					//tax 3 (IGST)
+					$items_taxes_data = array();
+					$items_taxes_data[] = array('name' => 'CGST', 'percent' => number_format($item->igst/2, 2, '.', ''));
+					$items_taxes_data[] = array('name' => 'SGST', 'percent' => number_format($item->igst/2, 2, '.', ''));
+					$items_taxes_data[] = array('name' => 'IGST', 'percent' => $item->igst);
+					// save tax value
+
+					$items_taxes_data1 = (count($items_taxes_data) > 0) ? $items_taxes_data : $this->Item->tax_factory($item_data['item_id']);
+
+					$this->Item_taxes->save($items_taxes_data1, $item_data['item_id']);
+
+					// AUTOMATED BARCODING
+					$add_item_id =str_pad($item_data['item_id'], 6, "0" ,STR_PAD_LEFT);
+					$save_item = array('item_number' => $item->barcode.$add_item_id);
+
+					// update the item in the database in order to save the barcode field
+					$this->Item->update_row(array('item_id'=> $item_data['item_id']),'items',$save_item);
+
+					$this->Item->update_row(array('id'=>$item->id),'sheet_uploads_data',array('status'=>'new_stock'));
+
+					$processed_data = array(
+										'parent_id' => $parent_id,
+										'item_id' => $item_data['item_id'],
+										'barcode' => $item->barcode.$add_item_id,
+										'name' => $item->name,
+										'category' => $item->category,
+										'subcategory' => $item->subcategory,
+										'brand' =>	$item->brand,
+										'price' => $item->price,
+										'color' => $item->color,
+										'size' => $item->size,
+										'quantity' => $item->location_qty
+										);
+					$this->db->insert('sheet_processed_data',$processed_data);
+					// quantities & inventory Info
+					$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
+					$emp_info = $this->Employee->get_info($employee_id);
+					$comment ='Qty CSV Imported';
+
+					// array to store information if location got a quantity otherwise 0 qty will inserted
+					$allowed_locations = $this->Stock_location->get_allowed_locations();
+
+					foreach($allowed_locations as $location_id => $location_name)
+					{
+						if($location_id == $item->location_id){
+							$item_quantity_data = array(
+								'item_id' => $item_data['item_id'],
+								'location_id' => $location_id,
+								'quantity' => $item->location_qty
+							);
+							$quantity = $item->location_qty;
+						}else{
+							$item_quantity_data = array(
+								'item_id' => $item_data['item_id'],
+								'location_id' => $location_id,
+								'quantity' => 0,
+							);
+							$quantity = 0;
+						}
+						
+						$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+						
+						$excel_data = array(
+							'trans_items' => $item_data['item_id'],
+							'trans_user' => $employee_id,
+							'trans_comment' => $comment,
+							'trans_location' => $item->location_id,
+							'trans_inventory' => $quantity
+						);
+
+						$this->Inventory->insert($excel_data);
+					}
+				}
+			}
+		}
+		$this->Item->update_row(array('id'=>$parent_id),'sheet_uploads',array('status'=>'approved','updated_at'=>date('Y-m-d H:i:s')));
+
+		// $this->db->where('id',$parent_id);
+		// $this->db->update('sheet_uploads',array('status'=>'approved','updated_at'=>date('Y-m-d H:i:s')));
+	}
+	// public function do_excel_import() #excel-import
+	// {
+	// 	if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
+	// 	{
+	// 		echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
+	// 		//xyz
+	// 	}
+	// 	else
+	// 	{
+	// 		if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
+	// 		{
+	// 			// Skip the first row as it's the table description
+	// 			fgetcsv($handle);
+	// 			$i = 1;
+
+	// 			$failCodes = array();
+	// 			$stock_up_items = array();
+	// 			$new_sheet_items = array();
+
+	// 			while(($data = fgetcsv($handle)) !== FALSE)
+	// 			{
+	// 				// XSS file data sanity check
+	// 				$data = $this->xss_clean($data);
+
+	// 				$discounts = array(
+	// 					'retail' => $data[9] == NULL ? '0.00' : number_format($data[9], 2, '.', ''),
+	// 					'wholesale' => $data[10] == NULL ? '0.00' : number_format($data[10], 2, '.', ''),
+	// 					'franchise' => $data[11] == NULL ? '0.00' : number_format($data[11], 2, '.', ''),
+	// 					'ys' => $data[12] == NULL ? '0.00' : number_format($data[12], 2, '.', ''),
+	// 				);
+
+	// 				$fixed_prices = array(
+	// 					'retail' => $data[13] == NULL ? '0.00' : number_format($data[13], 2, '.', ''),
+	// 					'wholesale' => $data[14] == NULL ? '0.00' : number_format($data[14], 2, '.', ''),
+	// 					'franchise' => $data[15] == NULL ? '0.00' : number_format($data[15], 2, '.', ''),
+	// 					'ys' => $data[16] == NULL ? '0.00' : number_format($data[16], 2, '.', ''),
+	// 				);
+	// 				// if($data[17]!="" ){
+	// 				// 	$expiry_date= date('Y-m-d',strtotime($data[17]));
+	// 				// }else{
+	// 				// 	$expiry_date="";
+	// 				// }
+					
+	// 				$expiry_date = $data[17]!="" ? date('Y-m-d',strtotime($data[17])) : "";
+	// 				/* haven't touched this so old templates will work, or so I guess... */
+	// 				if(sizeof($data) >= 24)
+	// 				{
+	// 					$item_data = array(
+	// 						'name'					=> strtoupper(trim($data[0])),
+	// 						'category'			=> strtoupper(trim($data[2])),
+	// 						'subcategory'		=> strtoupper(trim($data[3])),
+	// 						'brand'				  => strtoupper(trim($data[4])),
+	// 						'discounts'			=> json_encode($discounts),	// Discounts (JSON)
+	// 						'cost_price'		=> json_encode($fixed_prices), // Fixed Prices (JSON)
+	// 						'unit_price'		=> $data[5],
+	// 						'reorder_level'	=> $data[24],
+	// 						'description'		=> $data[23],
+	// 						// 'supplier_id'			=> $this->Supplier->exists($data[3]) ? $data[3] : NULL,
+	// 						// 'allow_alt_description'	=> $data[12] != '' ? '1' : '0',
+	// 						// 'is_serialized'			=> $data[13] != '' ? '1' : '0',
+	// 						'custom1'				=> ($data[1] == NULL) ? $this->Item->hsn_factory(strtoupper(trim($data[3]))) : $data[1], // HSN Code
+	// 						'custom2'				=> strtoupper(trim($data[22])), // Size
+	// 						'custom3'				=> strtoupper(trim($data[21])), // Color
+	// 						'custom4'				=> strtoupper(trim($data[20])),	// Model
+	// 						'custom5'				=> $expiry_date, // Expiry Date
+	// 						 'custom6'				=> strtoupper(trim($data[18])),	// Stock Edition
+	// 						 'column1'				=> $data[27],
+	// 						 'column2'				=> $data[28],
+	// 						 'column3'				=> $data[29],
+	// 						 'column4'				=> $data[30],
+	// 						 'column5'				=> $data[31],
+	// 						 'column6'				=> $data[32],
+	// 						 'column7'				=> $data[33],
+	// 						 'column8'				=> $data[34],
+	// 						 'column9'				=> $data[35],
+	// 						 'column10'				=> $data[36],
+							
+	// 					);
+	// 				}
+
+	// 				$redundancy_count = $this->get_redundant_item($item_data, "count");
+	// 				$redundant_item = $this->get_redundant_item($item_data, "get");
+
+	// 				if($redundancy_count == 1)
+	// 				{
+	// 					$item_id = $redundant_item[0]['item_id'];
+	// 					$location_id = $data[25];
+
+	// 					$new_quantity = $this->Item_quantity->get_item_quantity($item_id, $location_id)->quantity;
+	// 					$new_quantity += $data[26];
+
+	// 					$location_detail = array(
+	// 						'item_id' => $item_id,
+	// 						'location_id' => $location_id,
+	// 						'quantity' => $new_quantity
+	// 					);
+
+	// 					if($this->Item_quantity->save($location_detail, $item_id, $location_id))
+	// 					{
+	// 						$inv_data = array(
+	// 							'trans_date' => date('Y-m-d H:i:s'),
+	// 							'trans_items' => $item_id,
+	// 							'trans_user' => $this->session->userdata('person_id'),
+	// 							'trans_location' => $location_id,
+	// 							'trans_comment' => 'Qty CSV Imported',
+	// 							'trans_inventory' => $data[26]
+	// 						);
+
+	// 						$this->Inventory->insert($inv_data);
+	// 					}
+
+	// 					$su_data = $this->Item->get_info($redundant_item[0]['item_id']);
+	// 					$su_data_array = array( // 10 fields
+	// 						'item_id' =>  $su_data->item_id,
+	// 						'barcode' => $su_data->item_number,
+	// 						'name' => $su_data->name,
+	// 						'category' => $su_data->category,
+	// 						'subcategory' => $su_data->subcategory,
+	// 						'brand' => $su_data->brand,
+	// 						'size' => $su_data->custom2,
+	// 						'color' => $su_data->custom3,
+	// 						'quantity' => $data[26],
+	// 						'price' => ($su_data->unit_price < 1) ? json_decode($su_data->cost_price)->retail : $su_data->unit_price
+	// 					);
+
+	// 					$stock_up_items[] = $su_data_array;
+	// 				}
+	// 				else if($redundancy_count > 1) // If more than 1 count for an item, then create entry in error log
+	// 				{
+	// 					$rd_item_data = $this->get_redundant_item($item_data, "get");
+	// 					$error_data_array = array(
+	// 						'item_id' => $rd_item_data[0]['item_id'],
+	// 						'item_barcode' => $rd_item_data[0]['item_number'],
+	// 						'item_name' => $rd_item_data[0]['name'],
+	// 						'redundancy_count' => $redundancy_count
+	// 					);
+	// 					$data = array(
+	// 						'error_data' => json_encode($error_data_array),
+	// 						'time' => date('Y-m-d H:i:s')
+	// 					);
+	// 					$this->db->insert('redundancy', $data);
+	// 				}
+	// 				else
+	// 				{
+	// 					if($this->Item->save($item_data)) // Creates a new item in DB
+	// 					{
+	// 						$items_taxes_data = NULL;
+	// 						//tax 1 (CGST)
+	// 						if(is_numeric($data[6]))
+	// 						{
+	// 							$items_taxes_data[] = array('name' => 'CGST', 'percent' => $data[6] );
+	// 						}
+
+	// 						//tax 2 (SGST)
+	// 						if(is_numeric($data[7]))
+	// 						{
+	// 							$items_taxes_data[] = array('name' => 'SGST', 'percent' => $data[7] );
+	// 						}
+
+	// 						//tax 3 (IGST)
+	// 						if(is_numeric($data[8]))
+	// 						{
+	// 							$items_taxes_data[] = array('name' => 'IGST', 'percent' => $data[8] );
+	// 						}
+
+	// 						// save tax values
+	// 						$items_taxes_data1 = (count($items_taxes_data) > 0) ? $items_taxes_data : $this->Item->tax_factory($item_data['item_id']);
+
+	// 						$this->Item_taxes->save($items_taxes_data1, $item_data['item_id']);
+
+	// 						// AUTOMATED BARCODING
+	// 						$save_item = array('item_number' => $this->Item->barcode_factory($item_data['item_id']));
+
+	// 						// update the item in the database in order to save the barcode field
+	// 						$this->Item->update_row(array('item_id'=>$item_data['item_id']),'items',$save_item);
+
+	// 						// $this->db->where('item_id', $item_data['item_id']);
+	// 						// $this->db->update('items', $save_item);
+
+	// 						$new_sheet = $this->Item->get_info($item_data['item_id']);
+	// 						$new_sheet_array = array( // 10 fields
+	// 							'item_id' =>  $new_sheet->item_id,
+	// 							'barcode' => $new_sheet->item_number,
+	// 							'name' => $new_sheet->name,
+	// 							'category' => $new_sheet->category,
+	// 							'subcategory' => $new_sheet->subcategory,
+	// 							'brand' => $new_sheet->brand,
+	// 							'size' => $new_sheet->custom2,
+	// 							'color' => $new_sheet->custom3,
+	// 							'quantity' => $data[26],
+	// 							'price' => ($new_sheet->unit_price < 1) ? json_decode($new_sheet->cost_price)->retail : $new_sheet->unit_price
+	// 						);
+
+	// 						$new_sheet_items[] = $new_sheet_array;
+
+	// 						// quantities & inventory Info
+	// 						$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
+	// 						$emp_info = $this->Employee->get_info($employee_id);
+	// 						$comment ='Qty CSV Imported';
+
+	// 						$cols = count($data);
+
+	// 						// array to store information if location got a quantity
+	// 						$allowed_locations = $this->Stock_location->get_allowed_locations();
+	// 						for($col = 25; $col < $cols; $col = $col + 2)
+	// 						{
+	// 							$location_id = $data[$col];
+	// 							if(array_key_exists($location_id, $allowed_locations))
+	// 							{
+	// 								$item_quantity_data = array(
+	// 									'item_id' => $item_data['item_id'],
+	// 									'location_id' => $location_id,
+	// 									'quantity' => $data[$col + 1],
+	// 								);
+	// 								$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+
+	// 								$excel_data = array(
+	// 									'trans_items' => $item_data['item_id'],
+	// 									'trans_user' => $employee_id,
+	// 									'trans_comment' => $comment,
+	// 									'trans_location' => $data[$col],
+	// 									'trans_inventory' => $data[$col + 1]
+	// 								);
+
+	// 								$this->Inventory->insert($excel_data);
+	// 								unset($allowed_locations[$location_id]);
+	// 							}
+	// 						}
+
+	// 						/*
+	// 						* now iterate through the array and check for which location_id no entry into item_quantities was made yet
+	// 						* those get an entry with quantity as 0.
+	// 						* unfortunately a bit duplicate code from above...
+	// 						*/
+	// 						foreach($allowed_locations as $location_id => $location_name)
+	// 						{
+	// 							$item_quantity_data = array(
+	// 								'item_id' => $item_data['item_id'],
+	// 								'location_id' => $location_id,
+	// 								'quantity' => 0,
+	// 							);
+	// 							$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $data[$col]);
+
+	// 							$excel_data = array(
+	// 								'trans_items' => $item_data['item_id'],
+	// 								'trans_user' => $employee_id,
+	// 								'trans_comment' => $comment,
+	// 								'trans_location' => $location_id,
+	// 								'trans_inventory' => 0
+	// 							);
+
+	// 							$this->Inventory->insert($excel_data);
+	// 						}
+	// 					}
+	// 					else //insert or update item failure
+	// 					{
+	// 						$failCodes[] = $i;
+	// 					}
+	// 				}
+
+	// 				++$i;
+
+	// 			} // while loop ends here
+
+	// 			// Insert stock up items in db
+	// 			$upload_items_array = array(
+	// 				'stock_ups' => json_encode($stock_up_items),
+	// 				'new_items' => json_encode($new_sheet_items),
+	// 				'time' => date('Y-m-d H:i:s')
+	// 			);
+	// 			$this->db->insert('upload_items', $upload_items_array);
+
+	// 			if(count($failCodes) > 0)
+	// 			{
+	// 				$message = $this->lang->line('items_excel_import_partially_failed') . ' (' . count($failCodes) . '): ' . implode(', ', $failCodes);
+
+	// 				echo json_encode(array('success' => FALSE, 'message' => $message));
+	// 			}
+	// 			else
+	// 			{
+	// 				echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_excel_import_success')));
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
+	// 		}
+	// 	}
+	// }
 
 	public function excel_stock_up()
 	{
 		$this->load->view('items/form_excel_update', NULL);
-	}
-
-
-	public function Update_exp_date() #EXP date and Stock edition
-	{
-		
 	}
 
 	public function do_excel_stock_up() #excel-stockup
@@ -1569,6 +1857,13 @@ class Items extends Secure_Controller
 				}
 			}
 		}
+	}
+	public function verify_sheet_uploader(){
+		$id = $this->input->post('sheet_uploader_id');
+		$pwd =  $this->input->post('pwd');
+		$this->db->from('custom_fields');
+		$this->db->where(array('tag'=>'sheet_uploader','id'=>$id,'varchar_value'=>$pwd));
+		echo $this->db->count_all_results();
 	}
 }
 ?>

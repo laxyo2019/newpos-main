@@ -724,7 +724,14 @@ class Sales extends Secure_Controller
 		}
 		else
 		{
-			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, PRICE_MODE_STANDARD))
+			//update Discount according to dynamic pricing--
+			$offer_status=0;
+			if($offer_discount = $this->check_offer_dynamic_pricing($item_id_or_number_or_item_kit_or_receipt)){
+				$discount = $offer_discount;
+				$offer_status=1;
+			}
+			
+			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, PRICE_MODE_STANDARD,NULL,NULL,NULL,NULL,NULL,FALSE,NULL,$offer_status))
 			{
 				$data['error'] = $this->lang->line('sales_unable_to_add_item');
 			}
@@ -2399,6 +2406,85 @@ class Sales extends Secure_Controller
 
 		return (empty($disputed)) ? TRUE : json_encode($disputed);
 	}
+	//match pointer
+	public function get_pointer_match($item_id, $type, $check_array = NULL)
+	{
+		switch ($type) {
+			case "categories":
+					if(in_array($this->db->where('item_id', $item_id)->get('items')->row()->category, $check_array))
+					{
+						return True;
+					}
+				break;
+			case "subcategories":
+					if(in_array($this->db->where('item_id', $item_id)->get('items')->row()->subcategory, $check_array))
+					{
+						return True;
+					}
+				break;
+			case "brands":
+					if(in_array($this->db->where('item_id', $item_id)->get('items')->row()->brand, $check_array))
+					{
+						return True;
+					}
+				break;
+				
+			default:
+				return False;
+		}
+	}
+
+	public function get_location_match(){
+		$person_id = $this->session->userdata('person_id');
+		$locations_group_ids = array();
+		$locations_groups = $this->db->select('id,locations')->get_where('offer_location_groups',array('deleted'=>0))->result();
+		foreach($locations_groups as $locations_group){
+			$locations_groups_array =  json_decode($locations_group->locations);
+			if(in_array($person_id,$locations_groups_array)){
+				$locations_group_ids[] = $locations_group->id;
+			}
+		}
+		return empty($locations_group_ids) ? FALSE : $locations_group_ids;
+		//echo "</pre>"; print_R($locations_group_ids); die;
+	}
+
+	public function check_offer_dynamic_pricing($item_id=55){
+
+		if($locations_group_ids=$this->get_location_match()){
+			$Offer_status=0;
+
+			//-- if offer is applicable for login person_id
+			$this->db->select();
+			$this->db->where_in('location_group_id',$locations_group_ids);
+			$dynamic_offers = $this->db->get_where('dynamic_prices',array('status'=>1,'end_time>'=>date('Y-m-d H:i:s',time())))->result();
+
+			$item_info = $this->Item->get_info($item_id);
+			$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
+
+			foreach($dynamic_offers as $dynamic_offer){ //loop to opstimize best offer
+
+				//get applicable pointers IDs acc to location
+				$pointers_group_id = $dynamic_offer->pointer_group_id; 	
+
+				$pointer_info = $this->db->select()->where('id',$pointers_group_id)->get('offer_pointer_groups')->row();
+
+				$pointer_array = json_decode($pointer_info->bundle); 
+
+				//get all name (category/subcategory/brand) as string
+				$types = $this->db->select('GROUP_CONCAT(name) as name')->where_in('id',$pointer_array->entities)->get('master_'.$pointer_array->type)->row();
+				$pointer_matched = $this->get_pointer_match($item_id, $pointer_array->type, explode(',',$types->name));
+
+				if($pointer_matched){
+					$final_discount = $final_discount<$dynamic_offer->discount ? $dynamic_offer->discount : $final_discount;
+					//Update discount if older discount is less
+					$Offer_status =1 ;
+				}
+			}
+
+			return $Offer_status==1 ? $final_discount : FALSE; 
+		}
+		
+	}	
 
 }
 

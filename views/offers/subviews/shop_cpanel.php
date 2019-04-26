@@ -1,100 +1,69 @@
-<?php
- $active_cashiers=0;
-foreach($cashiers as $row){
-   
-    if($row->status == 'checked')
-    {
-        $active_cashiers++;
-    }
-    
-}
-?>
 <style>
-    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
-    .toggle.ios .toggle-handle { border-radius: 20px; }
+.rotate_180{
+    transform: rotate(180deg);
+}
 </style>
 <div class="row">
-
-<?php if($cashiers){ ?>
-    <div class="col-sm-4">
+<div class="col-sm-4">
          <div  class='list-group-item disabled' style='background-color: #132639;color:#fff;font-size:15px;'>
             <span class='glyphicon glyphicon-user' style='color: white;margin-right:10px;'></span>
             Cashiers 
-                <span class="pull-right"> 
-                     <span id="active_cashiers_count">
-                     <?php echo $active_cashiers;?></span>
-                     <?php echo '/ '.count($cashiers);?>
-                </span>
          </div>
-
+<?php if($cashiers){ ?>
        <?php foreach($cashiers as $row): ?>
         <div class="panel-group">
         <div class="panel panel-default">
             <div class="panel-heading">
             <h4 class="panel-title">
-                <span id="cashier_title_<?php echo $row->id;?>" class="<?php
-                    if($row->status != ""){
-                        echo "text-success";
-                    }?> ">
+                <span id="cashier_title_<?php echo $row->id;?>" class="">
                      <?php echo $row->name ?>
                 </span>
-                <a data-toggle="collapse" href="#collapse_<?php echo $row->id ?>" class="glyphicon glyphicon-edit pull-right"></a> 
+                <a data-toggle="collapse" href="#collapse_<?php echo $row->id ?>" class="fa fa-arrow-down pull-right arrow"></a> 
             </h4>
             </div>
          <div id="collapse_<?php echo $row->id ?>" class="panel-collapse collapse">
             <ul class="list-group">
                 <li class="list-group-item col-sm-8">
                 <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" 
-                        value="<?php echo $row->name;?>"
+                    <label for="name">Name : </label>
+                    <!-- <input type="text" 
+                        value="<?php //echo $row->name;?>"
                         class="" 
-                        id="cashier_name_<?php echo $row->id;?>" 
+                        id="cashier_name_<?php //echo $row->id;?>" 
                         placeholder="Enter name"  
                         name="name" 
-                        onblur="update_cashier_data(<?php echo $row->id;?>, 'name');"
-                    >
-                </div>
-                </li>
-                <li class="list-group-item col-sm-4">
-                <img class="sw_loading" src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" style="display:none;" height="30" width="30"/> 
-                 <div class="form-group cashier_switch">
-                    <input value="<?php echo $row->id ?>" type="hidden" id="cashier_id">
-                    <input type="checkbox" 
-                        class="cashier_toggle" 
-                        <?php echo $row->status ?> 
-                        data-toggle="toggle" 
-                        data-onstyle="success" 
-                        data-offstyle="danger" 
-                        data-style="ios" 
-                        data-size="mini" />
+                        onblur="update_cashier_data(<?php //echo $row->id;?>, 'name');"
+                    > -->
+                    <?php echo $row->name;?>
                 </div>
                 </li>
                 <div class="clearfix"></div>
                 <li class="list-group-item">
                     <div class="form-group">
                     <label for="pwd">Password:</label>
-                    <input type="text" 
-                        value="<?php echo $row->webkey;?>" 
+                    <!-- <input type="text" 
+                        value="<?php //echo $row->webkey;?>" 
                         class="" 
-                        id="cashier_webkey_<?php echo $row->id;?>" 
+                        id="cashier_webkey_<?php //echo $row->id;?>" 
                         placeholder="Enter password" 
                         name="webkey" 
-                        onblur="update_cashier_data(<?php echo $row->id;?>,'webkey');"
-                    >
+                        onblur="update_cashier_data(<?php //echo $row->id;?>,'webkey');"
+                    > -->
+                    <?php echo $row->webkey;?>
                     </div>
                 </li>
                 <li class="list-group-item">
                     <div class="form-group">
                     <label for="phone">Contact Number:</label>
-                    <input type="text" 
-                        value="<?php echo $row->contact;?>" 
+                    <!-- <input type="text" 
+                        value="<?php //echo $row->contact;?>" 
                         class="" 
                         name="contact" 
-                        id="cashier_contact_<?php echo $row->id;?>" 
+                        id="cashier_contact_<?php //echo $row->id;?>" 
                         placeholder="Enter Contct number" 
                         name="contact" 
-                        onblur="update_cashier_data(<?php echo $row->id;?>,'contact');">
+                        onblur="update_cashier_data(<?php //echo $row->id;?>,'contact');"> -->
+                    <?php echo $row->contact;?>
                     </div>
                 </li>
             </ul>
@@ -103,6 +72,7 @@ foreach($cashiers as $row){
         </div>
         </div>
         <?php endforeach; ?>
+    <?php } ?>
     </div>
     <div class="col-sm-7 pull-right">
        
@@ -144,18 +114,33 @@ foreach($cashiers as $row){
             }
         ?>
     </div>
-<?php } ?>
+
 </div>
 <br><br>
-
-
 
 <script>
    CKEDITOR.replace( 'tnc' );
     CKEDITOR.replace( 'address' );
 </script>
 <script>
-
+function delete_cashier(cashier_id){
+    var result = confirm("Are you sure to delete the Cashier details?");
+      if (result) {
+        var location_id = $('#location_id').val();
+        $.post("<?php  echo site_url('offers/delete_cashier')?>",{cashier_id:cashier_id, location_id:location_id},function(data){
+            $.ajax({ 
+                url: "<?php echo site_url('offers/get_cashiers')?>",
+                data: {loc_owner:location_id},
+                success: function (data) {
+                    $('#shop_cpanel').html(data); 
+                },
+                error: function (data) {
+                    console.log('An error occurred.');
+                },
+            });
+        });
+      }
+}
 function save_changes(type){
 
     var location_id = $('#location_id').val();
@@ -177,28 +162,6 @@ function save_changes(type){
             },
         });
     }
-    $('.cashier_toggle').bootstrapToggle();
-    $('.cashier_toggle').on('change', function(){
-      $('.cashier_switch').hide();
-      $('.sw_loading').show();
-      var id = $(this).parent().parent().find('#cashier_id').val();
-      console.log(id);
-     var status = $(this).prop('checked');
-     var count= parseInt($('#active_cashiers_count').text());
-      $.post('<?php echo site_url("offers/cashier_toggle"); ?>', {'id': id, 'status': status}, function(data) {
-        console.log(data);
-        $('.cashier_switch').show();
-        $('.sw_loading').hide();
-        if(status==""){
-             $('#cashier_title_'+id).removeClass("text-success");
-             $('#active_cashiers_count').text(count-1);
-         } else {
-            $('#cashier_title_'+id).addClass("text-success");
-            $('#active_cashiers_count').text(count+1);
-         }
-      });
-      
-    });
    
     function update_cashier_data(id,name){
         var data = $('#cashier_'+name+"_" + id).val();
@@ -206,6 +169,10 @@ function save_changes(type){
             $.notify({ message: data });
         });
     }
-
+$(document).ready(function(){
+    $('.arrow').on('click',function(){
+       $(this).toggleClass('rotate_180');
+    });
+})
 </script>
 

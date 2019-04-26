@@ -67,6 +67,8 @@
 		<script type="text/javascript" src="js/manage_tables.js"></script>
 		<script type="text/javascript" src="js/nominatim.autocomplete.js"></script>
 		<!-- end js template tags -->
+
+		
 	<?php else : ?>
 		<!--[if lte IE 8]>
 		<link rel="stylesheet" media="print" href="dist/print.css" type="text/css" />
@@ -108,8 +110,9 @@
 	<!-- DATATABLE CDN -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	<!----Sweet alert---->
+	 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> 
 	<!----Editer for control pannel---->
-<!---	<script src="https://cdn.ckeditor.com/4.11.2/basic/ckeditor.js"></script>--->
 	<script src="https://cdn.ckeditor.com/4.11.3/full/ckeditor.js"></script>
 </head>
 
@@ -151,6 +154,7 @@
 
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
+					<?php //echo '<pre>'; print_R($allowed_modules); die; ?>
 						<?php foreach($allowed_modules as $module): ?>
 							<li class="<?php echo $module->module_id == $this->uri->segment(1) ? 'active' : ''; ?>">
 								<a href="<?php echo site_url("$module->module_id"); ?>" title="<?php echo $this->lang->line("module_" . $module->module_id); ?>" class="menu-icon">
@@ -163,6 +167,6 @@
 				</div>
 			</div>
 		</div>
-		<?php // echo "<pre>";print_R($this->session->userdata()); echo "</pre>"; ?>
+		<?php  //echo "<pre>";print_R($this->session->userdata()); echo "</pre>"; ?>
 		<div class="container">
 			<div class="row">

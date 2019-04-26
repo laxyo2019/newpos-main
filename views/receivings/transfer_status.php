@@ -1,3 +1,9 @@
+<?php
+  $pending_transfers = $this->db->where('completed', 0)
+  ->order_by('receiving_id', 'desc')
+  ->get('receivings')
+  ->result_array();
+?>
 <?php foreach($pending_transfers as $row): ?>
 <div class="panel-group">
   <div class="panel panel-default">

@@ -757,5 +757,15 @@ class Receivings extends Secure_Controller
 
 		$this->_reload();
 	}
+
+	public function view_transfer_manager(){
+		$data=array();
+		if($this->Receiving->get_transfers($this->session->userdata('person_id'), 'count') > 0)
+		{
+			$data['pending_transfers'] = TRUE;
+		}
+		
+		$this->load->view("receivings/transfer_manager",$data);
+	}
 }
 ?>

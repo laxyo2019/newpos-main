@@ -362,11 +362,21 @@ class Sale_lib
 		$payments = $this->get_payments();
 		if(isset($payments[$payment_id]))
 		{
+			if($this->CI->session->userdata('sales_mode')=='sale'){
+				if($payment_amount < 0){
+						return false;
+				}
+			}
 			//payment_method already exists, add to payment_amount
 			$payments[$payment_id]['payment_amount'] = bcadd($payments[$payment_id]['payment_amount'], $payment_amount);
 		}
 		else
 		{
+			if($this->CI->session->userdata('sales_mode')=='sale'){
+				if($payment_amount < 0){
+						return false;
+				}
+			}
 			//add to existing array
 			$payment = array($payment_id => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount));
 
@@ -746,7 +756,7 @@ class Sale_lib
 		$this->CI->session->unset_userdata('sales_rewards_remainder');
 	}
 
-	public function add_item(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL )
+	public function add_item(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL, $offer_status=0 )
 	{
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
 		$invoice_mode = $this->CI->session->userdata('billtype');
@@ -778,36 +788,15 @@ class Sale_lib
 		if($price_mode == PRICE_MODE_STANDARD)
 		{
 			$cost_price = $item_info->cost_price;
-			$sp_data = $this->CI->Pricing->check_active_offers($item_id);
-			$sp_status = ($sp_data == "NO_MATCH" || empty($sp_data) || $sales_mode == 'return') ? FALSE : TRUE;
-
-			if($sp_status && $unit_price != 0.00) //discounted_item
-			{
-				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : $unit_price;
-				$discount = $sp_data['discount'];
-			}
-			else if($sp_status && $unit_price == 0.00) // fixed price
-			{
-				$price = ($sp_data['plan'] == "single") ? $sp_data['price'] : json_decode($item_info->cost_price)->$billtype;
-
-				if($this->CI->session->userdata('person_id') == 8138)
-				{
-					$discount = 0.00;
-				}
-				else
-				{
-					$discount = $sp_data['discount'];
-				}
-			}
-			else // no dynamic price offer
-			{
-				if($unit_price == 0.00){ //FIXED PRICE ITEM
+				if($unit_price == 0.00 && $offer_status==0){ //FIXED PRICE ITEM
 					$price = json_decode($item_info->cost_price)->$billtype;
 					$discount = 0.00;
+				}else if($unit_price == 0.00 && $offer_status==1){
+					$price = json_decode($item_info->cost_price)->$billtype;
 				}else{ //DISCOUNTED ITEM
 					$price = $unit_price;
 				}
-			}
+			
 		}
 		elseif($price_mode == PRICE_MODE_1_RUPEE)
 		{
@@ -1203,9 +1192,22 @@ class Sale_lib
 				// Note when entered the "discounted_total" is expected to be entered without a discount
 				$quantity = $this->get_quantity_sold($discounted_total, $price);
 			}
+		//	print_r($line['quantity']);die;
+			if( $this->CI->session->userdata('sales_mode')=='return'){
+				if($quantity>$line['quantity'] && $quantity<0){
+					$line['quantity'] = $quantity;
+				}else{
+					return false;
+				}
+			}else{
+				if($quantity<0){
+					return false;
+				}else{
+					$line['quantity'] = $quantity;
+				}
+			}
 			$line['description'] = $description;
 			$line['serialnumber'] = $serialnumber;
-			$line['quantity'] = $quantity;
 			$line['discount'] = $discount;
 			$line['price'] = $price;
 			$line['total'] = $this->get_item_total($quantity, $price, $discount);

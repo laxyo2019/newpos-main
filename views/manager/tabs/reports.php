@@ -1,5 +1,9 @@
-<hr>
+<?php $this->load->view("partial/header"); ?>
+<?php if($this->Item->check_auth(array('superadmin', 'admin'))){ ?>
 <div class="row">
+  <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
+      <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> Reports 
+  </div>
   <div class="column">
     <div class="col-md-4">
     <div class="list-group">
@@ -12,6 +16,12 @@
 </div>
 </div>
 </div>
+<?php } else{ ?>
+  <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
+      <a style='color:#fff' href='<?php echo site_url('manager');?>'>Manager </a>>> Reports 
+  </div>
+<div class='text-danger'><h3 class='text-center'> Persmission Denied</h3></div>
+<?php } ?>
 
 
    

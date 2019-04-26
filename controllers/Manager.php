@@ -13,17 +13,13 @@ class Manager extends Secure_Controller
 
   public function index()
   {
-    $data['cashiers'] = $this->db->get('cashiers')->result_array();
-    foreach($this->Pricing->get_active_shops(array('dbf', 'shop', 'hub')) as $row)
-		{
-			$active_shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
-		}
-		$data['active_shops'] = $active_shops;
-    $data['stock_locations'] = $this->Stock_location->get_allowed_locations();
-    $data['mci_data'] = $this->Item->get_mci_data('all');
-    $this->load->view('manager/dashboard', $data);
+    $this->load->view('manager/dashboard');
   }
 
+  public function load_tab_view($page,$folder=''){
+    $url = "manager/tabs/".$folder.'/'.$page;
+    $this->load->view($url);
+  }
   public function get_valid_customers($password)
   {
     if(isset($password) && $password == 'mechtech5') {
@@ -1133,4 +1129,59 @@ class Manager extends Secure_Controller
     $this->load->view('manager/sublists/excel_processed', $data);
   }
 
+  //To fetch Uploaded Sheets acc to status(pending, approved or dscarded)
+  public function items_upload($status='not_processed'){
+    if($status=='not_processed'){
+
+      $this->db->select('sheet_uploads.*,custom_fields.title');
+      $this->db->join('custom_fields','sheet_uploads.sheet_uploader_id=custom_fields.id');
+      $data['sheets'] = $this->db->get('sheet_uploads')->result();
+
+      $data['sheetStatus']='not_processed';
+      $url = 'manager/sublists/inventory/items_upload_sheet';
+      $this->load->view($url, $data);
+
+    }else{
+
+      $this->db->select('sheet_uploads.*,custom_fields.title');
+      $this->db->join('custom_fields','sheet_uploads.sheet_uploader_id=custom_fields.id');
+      $data['sheets'] = $this->db->get_where('sheet_uploads',array('sheet_uploads.status'=>'approved'))->result();
+
+      $data['sheetStatus']='processed';
+      $url = 'manager/sublists/inventory/items_upload_sheet';
+      $this->load->view($url, $data);
+    }
+  }
+
+  //display uploaded sheet data
+  public function items_upload_data($sheet_id=1){
+    $this->db->select('sheet_uploads_data.*');
+    $this->db->from('sheet_uploads_data');
+    $this->db->select('sheet_uploads.name as sheet_name, sheet_uploads.status as sheet_status');
+    $this->db->join('sheet_uploads','sheet_uploads_data.parent_id = sheet_uploads.id');
+    $this->db->where('parent_id',$sheet_id); 
+    $data['sheets'] = $this->db->get()->result();
+    $this->load->view('manager/sublists/inventory/items_upload_data',$data);
+  }
+  public function items_processed_data($sheet_id=1){
+    $data['sheets'] = $this->db->select()->get_where('sheet_processed_data',array('parent_id'=>$sheet_id))->result();
+    $this->load->view('manager/sublists/inventory/items_processed_data',$data);
+  }
+    //users from custom field
+  public function verify_user(){
+
+    $pwd = $this->input->post('pwd');
+    $this->db->select();
+    if(empty($this->input->post('id'))){
+      $this->db->where(array('tag'=>'sheet_uploader_admin'));
+    }
+    $database_password =  $this->db->get('custom_fields')->row()->varchar_value;
+
+    if($database_password==$pwd){
+      echo true;
+    }
+    else{
+      echo 'Incorrect Password.';
+    }
+  }
 }

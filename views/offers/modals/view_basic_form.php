@@ -1,168 +1,147 @@
-<div class="row">
-  <span class="col-md-4">
-    <div class="form-group">
-      <?php echo form_dropdown('locations', $active_shops, '', array('class'=>'form-control locations','id'=>'locations')); ?>
-    </div>
-  </span>
-  <span class="col-md-1">
-    <button class="btn btn-info" id="submit">Submit</button>
-  </span>
-</div>
-<hr>
-<div class="row">
 
-  <div class="col-md-4">
-    <div class="form-group">
-      <div class='input-group date datetimepicker' id='datetimepicker1'>
-          <input type='text' class="form-control" id="start_time" placeholder="Start Time" />
-          <span class="input-group-addon">
-              <span class="glyphicon glyphicon-calendar"></span>
-          </span>
-      </div>
+
+<div class="row">
+<div class="col-sm-12">
+    <form id="submit_bundle" onsubmit="return false;">
+    <div class="form-group col-sm-12">
+        <label>Title : </label>
+        <input type="text" id="title" class="form-control" placeholder="Enter Title" required/>
     </div>
-    <div class="form-group">
+    <div class="form-group col-sm-12" >
+        <label>Locations Title : </label>
+        <select name="locations" class="form-control"  style="width:100%!important" required>
+        <option value=''>Select Location Group</option>
+        <?php foreach($locations as $location):?>
+            <option value="<?php echo $location->id;?>"><?php echo $location->title;?></option>
+        <?php endforeach; ?>
+        </select>
+    </div>
+    <div class=" col-sm-12" >
+         <p id="locations_name" ></p>
+    </div>
+    <div class="form-group col-sm-12" >
+        <label>Pointer Title : </label>
+        <select name="pointers" class="form-control"  style="width:100%!important" required>
+        <option value=''>Select Pointer Group</option>
+        <?php foreach($pointers as $pointer):?>
+            <option value="<?php echo $pointer->id;?>"><?php echo $pointer->title;?></option>
+        <?php endforeach; ?>
+        </select>
+    </div>
+    <div class=" col-sm-12" >
+         <p id="offers_name" ></p>
+    </div>
+    <div class="form-group col-sm-6">
+        <div class='input-group date datetimepicker' id='datetimepicker1'>
+            <input type='text' class="form-control" autocomplete="off" id="start_time" placeholder="Start Time" required/>
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+    <div class="form-group col-sm-6">
       <div class='input-group date datetimepicker' id='datetimepicker2'>
-          <input type='text' class="form-control" id="end_time" placeholder="End Time" />
+          <input type='text' class="form-control" autocomplete="off" id="end_time" placeholder="End Time" required/>
           <span class="input-group-addon">
               <span class="glyphicon glyphicon-calendar"></span>
           </span>
       </div>
     </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="form-group">
-
-      <button class='btn btn-info btn-sm modal-dlg' id="barcode_list" data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url($controller_name."/make_barcode_list"); ?>'
-        title='Quick Excel Stock Transfer' style="display:none">
-      Upload Barcodes
-      </button>
-
-      <input type="text" id="item_id" class="form-control pointer" placeholder="Insert Barcode" style="display:none" />
-      
-      <?php echo form_dropdown('category', $categories, '', array('class'=>'form-control pointer','id'=>'category', 'style'=>'display:none')); ?>
-
-      <?php echo form_dropdown('subcategory', $subcategories, '', array('class'=>'form-control pointer','id'=>'subcategory', 'style'=>'display:none')); ?>
-
-      <?php echo form_dropdown('brand', $brands, '', array('class'=>'form-control pointer', 'id'=>'brand', 'style'=>'display:none')); ?>
-
+    <div class="form-group col-sm-6">
+        <label>Discount : </label>
+      <input type="text" class="form-control" id="discount" placeholder="Temporary Discount Value" required/>
     </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="form-group">
-      <input type="number" class="form-control" id="price" placeholder="Temporary Price Value" style="display:none" />
-    </div>
-    <div class="form-group">
-      <input type="number" class="form-control" id="discount" placeholder="Temporary Discount Value" min="1" max="30"/>
-    </div>
-  </div>
-
+   <!-- <div class="form-group col-sm-2 pull-right">  
+        <input type="submit" id="submit" class="btn  btn-info form-control" value="Submit"/>
+    </div> -->
+    </form>
+    
 </div>
-
+</div>
 <script>
 	$(document).ready( function () {
+        //submit form to create offer
+        $('#submit_bundle').on('submit',function(e){
+           e.preventDefault();
+            var title = $('#title').val();
+            var locations = $('[name="locations"]').val();
+            var pointers = $('[name="pointers"]').val();
+            var start_time =  $('#start_time').val();
+            var end_time = $('#end_time').val();
+            var discount = $('#discount').val();
+            if(locations=="" || pointers=="" || title=="" || start_time==""|| end_time=="" || discount==""){
+                alert("Fill all details"); return false;
+            }
+           $.post('<?php echo site_url($controller_name."/save_basic"); ?>',{
+               title : title,
+               locations : locations,
+               pointers : pointers,
+               start_time : start_time,
+               end_time : end_time,
+               discount : discount
+               },
+               function(response){
 
-    $('#category').on('change', function(){
-      var selected_plan = $('#select_plan').val();
-      if(selected_plan = 'mixed')
-      {
-        var level1 = $(this).val();
-        // console.log(val);
-        if(level1){
-            $.post('<?php echo site_url("items/ajax_fetch_subcategories");?>', {'category' : level1}, function(data) {
-              $('#subcategory').html(data);
-          }); 
+                        setTimeout(function() {
+                            location.reload();
+                        }, 500);
+                });
+        });
+
+        // $('.datetimepicker').datetimepicker({
+        //     // format: 'dd.mm.yyyy',
+        //     // minView: 2,
+        //     // maxView: 4,    
+        //     autoclose: true
+        //     });
+
+
+    // set default dates
+    var start = new Date();
+    // set end date to max one year period:
+    var end = new Date(new Date().setYear(start.getFullYear()+1));
+
+    $('#start_time').datetimepicker({
+        startDate : start,
+        endDate   : end,
+        autoclose:true
+    // update "toDate" defaults whenever "fromDate" changes
+    }).on('changeDate', function(){
+        // set the "toDate" start to not be later than "fromDate" ends:
+        $('#end_time').datetimepicker('setStartDate', new Date($(this).val()));
+    }); 
+
+    $('#end_time').datetimepicker({
+        startDate : start,
+        endDate   : end,
+        autoclose:true
+    // update "fromDate" defaults whenever "toDate" changes
+    }).on('changeDate', function(){
+        // set the "fromDate" end to not be later than "toDate" starts:
+        $('#start_time').datetimepicker('setEndDate', new Date($(this).val()));
+    });
+
+    $('[name="pointers"]').on('change',function(){
+        id = $('[name="pointers"]').val();
+        if(id!=""){
+            $.post('<?php echo site_url();?>offers/get_pointer_group/'+id,{},function(data){
+                $('#offers_name').css({'border': 'solid 2px #dce4ec','overflow':'auto','padding': '10px','color': '#18bc9c'}).text(data);
+             });
         }else{
-            $('#subcategory').html('<option value="">Loading...</option>');
+            $('#offers_name').css({'border': '','padding': '','color': ''}).text('');
         }
-      }
     });
 
-    $('.datetimepicker').datetimepicker({
-      // format: 'dd.mm.yyyy',
-      // minView: 2,
-      // maxView: 4,    
-      autoclose: true
-    });
-  
-    var selected_plan = $('#select_plan').val();
-    switch (selected_plan) { 
-      case 'single': 
-        $('#item_id, #price').toggle(["single"].includes(selected_plan));
-        break;
-      case 'category':
-        $('#category').toggle(["category"].includes(selected_plan));
-        break;
-      case 'subcategory':  
-        $('#subcategory').toggle(["subcategory"].includes(selected_plan));
-        break;		
-      case 'brand':  
-        $('#brand').toggle(["brand"].includes(selected_plan));
-        break;
-      case 'mixed':
-        $('#category, #subcategory, #brand').toggle(["mixed"].includes(selected_plan));
-        break;
-      case 'mixed2':
-        $('#category, #brand').toggle(["mixed2"].includes(selected_plan));
-        break;
-      default:
-        alert('Please select a plan first');
-    }
-
-    $('#submit').on('click', function(){
-      var locations = $('.locations').val();
-      var plan = $('#select_plan').val();
-      var pointer = "";
-      if(plan == 'mixed')
-      {
-        pointer = [$('#category').val(), $('#subcategory').val(), $('#brand').val()];
-      }else if(plan == 'mixed2'){
-        pointer = [$('#category').val(), $('#brand').val()];
-      }else{
-        pointer = $('.pointer:visible').val();
-      }
-      var price = $('#price').val();
-      var discount = $('#discount').val();
-      var start_time = $('#start_time').val();
-      var end_time = $('#end_time').val();
-
-      console.log(pointer);
-      $.post('<?php echo site_url($controller_name."/save_basic"); ?>', 
-      {
-        'plan':plan,
-        'locations':locations,
-        'pointer':pointer,
-        'price':price,
-        'discount':discount,
-        'start_time':start_time,
-        'end_time':end_time
-      },
-      function(data) {
-        var obj = JSON.parse(data);
-        if(obj.type == "success" || obj.type == "error"){
-          alert(obj.message);
-        }else if(obj.type == "update"){
-          if(confirm('Do you wish to overwrite an existing offer?'))
-          {
-            $.post('<?php echo site_url($controller_name."/update_basic"); ?>', 
-            {
-              // 'plan':plan,
-              // 'locations':locations,
-              // 'pointer':pointer,
-              'id': obj.offer_id,
-              'price':price,
-              'discount':discount,
-              'start_time':start_time,
-              'end_time':end_time
-            },
-            function(data) {
-              alert(data);
-            });
-          }
+    $('[name="locations"]').on('change',function(){
+        id = $('[name="locations"]').val();
+        if(id!=""){
+            $.post('<?php echo site_url();?>offers/get_loc_group/'+id,{},function(data){
+                $('#locations_name').css({'border': 'solid 2px #dce4ec','overflow':'auto','padding': '10px','color': '#18bc9c'}).text(data);
+             });
+        }else{
+            $('#locations_name').css({'border': '','padding': '','color': ''}).text('');
         }
-			});
     });
-
-	});
+});
+    
 </script>

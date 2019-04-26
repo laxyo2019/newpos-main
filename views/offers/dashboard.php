@@ -4,7 +4,7 @@
 <div class="tab-content">
 <div class="tab-pane fade in active" id="mh_count">
 <div class="row">
-	<div class="col-md-4">
+	<div class="col-sm-3">
 		<div class="column">
 			<center>
 			<div class="card" style="background-image: linear-gradient(to bottom,#01e6e647, #00c3cc); min-height:200px;">
@@ -16,7 +16,7 @@
 			</center>
 		</div>
 	</div>
-	<div class="col-md-4 min_height">
+	<div class="col-sm-3 min_height">
 		<div class="column">
 			<center>       
 			<div class="card" style="background: linear-gradient(to bottom,#ccb3006e, #ffcc66);min-height:200px;">
@@ -28,7 +28,7 @@
 			</center>
 		</div>
 	</div>
-	<div class="col-md-4 min_height">
+	<div class="col-sm-3 min_height">
 		<div class="column">
 			<center>       
 			<div class="card" style="background-image: linear-gradient(to bottom,#efb1ab, #f77b7b);background-color: #f77b7b;min-height:200px;">
@@ -40,8 +40,7 @@
 			</center>
 		</div>
 	</div>
-	<div class="clearfix" style="margin-top:20px;"></div>
-	<div class="col-md-4" style="margin-top:20px;">
+	<div class="col-sm-3" >
 		<div class="column">
 			<center>       
 			<div class="card" style="background-image: linear-gradient(to bottom, #c7a9ef , #bf38d8);min-height:200px;">
@@ -52,7 +51,8 @@
 			</div>
 			</center>
 		</div>
-	</div>	
+	</div>
+	<div class="clearfix" style="margin-top:20px;"></div>	
 </div>
 </div>
 </div>

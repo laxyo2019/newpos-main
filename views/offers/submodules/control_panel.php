@@ -1,39 +1,58 @@
 <?php $this->load->view("partial/header"); ?>
 <div class="row">
-
-    <span class="col-md-4 col-md-offset-8">
-      <div class="form-group">
-        <select class="form-control" id="location_id" onchange="cashier(this);">
-        <option value="" >Select Location</option>
-          <?php foreach($locations as $key=>$value): ?>
-            <option value="<?php echo $key; ?>" ><?php echo strtoupper($value); ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-    </span>
-    <div class="clearfix"></div>
+<div class="col-md-12">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs" data-tabs="tabs">
+            <li class="active" role="presentation">
+                <a data-toggle="tab" href="javascript:void(0)" onclick="load_cashier();" title="Cashiers">Cashiers</a>
+            </li>
+            <li class="" role="presentation">
+                <a data-toggle="tab" href="javascript:void(0)" onclick="load_cashier_details();" title="Cashiers">Cashiers Detail</a>
+            </li>
+            <li role="presentation" id="offer_bundle_tab">
+                <a data-toggle="tab"  href="javascript:void(0)" onclick="load_offer_bundle();" title="Offer Bundles">Offer Bundles</a>
+            </li>
+            <li role="presentation "  id="location_tab">
+                <a data-toggle="tab" href="javascript:void(0)" onclick="load_loc_group()" title="Locations groups">Locations groups</a>
+            </li>
+        </ul>
+    </div>
     <hr>
-  <div id="shop_cpanel"></div>  
+    <div class="clearfix"> </div>
+    <div class="content" style="margin-top:30px;">
+    </div>
 </div>
-<script>
-  function cashier(e){
-    x = $(e).val();
-    $("#shop_id").val(x);
-    console.log(x);
-    if(x!=""){
-      $.ajax({ 
-            url: "<?php echo site_url('offers/get_cashiers')?>",
-            data: {loc_owner:x},
-            success: function (data) {
-                $('#shop_cpanel').html(data); 
-            },
-            error: function (data) {
-                console.log('An error occurred.');
-            },
-        });
-    }else{
-      $('#shop_cpanel').html(""); 
-    }
-  }
-</script>
+</div>
 <?php $this->load->view("partial/footer"); ?>
+<script>
+
+function load_cashier(){
+  $.post('<?php echo base_url();?>offers/load_cashier',{},function(data){
+    $('.content').html(data);
+  });
+}
+
+function load_loc_group(){
+  $.post('<?php echo base_url();?>offers/load_loc_group',{},function(data){
+    $('.content').html(data);
+  });
+}
+
+function load_offer_bundle(){
+  $.post('<?php echo base_url();?>offers/load_offer_bundle',{},function(data){
+    $('.content').html(data);
+  });
+}
+
+function load_cashier_details(){
+  $.post('<?php echo base_url();?>offers/load_cashier_details',{},function(data){
+    $('.content').html(data);
+  });
+}
+
+$(document).ready( function () {
+  load_cashier();
+   // $('#offers').load('<?php //echo site_url('offers/load_offer_bundle');?>',function(data){});   
+    dialog_support.init("button.modal-dlg-wide, a.modal-dlg-wide");
+})
+</script>

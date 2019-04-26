@@ -1,5 +1,13 @@
-<hr>
+<?php
+ $stock_locations = $this->Stock_location->get_allowed_locations();
+ $mci_data = $this->Item->get_mci_data('all');
+?>
+<?php $this->load->view("partial/header"); ?>
+
 <div class="row">
+  <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
+      <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> Count Actions 
+  </div>
   <span class="col-md-6">
     <div class="form-group">
       <select class="form-control"  id="count_locations">

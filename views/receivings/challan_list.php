@@ -1,4 +1,6 @@
-<div class="table_list">
+<?php
+$challans = $this->db->get('receivings')->result_array();
+?><div class="table_list">
   <table id="list" class="display">
     <thead>
       <tr>

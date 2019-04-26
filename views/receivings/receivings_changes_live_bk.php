@@ -1,8 +1,6 @@
 <?php $this->load->view("partial/header"); ?>
 
 <?php
-	$error_count = 0;
-	$total=0;
 if (isset($error))
 {
 	echo "<div class='alert alert-dismissible alert-danger'>".$error."</div>";
@@ -32,26 +30,23 @@ if (isset($msg))
 			Quick Transfer
 		</button>
 		
-		<!----<button id="transfer_status" class="btn btn-sm btn-default pull-left modal-dlg-wide", data-href='<?php // echo site_url($controller_name."/get_transfer_status"); ?>'
+		<button id="transfer_status" class="btn btn-sm btn-default pull-left modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_transfer_status"); ?>'
 		title='Pending Transfers'>
 			Pending Transfers
-		</button> -->
+		</button>
 
-		<!----<button id="challan_list" class="btn btn-sm btn-danger pull-right modal-dlg-wide", data-href='<?php //echo site_url($controller_name."/get_all_challans"); ?>'
+		<button id="challan_list" class="btn btn-sm btn-danger pull-right modal-dlg-wide", data-href='<?php echo site_url($controller_name."/get_all_challans"); ?>'
 		title='Challan List'>
 			Transfer Log
-		</button> -->
-
-		<a href='<?php echo site_url($controller_name."/view_transfer_manager");?>' id="transfer_manager" class="btn btn-sm btn-info pull-right" target="_blank"	title='Transfer Manager'>
-			Manage Transfer</a>
+		</button>
 
 		<?php
-			// if(!empty($pending_transfers)){ 
-			// 	if($pending_transfers){
-			// 	echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
-			// 	array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
-			// 	}
-			// } 
+			if(!empty($pending_transfers)){ 
+				if($pending_transfers){
+				echo anchor('receivings/stock_in', '<span class="btn btn-sm btn-info pull-right animated jello infinite">Stock In</span>',
+				array('class'=>'print_hide', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => 'Receive Items'));
+				}
+			} 
 		?>	
 	<br><br>
 
@@ -173,20 +168,14 @@ if (isset($msg))
 			}
 			else
 			{
-			
 				foreach(array_reverse($cart, TRUE) as $line=>$item)
-				{		
-						$total++;
-						$text_danger = 	$item['in_stock']>0 ? '' : "text-danger";
-						if($item['in_stock']<=0){
-							$error_count++;
-						}
+				{
 			?>
 					<?php echo form_open($controller_name."/edit_item/$line", array('class'=>'form-horizontal', 'id'=>'cart_'.$line)); ?>
 						<tr>
-							<td><?php echo anchor($controller_name."/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>',array('class'=>$text_danger));?></td>
-							<td class="<?php echo $text_danger; ?>"><?php echo $item['item_number'] ?></td>
-							<td style="align:center;" class="<?php echo $text_danger; ?>">
+							<td><?php echo anchor($controller_name."/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>');?></td>
+							<td><?php echo $item['item_number'] ?></td>
+							<td style="align:center;">
 								<?php echo $item['name']; ?><br /> <?php echo '[' . to_quantity_decimals($item['in_stock']) . ' in ' . $item['stock_name'] . ']'; ?>
 								<?php echo form_hidden('in_stock', $item['in_stock']); ?>
 								<?php echo form_hidden('location', $item['item_location']); ?>
@@ -202,7 +191,7 @@ if (isset($msg))
 							else
 							{
 							?>
-								<td class="<?php echo $text_danger; ?>">
+								<td>
 									<?php echo to_currency($item['price']); ?>
 									<?php echo form_hidden('price', to_currency_no_money($item['price'])); ?>
 								</td>
@@ -241,7 +230,7 @@ if (isset($msg))
 							<?php
 							}
 							?>
-							<td class="<?php echo $text_danger; ?>"><?php echo to_currency($item['price']*$item['quantity']*$item['receiving_quantity']-$item['price']*$item['quantity']*$item['receiving_quantity']*$item['discount']/100); ?></td> 
+							<td><?php echo to_currency($item['price']*$item['quantity']*$item['receiving_quantity']-$item['price']*$item['quantity']*$item['receiving_quantity']*$item['discount']/100); ?></td> 
 							<!-- <td><a href="javascript:$('#<?php //echo 'cart_'.$line ?>').submit();" title=<?php //echo $this->lang->line('receivings_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td> -->
 						</tr>
 						<tr>
@@ -485,19 +474,11 @@ $(document).ready(function()
 
     $("#finish_receiving_button").click(function()
     {
-			error = <?php echo $error_count;?>;
-			total = <?php echo $total; ?>;
-			if(error != 0){
-					alert( error +' out of '+total+' Stock is not available.');
-			}else{
-
-					<?php if(!empty($this->session->userdata('dispatcher_id'))){ ?> 
-					$('#finish_receiving_form').submit();
-					<?php }else{ ?>	
-						alert('Please select a Dispatcher');
-					<?php } ?>	
-
-			}	 
+			<?php if(!empty($this->session->userdata('dispatcher_id'))){ ?> 
+   			$('#finish_receiving_form').submit();
+			<?php }else{ ?>	
+				alert('Please select a Dispatcher');
+			<?php } ?>		 
     });
 
     $("#cancel_receiving_button").click(function()

@@ -1,6 +1,14 @@
-<hr>
+<?php $this->load->view("partial/header"); 
+
+$stock_locations = $this->Stock_location->get_allowed_locations();
+$mci_data = $this->Item->get_mci_data('all');
+?>
+
 <div class="row">
   <span class="col-md-12">
+  <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
+      <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> List Actions 
+  </div>
     <div class="form-group">
       <select class="form-control" id="location_id">
         <?php foreach($stock_locations as $key=>$value): ?>

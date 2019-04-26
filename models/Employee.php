@@ -486,10 +486,10 @@ class Employee extends Person
 		return $success;
 	}
 	public function get_cashiers($loc_owner){
-		$this->db->select('u.id, u.name, u.status, u.contact, u.webkey', false);
-		$this->db->from('cashiers2 as u');
+		$this->db->select('u.id, u.name, u.contact, u.webkey', false);
+		$this->db->from('cashiers as u');
 		$this->db->join('cashier_shops as c', 'u.id = c.cashier_id');
-		$this->db->where(array('c.person_id'=>$loc_owner));
+		$this->db->where(array('c.person_id'=>$loc_owner,'status'=>'checked'));
 		$query = $this->db->get();
 		return $query->result();
 	}

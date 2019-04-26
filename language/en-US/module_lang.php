@@ -41,3 +41,5 @@ $lang["module_manager"] = "Manager";
 $lang["module_manager_desc"] = "Implement Manager";  
 $lang["module_warehouse"] = "Warehouse";
 $lang["module_warehouse_desc"] = "Implement Warehouse";
+$lang["module_inventory2_desc"] = "Inventory";
+$lang["module_inventory2"] = "Inventory";
