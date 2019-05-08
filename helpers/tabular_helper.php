@@ -142,7 +142,8 @@ function get_sale_data_row1($sale)
 		'amount_due' => $sale->amount_due,
 		'amount_tendered' => $sale->amount_tendered,
 		'change_due' => $sale->change_due,
-		'payment_type' => $sale->payment_type
+		'payment_type' => $sale->payment_type,
+		'sale_type' => $sale->sale_type // added this column for monthly_report -MOhini
 	);
 
 	if($CI->config->item('invoice_enable'))

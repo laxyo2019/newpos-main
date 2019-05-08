@@ -1,3 +1,4 @@
+
 <div class="row">
 <div class="col-sm-12">
     <form id="submit_loc_group" onsubmit="return false;">
@@ -8,8 +9,8 @@
     <div class="form-group">
     <label>Select Locations : </label>
     <select class="form-control" multiple="multiple" id="location_group" required>
-      <?php  foreach($rows as $row):?>
-        <option value="<?php echo $row->person_id; ?>"><?php echo $row->username;?></option>
+      <?php  foreach($locations as $key=>$val):?>
+        <option value="<?php echo $key; ?>"><?php echo $val;?></option>
       <?php endforeach; ?>
     </select>
     </div>

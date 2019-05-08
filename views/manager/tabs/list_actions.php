@@ -17,7 +17,8 @@ $mci_data = $this->Item->get_mci_data('all');
       </select>
     </div>
    <!-- <button class="btn btn-sm btn-primary" id="allItems">All Items</button> -->
-    <a class="btn btn-sm btn-primary" id="excelExport" href='<?php echo site_url($controller_name."/list_all_items/4");?>'>All Items</a>
+  <!-- After Slash location_id must passed this will be done by jquery to fetch ID of selected location from dropdwon-->
+    <a class="btn btn-sm btn-primary" id="excelExport" href='<?php echo site_url($controller_name."/list_all_items/");?>'>All Items</a>
     <button class="btn btn-sm btn-warning" id="filterItems">Filter Items</button>
     <button class="btn btn-sm btn-default" id="stockupItems">Stockup Items</button>
     <button class="btn btn-sm btn-success" id="newItems">New Items</button>
@@ -89,6 +90,13 @@ $mci_data = $this->Item->get_mci_data('all');
 
 <script>
 	$(document).ready( function () {
+
+    location_id = $('#location_id').val();
+      url = '<?php echo site_url().$controller_name."/list_all_items/";?>'+location_id;
+      console.log(url);
+      $('#excelExport').attr('href',url);
+
+
     $('#category2').on('change',function(){
       var level1 = $(this).val();
       var wearables = ["MEN'S CLOTHING", "WOMEN'S CLOTHING", "KID'S CLOTHING", "MEN'S FOOTWEAR", "WOMEN'S FOOTWEAR", "KID'S FOOTWEAR"];

@@ -1,3 +1,7 @@
+
+<script type="text/javascript">
+	dialog_support.init(".modal-dlg");
+</script>
 <table class="table table-striped"  id="gc_table">
     <thead>
         <tr>
@@ -8,8 +12,7 @@
             <th>Expiry Date</th>
             <th>Redeem At</th>
             <th>Created At</th>
-            <th>Edit</th>
-            <th>Delete</th>
+            <th>Edit Expiry Date</th>
             <th>Print</th>
         </tr>
     </thead>
@@ -25,14 +28,10 @@
                 <td><?php echo $row->created_at; ?></td>
                 <td>
                 
-                <!-- <a href="<?php //echo base_url();?>'offers/edit_gift_vc/<?php //echo $row->id; ?>" class="modal-dlg-wide fa fa-pencil-square edit" title="Edit" style="font-size:20px;"></a> -->
+                <a href="<?php echo base_url();?>offers/edit_gift_vc/<?php echo $row->id; ?>" class="modal-dlg fa fa-pencil-square edit" title="Edit" style="font-size:20px;"></a>
                 
                 </td>
-                <td>
                 
-                <!-- <a href="javascript:void(0)" onclick = "delete_gift_vc(<?php //echo $row->id; ?>);" class="fa fa-trash text-danger delete_icon" title="Delete" style="font-size:20px;"></a>
-                 -->
-                </td>
                 <td><a href="<?php echo base_url(); ?>offers/view_gift_vc/<?php echo $row->id; ?>" target="_blank" class="fa fa-eye edit" title="View" style="font-size:20px; color: #3498db;"></a></td>
             </tr>
         <?php endforeach; ?>

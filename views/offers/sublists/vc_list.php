@@ -37,27 +37,6 @@
         'copy', 'csv', 'excel', 'pdf', 'print'
       ]
     });
-    
-    //dialog_support.init("a.modal-dlg-wide");
-    // $('.voucher_toggle').bootstrapToggle();
 
-    // $('.voucher_toggle').on('change', function(){
-    //   var id = $(this).closest('tr').attr('id');
-    //   var status = $(this).prop('checked');
-    //   $.post('<?php //echo site_url($controller_name."/voucher_toggle"); ?>', {'id': id, 'status': status}, function(data) {
-		// 		console.log(data);
-    //   });
-    // });
-
-    // $('.delete-voucher').on('click', function(){
-    //   if(confirm('Are you sure, you wish to delete this offer?')){
-    //     var id = $(this).closest('tr').attr('id');
-    //     var that = this;
-    //     $.post('<?php //echo site_url($controller_name."/delete_voucher"); ?>', {'id': id}, function(data) {
-    //       alert(data);
-    //       $(that).closest('tr').fadeOut();
-    //     });
-    //   }
-    // });
   });
 </script>

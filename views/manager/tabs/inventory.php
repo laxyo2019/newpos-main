@@ -10,6 +10,12 @@
                 <h5>Items Upload</h5>
             </a>
 		</div>
+    <div class="module_item col-sm-2" title="Uploaded Sheetsfor Generating Barcodes">
+			<a target='_blank' href="<?php echo site_url()."manager/load_tab_view/items_undelete/inventory";?>">
+                <div style='font-size: 34px;padding: 20px;background: #18bc9c;color: #fff;margin-bottom: 5px;' class='fa fa-file-excel-o'></div>
+                <h5>Items Undelete</h5>
+            </a>
+		</div>
 	</div>
 </div>
 

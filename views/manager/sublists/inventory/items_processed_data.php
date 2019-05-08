@@ -8,9 +8,9 @@
       <th>Category</th>
       <th>Subcategory</th>
       <th>Brand</th>
-      <th>Size</th>
-      <th>Color</th>
       <th>MRP</th>
+      <th>Color</th>
+      <th>SIze</th>
       <th>Quantity</th>
     </tr>
   </thead>

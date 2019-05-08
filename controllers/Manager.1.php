@@ -17,8 +17,8 @@ class Manager extends Secure_Controller
   }
 
   public function load_tab_view($page,$folder=''){
-      $url = "manager/tabs/".$folder.'/'.$page;
-      $this->load->view($url);
+    $url = "manager/tabs/".$folder.'/'.$page;
+    $this->load->view($url);
   }
   public function get_valid_customers($password)
   {
@@ -132,12 +132,7 @@ class Manager extends Secure_Controller
      echo '<span style="background-color:gray; color:#fff" class="form-control input-sm liveresults">'.$row['name'].'</span>';
     }
   }
-public function items_undelete_data($id){
-  $this->db->select();
-  $this->db->where('parent_id',$id);
-  $data['items']=$this->db->get('ospos_sheet_undelete')->result();
-  $this->load->view('manager/tabs/inventory/items_undelete_data',$data);
-}
+
   // public function list_all_items($location_id)
   // {
    
@@ -189,7 +184,7 @@ public function items_undelete_data($id){
    foreach($custom_attributes as $custom_attribute){
         $custom_col[]=$custom_attribute->value;
     }
-   $header = array("ID","Barcode","Item Name","Category","SubCategory","Brand","Size","Color","Model","MRP","HSN","CGST","SGST","IGST","Disc % (Retail)","Disc % (Wholesale)","Disc % (Franchise)","FP (Retail)","FP (Wholesale)","FP (Franchise)","Quantity",$custom_col[1],$custom_col[2],$custom_col[3],$custom_col[4],$custom_col[5],$custom_col[6],$custom_col[7],$custom_col[8],$custom_col[9],$custom_col[0]);
+   $header = array("ID","Barcode","Item Name","Category","SubCategory","Brand","Expiry Date","Size","Color","Model","MRP","HSN","CGST","SGST","IGST","Disc % (Retail)","Disc % (Wholesale)","Disc % (Franchise)","FP (Retail)","FP (Wholesale)","FP (Franchise)","Quantity",$custom_col[1],$custom_col[2],$custom_col[3],$custom_col[4],$custom_col[5],$custom_col[6],$custom_col[7],$custom_col[8],$custom_col[9],$custom_col[0]);
    fputcsv($file, $header);
 
    foreach ($items as $item){
@@ -218,6 +213,7 @@ public function items_undelete_data($id){
            $item->category,
            $item->subcategory,
            $item->brand,
+           $item->custom5,
            $item->custom2,
            $item->custom3,
            $item->custom4,
@@ -265,94 +261,108 @@ public function items_undelete_data($id){
     $this->db->join('item_quantities', 'item_quantities.item_id = items.item_id');
     $this->db->where('location_id', $location_id);
     $this->db->where('deleted', 0);
+   // $this->db->limit(10);
     $this->db->where($array);
     $data['items'] = $this->db->get()->result_array();
     
     $this->load->view('manager/sublists/items_sublist', $data);
   }
 
-  // public function report_sales()
-  // {
-  //   // $data['locations'] = $this->input->post('locations');
-  //   $start_date = $this->input->post('start_date');
-  //   $end_date = $this->input->post('end_date');
-
-  //   $filter = $this->input->post('filter');
-
-  //   if($filter == 'all')
-  //   {
-  //     $array = array();
-  //   }
-  //   else
-  //   {
-  //     foreach($filter as $key=>$value)
-  //     {
-  //       if(!empty($value)){
-  //         $array[$key] = $value;
-  //       }
-  //     }
-  //   }
-
-  //   $this->db->where('deleted', 0);
-  //   $this->db->where($array);
-  //   $result = $this->db->get('items')->result_array();
-  //   foreach($result as $row)
-  //   {
-  //     $result_items[] = $row['item_id'];
-  //   }
-
-  //   $this->db->select('
-  //     sales.sale_time AS sale_time,
-  //     sales.customer_id AS customer_id,
-  //     sales.employee_id AS employee_id,
-  //     sales.invoice_number AS invoice_number,
-  //     sales.sale_id AS sale_id,
-  //     sales_items.item_id AS item_id,
-  //     sales_items.quantity_purchased AS quantity,
-  //     sales_items.item_unit_price AS item_price,
-  //     sales_items.discount_percent AS item_discount,
-  //     sales_items.item_location AS item_location,
-  //   ');
-  //   $this->db->from('sales');
-  //   $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
-  //   $this->db->where('sale_time >=', date('Y-m-d H:i:s', strtotime($start_date)));
-  //   $this->db->where('sale_time <=', date('Y-m-d H:i:s', strtotime($end_date)));
-  //   $this->db->where_in('item_id', $result_items);
-  //   $data['report_results'] = $this->db->get()->result_array();
-  //   $this->load->view('manager/sublists/report_sales', $data);
-  // }
 
   public function tally_report()
   {
     $this->load->view('manager/modals/tally_report');
   }
 
-  public function tally_format()
-  {
-    $start_date = $this->input->post('start_date');
-    $end_date = $this->input->post('end_date');
-    $result_items = array();
-    $this->db->select('
-    sales.sale_id AS sale_id,
-    sales.sale_time AS sale_time,
-    sales.customer_id AS customer_id,
-    sales.tally_number AS tally_number,
-    sales.employee_id AS employee_id,
-    sales.sale_status AS sale_status,
-    sales.sale_type AS sale_type,
-    sales.bill_type AS bill_type,
-    sales_items.item_id AS item_id,
-    sales_items.quantity_purchased AS quantity,
-    sales_items.item_unit_price AS item_price,
-    sales_items.discount_percent AS item_discount
-    ');
-    $this->db->from('sales');
-    $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
-    $this->db->where('DATE(sale_time) BETWEEN "'.rawurldecode($start_date).'" AND "'.rawurldecode($end_date).'"');
-    $data['report_results'] = $this->db->get()->result_array();
-    $this->load->view('manager/sublists/tally_format', $data);
-  }
+  
+  //Replace above function to download file in Excel format instead of displaying in datatable.
+  public function tally_format($start_date,$end_date){
 
+    $filename = 'DBF POS'.date('d-m').'.csv';
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=$filename");
+    header("Content-Type: application/csv; ");
+ 
+    // file creation
+    $file = fopen('php://output', 'w');
+    $header = array("Sale ID","Sale Time","Customer Name","Customer GST Number","Invoice Number","Shop ID","Barcode","Item Name","Item Category","Item Subcategory","Item Brand","Taxable Value","HSN","CGST%","CGST Amt.","SGST %","SGST Amt.","IGST%","IGST Amt.","Quantity","Item Type","Discount","Gross Value","Sale Payments","Sale Type","Sale Status","Customer Type");
+    fputcsv($file, $header);
+
+      $result_items = array();
+      $this->db->select('
+      sales.sale_id AS sale_id,
+      sales.sale_time AS sale_time,
+      sales.customer_id AS customer_id,
+      sales.tally_number AS tally_number,
+      sales.employee_id AS employee_id,
+      sales.sale_status AS sale_status,
+      sales.sale_type AS sale_type,
+      sales.bill_type AS bill_type,
+      sales_items.item_id AS item_id,
+      sales_items.quantity_purchased AS quantity,
+      sales_items.item_unit_price AS item_price,
+      sales_items.discount_percent AS item_discount
+      ');
+      $this->db->from('sales');
+      $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+      $this->db->where('DATE(sale_time) BETWEEN "'.rawurldecode($start_date).'" AND "'.rawurldecode($end_date).'"');
+      $report_results = $this->db->get()->result_array();
+
+
+    foreach($report_results as $row){
+      $discounted_price = $row['item_price'] - bcmul($row['item_price'], bcdiv($row['item_discount'], 100));
+      $tax_data = $this->Item_taxes->get_sales_tax($row['sale_id'], $row['item_id']);
+
+
+      $total_tax = ((empty($tax_data['tax_percents']['CGST'])) ? 0.00 : $tax_data['tax_percents']['CGST']) + ((empty($tax_data['tax_percents']['SGST'])) ? 0.00 : $tax_data['tax_percents']['SGST']) + ((empty($tax_data['tax_percents']['IGST'])) ? 0.00 : $tax_data['tax_percents']['IGST']);
+
+      $price = bcmul($discounted_price, $row['quantity']);
+      $a = $price * $total_tax;
+      $b = 100 + $total_tax;
+      $taxable_value = $a / $b;
+
+      $item_info = $this->Item->get_info($row['item_id']);
+      $customer_info = $this->Customer->get_info($row['customer_id']);
+      $sale_payments = $this->Sale->get_sale_payment_types($row['sale_id']);
+      $sale_type = '';
+      foreach($sale_payments as $pays){
+        $sale_type .= $pays['payment_type']." ";
+      }
+      fputcsv($file,array(
+        $row['sale_id'],
+        $row['sale_time'],
+           $customer_info->first_name." ".$customer_info->last_name,
+           $customer_info->gstin,
+           $row['tally_number'],
+           $this->Stock_location->get_location_name2($row['employee_id']),
+           $item_info->item_number,
+           $item_info->name,
+           $item_info->category,
+           $item_info->subcategory,
+           $item_info->brand,
+           $price - round($taxable_value, 2),
+           $item_info->custom1,
+           (empty($tax_data['tax_percents']['CGST'])) ? NULL : $tax_data['tax_percents']['CGST'],
+           (empty($tax_data['tax_amounts']['CGST'])) ? NULL : $tax_data['tax_amounts']['CGST'],
+           (empty($tax_data['tax_percents']['SGST'])) ? NULL : $tax_data['tax_percents']['SGST'],
+           (empty($tax_data['tax_amounts']['SGST'])) ? NULL : $tax_data['tax_amounts']['SGST'],
+           (empty($tax_data['tax_percents']['IGST'])) ? NULL : $tax_data['tax_percents']['IGST'],
+           (empty($tax_data['tax_amounts']['IGST'])) ? NULL : $tax_data['tax_amounts']['IGST'],
+           to_quantity_decimals($row['quantity']),
+           ($item_info->unit_price == 0.00) ? "FP" : "DISC",
+           $row['item_discount'],
+           $price,
+           $sale_type,
+           ($row['sale_type'] == 1) ? "Invoice" : "Credit Note",
+           ($row['sale_status'] == 0) ? "Active" : "Cancelled",
+           ($row['bill_type'] == 'ys') ? "Special Approval" : ucfirst($row['bill_type'])
+           ));
+
+    }
+    fclose($file);
+    exit; 
+  
+  }
   public function monthly_report()
   {
     $data['stock_locations'] = $this->Stock_location->get_allowed_locations();
@@ -362,7 +372,7 @@ public function items_undelete_data($id){
   public function monthly_sales_format()
   {
       $filters = array(
-      'sale_type' => 'all',
+      'sale_type' => $this->input->post('sale_type'),
       'start_date' => $this->input->post('start_date'),
       'end_date' => $this->input->post('end_date'),
       'only_cash' => FALSE,
@@ -1139,7 +1149,6 @@ public function items_undelete_data($id){
 
       $this->db->select('sheet_uploads.*,custom_fields.title');
       $this->db->join('custom_fields','sheet_uploads.sheet_uploader_id=custom_fields.id');
-      $this->db->where('sheet_uploads.type','new_stock');
       $data['sheets'] = $this->db->get('sheet_uploads')->result();
 
       $data['sheetStatus']='not_processed';
@@ -1150,7 +1159,6 @@ public function items_undelete_data($id){
 
       $this->db->select('sheet_uploads.*,custom_fields.title');
       $this->db->join('custom_fields','sheet_uploads.sheet_uploader_id=custom_fields.id');
-      $this->db->where('sheet_uploads.type','new_stock');
       $data['sheets'] = $this->db->get_where('sheet_uploads',array('sheet_uploads.status'=>'approved'))->result();
 
       $data['sheetStatus']='processed';
@@ -1158,6 +1166,7 @@ public function items_undelete_data($id){
       $this->load->view($url, $data);
     }
   }
+
   //display uploaded sheet data
   public function items_upload_data($sheet_id=1){
     $this->db->select('sheet_uploads_data.*');

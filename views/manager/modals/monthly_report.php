@@ -1,29 +1,56 @@
+<style>
+.label_text {
+    font-weight: bold;
+    font-size: 15px;
+    margin-top: 10px;
+    float: right;
+}
+</style>
 <?php $this->load->view("partial/header"); ?>
 <h5 style="text-align: center; text-decoration-line: underline;">Sales Report - Monthly Format</h5>
 <br>
 <div class="row">
-  <span class="col-md-3">
-     <div class="form-group">
+
+  <span class="col-md-6">
+  <div class="col-sm-4">
+    <label class='label_text' for="">Location : </label>
+  </div>
+  <div class="col-sm-8">
+  <div class="form-group">
       <select class="form-control" id="location_id">
         <?php foreach($stock_locations as $key=>$value): ?>
           <option value="<?php echo $key; ?>"><?php echo strtoupper($value); ?></option>
         <?php endforeach; ?>
       </select>
     </div>
+  </div>
+   
     </span>
-     <span class="col-md-3">
+     <span class="col-md-6">
+     <div class="col-sm-4">
+
+     <label class='label_text' for="">Bill Type : </label>
+     </div>
+     <div class="col-sm-8">
      <div class="form-group">
       <select class="form-control" id="sale_type">
        <option value="all">All</option>
-       <option value="1">Credit Note</option>
-       <option value="0">Invoice</option>
+       <option value="4">Credit Note</option>
+       <option value="1">Invoice</option>
        </select> 
     </div>
+     </div>
+    
     </span>
 
     </div>
     <div class="row">
-    <span class="col-md-3">
+    <span class="col-md-6">
+    <div class="col-sm-4">
+
+    <label class='label_text' for="">Month : </label>
+    </div>
+    <div class="col-sm-8">
     <div class="form-group">
        <select class="form-control" id="select_month">
        <option value="01">JANUARY</option>
@@ -40,21 +67,30 @@
        <option value="12">DECEMBER</option>
        </select> 
     </div>
+    </div>
+   
     </span>
 
     
 
-  <span class="col-md-3">
-    <div class="form-group">
+  <span class="col-md-6">
+  <div class="col-sm-4">
+  <label class='label_text' for="">Year : </label>
+  </div>
+  <div class="col-sm-8">
+  <div class="form-group">
       <select class="form-control" id="select_year">
        <option value="2018">2018</option>
        <option value="2019">2019</option>
+       <option value="2020">2020</option>
        </select>    
     </div>
+  </div>
+   
   </span>
-  <span class="col-md-3">
+  <span class="col-md-3 col-md-offset-9">
     <div class="form-group">
-         <button class="btn btn-sm btn-primary" id="monthlyFormat">Get Sales</button>
+         <button class="btn btn-sm btn-primary pull-right" id="monthlyFormat">Get Sales</button>
     </div>
     </span>
 </div>
@@ -68,6 +104,7 @@
 
     $('#monthlyFormat').on('click', function(){
        var location_id = $('#location_id').val();
+       var sale_type = $('#sale_type').val();
        var select_month = $('#select_month').val();
        var select_year = $('#select_year').val();
        var start_date =  select_year + '-' + select_month + '-' + '01';
@@ -83,7 +120,7 @@
       $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
 
       $.post('<?php echo site_url($controller_name."/monthly_sales_format");?>', 
-        {'start_date': start_date, 'end_date': end_date, 'location_id': location_id}, function(data) {
+        {'start_date': start_date,'sale_type':sale_type,'end_date': end_date, 'location_id': location_id}, function(data) {
           $('#report_table_area').html(data);
           $('#report_list').DataTable({
                 "scrollX": true,

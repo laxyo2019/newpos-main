@@ -478,10 +478,7 @@ class Offers extends Secure_Controller
 	}
 	//create locations groups
 	public function create_locations_group(){
-		$this->db->select('username,person_id');
-		$this->db->where(array('deleted'=>0));
-		$data['rows'] = $this->db->get('employees')->result();
-		//echo"<pre>";print_R($data); die;
+		$data['locations'] = $this->Stock_location->get_allowed_locations2();
 		$this->load->view('offers/subviews/create_locations_group',$data);
 	}
 

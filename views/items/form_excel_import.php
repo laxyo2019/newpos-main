@@ -29,13 +29,15 @@
 		</div>
 		<div class="form-group form-group-sm">
 			<div class="col-xs-4">
-				<label>Sheet Type</label>
+				<label>Function</label>
 			</div>
 			<div class="col-xs-8">
-				<input name='sheet_type' value='sheet_import' type='radio' checked>
-					<span style='margin:auto 26px auto 4px;'>Excel Import</span>
-				<!-- <input name='sheet_type' value='sheet_update' type='radio'>
-					<span style='margin:auto 26px auto 4px;'>Excel Update</span> -->
+					<select name="sheet_type">
+						<option value=''>-- Select --</option>
+						<option value='new_stock'>Excel Import</option>
+						<!--<option value='update_stock'>Excel Update</option>-->
+						<option value='undelete_stock'>Excel Undelete</option>
+					</select>
 			</div>
 		</div>
 		<div class="form-group form-group-sm">	
@@ -64,21 +66,21 @@ $(document).ready(function()
 		submitHandler:function(form) {
 			sheet_uploader_id = $('[name="sheet_uploader"]').val();
 			pwd = $('[name="password"]').val();
+			sheet_type = $('[name="sheet_type"]').val();
 			$.post('<?php echo site_url();?>items/verify_sheet_uploader',{sheet_uploader_id:sheet_uploader_id,pwd:pwd},function(data){
 				if(data==1){
-					sheet_type = $('[name="sheet_type"]:checked').val();
-					if(sheet_type=='sheet_import'){
-						$(form).ajaxSubmit({
-							success:function(response)
-							{
-								dialog_support.hide();
-								$.notify(response.message, { type: response.success ? 'success' : 'danger'} );
-							},
-							dataType: 'json'
-						});
-					}else{
-						console.log('to be continued.....');
+					if(sheet_type=='undelete_stock'){
+						new_url ="<?php echo site_url();?>items/do_excel_undelete";
+						$('form').attr('action',new_url);
 					}
+					$(form).ajaxSubmit({
+						success:function(response)
+						{
+							dialog_support.hide();
+							$.notify(response.message, { type: response.success ? 'success' : 'danger'} );
+						},
+						dataType: 'json'
+					});
 				}else{
 					// alert('Incorrect Password');
 					swal({
@@ -98,12 +100,14 @@ $(document).ready(function()
 			file_path: "required",
 			password: "required",
 			sheet_uploader: "required",
+			sheet_type:"required",
    		},
 		messages: 
 		{
    			file_path: "<?php echo $this->lang->line('common_import_full_path'); ?>",
 			password: "Password is required",
-			sheet_uploader: "Sheet Uploader's Name is required"
+			sheet_uploader: "Sheet Uploader's Name is required",
+			sheet_type: "Function required"
 		}
 	}, form_support.error));
 });

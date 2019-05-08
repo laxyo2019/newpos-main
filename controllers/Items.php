@@ -67,12 +67,7 @@ class Items extends Secure_Controller
 		$data_rows = array();
 		foreach($items->result() as $item)
 		{
-			// $data_rows[] = $this->xss_clean(get_item_data_row($item));
 			$data_rows[] = get_item_data_row($item);
-			// if($item->pic_filename!='')
-			// {
-			// 	$this->_update_pic_filename($item);
-			// }
 		}
 
 		echo json_encode(array('total' => $total_rows, 'rows' => $data_rows));
@@ -982,18 +977,24 @@ class Items extends Secure_Controller
 		}
 	}
 
-	public function get_redundant_item($item_data, $type)
+	public function get_redundant_item($item_data, $type,$function="")
 	{
 		$array = array(
 			'name' => $item_data['name'],
 			'category' => $item_data['category'],
 			'subcategory' => $item_data['subcategory'],
-			'brand' => $item_data['brand'],
-			'custom2' => $item_data['custom2'], //size
-			'custom3' => $item_data['custom3'], //color
-			'custom5' => $item_data['custom5'], //expiry date
-			'deleted' => 0
+			'brand' => $item_data['brand']
 		);
+		if($item_data['category']=='GROCERY'){
+			$array['custom5'] =  $item_data['custom5']; //expiry date
+		}else{
+			$array['custom2'] = $item_data['custom2']; //size;
+			$array['custom3'] =  $item_data['custom3']; //size;
+		}
+		if($function==""){
+			$array['deleted'] = 0;
+		}
+		
 
 		if($item_data['unit_price'] == 0.00)
 		{
@@ -1008,7 +1009,7 @@ class Items extends Secure_Controller
 		$this->db->where($array);
 		return ($type == "count") ? $this->db->count_all_results() : $this->db->get()->result_array();
 	}
-
+	
 	/*
 	Items import from excel spreadsheet
 	*/
@@ -1024,7 +1025,119 @@ class Items extends Secure_Controller
 		$this->load->view('items/form_excel_import', NULL);
 	}
 
+	public function do_excel_undelete(){
 
+		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
+		{
+			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
+		}
+		else
+		{
+			if(($handle = fopen($_FILES['file_path']['tmp_name'], 'r')) !== FALSE)
+			{
+				$file_name = strtoupper(PATHINFO($_FILES['file_path']['name'])['filename']); 
+				// Skip the first row as it's the table description
+				fgetcsv($handle);
+				$i = 1;
+				//Insert into ospos_sheet_uploads table--
+				$master_data = array(
+								'sheet_uploader_id' => $this->input->post('sheet_uploader'),
+								'type' => $this->input->post('sheet_type'),
+								'name' => $file_name,
+								'status' => 'approved',
+								'created_at' => date('Y-m-d H:i:s')
+								); 
+
+				$this->db->insert('sheet_uploads', $master_data);
+				$insert_master_id = $this->db->insert_id();
+							 
+				while(($data = fgetcsv($handle)) !== FALSE)
+				{
+					$data = $this->xss_clean($data);
+					if(sizeof($data)>= 1)
+					{	
+						$barcode = $data[0];
+						$item_id = $this->db->select('item_id')->where('item_number',$barcode)->get('items')->row()->item_id;
+						
+						$item_info = $this->Item->get_info($item_id);	
+
+						
+						//mohini
+						if($item_info->item_number!=''){
+								$item_data = array(
+									'name'=> $item_info->name,
+									'category'=>$item_info->category,
+									'subcategory'=>$item_info->subcategory,
+									'brand'=>$item_info->brand,
+									'custom2'=>$item_info->custom2,
+									'custom3'=>$item_info->custom3,
+									'unit_price'=>$item_info->unit_price,
+									'cost_price'=>$item_info->cost_price
+									);
+									
+								$redundancy_count = $this->get_redundant_item($item_data, "count","undelete");
+								$redundant_item = $this->get_redundant_item($item_data, "get","undelete");	
+								
+								if($redundancy_count == 1)
+								{
+									$this->db->where('item_number', $barcode);
+									$this->db->update('items', array('deleted'=>0));
+
+									$item_data_insert= array(
+										'barcode' => $barcode,
+										'parent_id' =>$insert_master_id,
+										'status' => 'undeleted'
+										
+										);
+									$this->db->insert('ospos_sheet_undelete', $item_data_insert);
+									
+								}	
+								else if($redundancy_count > 1) // If more than 1 count for an item, then create entry in error log
+								{
+									$rd_item_data = $this->get_redundant_item($item_data, "get");
+									$error_data_array = array(
+										'item_id' => $rd_item_data[0]['item_id'],
+										'item_barcode' => $rd_item_data[0]['item_number'],
+										'item_name' => $rd_item_data[0]['name'],
+										'redundancy_count' => $redundancy_count
+									);
+									$data = array(
+										'error_data' => json_encode($error_data_array),
+										'time' => date('Y-m-d H:i:s')
+									);
+									$this->db->insert('redundancy', $data);
+									$item_data_insert= array(
+										'barcode' => $barcode,
+										'parent_id' =>$insert_master_id,
+										'status' => 'duplicate'
+										
+										);
+									$this->db->insert('ospos_sheet_undelete', $item_data_insert);
+								}	
+						}
+						else{
+							$item_data_insert= array(
+								'barcode' => $barcode,
+								'parent_id' =>$insert_master_id,
+								'status' => 'not_found'
+								
+								);
+							$this->db->insert('ospos_sheet_undelete', $item_data_insert);
+						}
+							
+						
+					}
+					++$i;
+
+				} // while loop ends here
+				echo json_encode(array('success' => TRUE, 'message' => 'Uploaded Succesfully.'));
+			}
+			else
+			{
+				echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_nodata_wrongformat')));
+			}
+		}
+	}
 	public function do_excel_import2() #excel-import
 	{
 		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
@@ -1041,7 +1154,8 @@ class Items extends Secure_Controller
 				$i = 1;
 				//Insert into ospos_sheet_uploads table--
 				$master_data = array(
-								'sheet_uploader_id' => 25,
+								'sheet_uploader_id' => $this->input->post('sheet_uploader'),
+								'type' => $this->input->post('sheet_type'), 
 								'name' => $file_name,
 								'created_at' => date('Y-m-d H:i:s')
 								); 
@@ -1214,7 +1328,8 @@ class Items extends Secure_Controller
 					$processed_data['quantity']= $item->location_qty;
 					$this->db->insert('sheet_processed_data',$processed_data);
 				}else{
-					$this->db->set('quantity', 'quantity+1', FALSE);
+					$update_quantity = "quantity + ".$item->location_qty;
+					$this->db->set('quantity', $update_quantity, FALSE);
 					$this->db->where($processed_data);
 					$this->db->update('sheet_processed_data');
 				}
@@ -1865,5 +1980,7 @@ class Items extends Secure_Controller
 		$this->db->where(array('tag'=>'sheet_uploader','id'=>$id,'varchar_value'=>$pwd));
 		echo $this->db->count_all_results();
 	}
+
+	
 }
 ?>

@@ -254,6 +254,10 @@ class Sale extends CI_Model
 		{ //show invoices for particular shop only with exception of accounts team(show them 'all')
 			$where.= 'employee_id = '.$this->Stock_location->get_owner_id($filters['location_id']).' AND ';
 		}
+		if($filters['sale_type'] != 'all')
+		{ //show invoices for particular shop only with exception of accounts team(show them 'all')
+			$where.= 'sale_type = '.$filters['sale_type'].' AND ';
+		}
 		 
 		if(empty($this->config->item('date_or_time_format')))
 		{
@@ -321,9 +325,10 @@ class Sale extends CI_Model
 			$this->db->select('COUNT(DISTINCT sales.sale_id) as count');
 		}
 		else
-		{
+		{	//added sales.sale_type AS sale_type,  for monthly_report - Mohini
 			$this->db->select('
 					sales.sale_id AS sale_id,
+					sales.sale_type AS sale_type,  
 					MAX(DATE(sales.sale_time)) AS sale_date,
 					MAX(sales.sale_time) AS sale_time,
 					MAX(sales.invoice_number) AS invoice_number,

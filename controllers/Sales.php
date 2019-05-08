@@ -2459,7 +2459,12 @@ class Sales extends Secure_Controller
 			$dynamic_offers = $this->db->get_where('dynamic_prices',array('status'=>1,'end_time>'=>date('Y-m-d H:i:s',time())))->result();
 
 			$item_info = $this->Item->get_info($item_id);
-			$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
+			if(isset(($item_info->discounts)->retail)){
+				$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
+
+			}else{
+				$final_discount = 0.00;
+			}
 
 			foreach($dynamic_offers as $dynamic_offer){ //loop to opstimize best offer
 
