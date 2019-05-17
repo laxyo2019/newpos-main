@@ -32,7 +32,7 @@
 				<label>Function</label>
 			</div>
 			<div class="col-xs-8">
-					<select name="sheet_type">
+					<select name="sheet_type" class='form-control'>
 						<option value=''>-- Select --</option>
 						<option value='new_stock'>Excel Import</option>
 						<!--<option value='update_stock'>Excel Update</option>-->

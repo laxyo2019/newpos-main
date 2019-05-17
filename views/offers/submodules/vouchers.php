@@ -1,5 +1,6 @@
+
 <?php $this->load->view("partial/header");?>
-<div class="row">
+<div class="row" >
 <div class="col-md-12">
     <div class="col-md-12">
         <ul class="nav nav-tabs" data-tabs="tabs">
@@ -20,7 +21,7 @@
       
     </div>
 </div>
-</div>
+
 <script>
 $(document).ready( function () {
     dialog_support.init("button.modal-dlg-wide, a.modal-dlg-wide");

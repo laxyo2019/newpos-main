@@ -434,6 +434,43 @@ class Offers extends Secure_Controller
 	public function view_vouchers(){
 		$this->load->view("offers/submodules/vouchers");
 	}
+	// All Voucher view 
+	public function voucher_try(){
+
+			$post = $this->input->post('myData');
+			$vouchers_id['vou_id'] = $post;
+			$this->load->view('offers/subviews/all_voucher_display', $vouchers_id);
+	}
+
+	public function all_vouchers(){
+		$post = $this->input->post('voucher_ids');
+		if(!empty($post))
+		{
+			$vouchers_arr  = array();
+			foreach ($post as $voucher_ids ){
+				$vouchers_arr [] = $voucher_ids;
+				
+			}
+		$count = count($vouchers_arr);
+			if($count >8){?>
+				<script>
+						alert("You can not select more than 8 vouchers!");
+				</script>
+				<?php 
+				$this->load->view("offers/submodules/vouchers");
+			}
+			else {
+			$vouchers_id['vou_id'] = $vouchers_arr;
+			$this->load->view('offers/subviews/all_voucher_display', $vouchers_id);
+			}
+		}
+		else{
+			?> 
+					<script>alert("Select Gift Vouchers");</script>
+		<?php 
+					$this->load->view("offers/submodules/vouchers");
+		}
+}
 
 	public function all_gc_views(){
 		$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value');

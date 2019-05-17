@@ -1,3 +1,4 @@
+
 <table id="report_list" class="display nowrap" style="width:100%;">
   <thead>
     <tr>

@@ -52,10 +52,7 @@ $(document).ready(function()
 		<span class="glyphicon glyphicon-user">&nbsp</span><?php echo $this->lang->line($controller_name . '_new'); ?>
 	</button>
 
-	<button class='btn btn-info btn-sm modal-dlg-wide' data-href='<?php echo site_url($controller_name."/get_datatable"); ?>'
-			title='Customer Base'>
-		Datatable
-	</button>
+	<a  class="btn btn-info btn-sm " href="<?php echo site_url($controller_name."/get_datatable"); ?>">Data Table</a>
 </div>
 
 <div id="toolbar">

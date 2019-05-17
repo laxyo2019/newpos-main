@@ -328,7 +328,10 @@ class Sale extends CI_Model
 		{	//added sales.sale_type AS sale_type,  for monthly_report - Mohini
 			$this->db->select('
 					sales.sale_id AS sale_id,
+					sales.bill_type AS bill_type,
+					sales.sale_status AS sale_status,
 					sales.sale_type AS sale_type,  
+					sales.employee_id AS employee_id,
 					MAX(DATE(sales.sale_time)) AS sale_date,
 					MAX(sales.sale_time) AS sale_time,
 					MAX(sales.invoice_number) AS invoice_number,
@@ -388,7 +391,10 @@ class Sale extends CI_Model
 		{
 			$this->db->where('sales_items.item_location', $filters['location_id']);
 		}
-
+		if($filters['employee_id'] != FALSE)
+		{
+			$this->db->where('sales.employee_id IS NOT NULL');
+		}	
 		if($filters['only_invoices'] != FALSE)
 		{
 			$this->db->where('sales.invoice_number IS NOT NULL');
@@ -406,7 +412,7 @@ class Sale extends CI_Model
 		{
 			$this->db->like('payments.payment_type', $this->lang->line('sales_due'));
 		}
-
+		
 		if($filters['only_check'] != FALSE)
 		{
 			$this->db->like('payments.payment_type', $this->lang->line('sales_check'));
@@ -436,7 +442,10 @@ class Sale extends CI_Model
 	 */
 	public function get_payments_summary($search, $filters)
 	{
-		$emp_id = $this->Stock_location->get_owner_id($filters['location_id']);
+		if($filters['location_id'] != 'all')
+		{
+			$emp_id = $this->Stock_location->get_owner_id($filters['location_id']);
+		}
 		// get payment summary
 		$this->db->select('payment_type, COUNT(payment_amount) AS count, SUM(payment_amount) AS payment_amount');
 		$this->db->from('sales AS sales');
@@ -497,7 +506,10 @@ class Sale extends CI_Model
 		{
 			$this->db->where('sales.sale_status = ' . COMPLETED);
 		}
-
+		else{
+			$this->db->where('sales.sale_type = ' . $filters['sale_type'] );
+		}
+		
 		if($filters['only_invoices'] != FALSE)
 		{
 			$this->db->where('invoice_number IS NOT NULL');

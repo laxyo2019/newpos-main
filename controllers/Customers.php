@@ -302,8 +302,31 @@ class Customers extends Persons
 
 	public function get_datatable()
 	{
-		$data['customers'] = $this->Customer->get_customers_list();
-		$this->load->view('customers/datatable.php', $data);
+		$data = $this->Customer->get_customers_list();
+		$filename = 'DBF Customer Data'.date('d-m').'.csv';
+		header("Content-Description: File Transfer");
+		header("Content-Disposition: attachment; filename=$filename");
+		header("Content-Type: application/csv; ");
+	
+		   // file creation
+		  $file = fopen('php://output', 'w');
+		 
+		  $header = array("ID","First Name","Last Name","Mobile Number","Email Address","GST Number");
+		  fputcsv($file, $header);
+	  
+	  foreach($data as $row){
+	   fputcsv($file,array(
+		$row['person_id'],
+		$row['first_name'],
+		$row['last_name'],
+		$row['phone_number'],
+		$row['email'],
+		$row['gstin'],
+	   ));           
+	  }
+	  fclose($file);
+	exit;
+ 
 	}
 
 	/*
