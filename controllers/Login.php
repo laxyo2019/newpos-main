@@ -106,39 +106,22 @@ class Login extends CI_Controller
     $curr_month = date('M');
   
 		$name = 'DBF_'.$curr_month.'_Report_Data'.'.csv';
-    $data = file_get_contents('../reports/monthly_report/' . $name);
-   force_download($name, $data);
+
+    $data = file_get_contents('../reports/' . $name);
+   	force_download($name, $data);
     
 	}
-
-		/*==========Start delete csv file and save in folder=====================*/
-
-		public function deleted_reports()
-		{
-			$curr_month = date('M');
-	
-			$name = 'DBF_'.$curr_month.'_Deleted_Bill_Report'.'.csv';
-			$data = file_get_contents('../reports/bill_deleted/' . $name);
-			force_download($name, $data);
-	
-		}
-		/*==========End delete csv file and save in folder=====================*/
-
 
 public function send_Email_report(){
 
 	$email = $this->input->get_post('email');
-	$category =$this->input->get_post('category');
+
   $curr_month_name = date('M');
   
   $from ='babaentertainment1@gmail.com';
-	if ($category=="monthly_sales") {
-		$subject = "DBF Monthly Sales Report";
-		$message = '<b>DBF monthly report format of '. $curr_month_name . "month" . 'the download link is here </b> </br> <a href="http://localhost/newpos-lives/public/login/reports">Click Me</a>';
-	}else{
-		$subject = "DBF Monthly Deleted Report";
-		$message = '<b>DBF monthly deleted report format of '. $curr_month_name . "month" . 'the download link is here </b> </br> <a href="http://localhost/newpos-lives/public/login/deleted_reports">Click Me</a>';
-	}
+ 
+  $subject = "DBF Monthly Sales Report";
+  $message = '<b>DBF monthly report format of '. $curr_month_name . "\r\n" . 'the download link is here </b> </br> <a href="http://localhost/newpos-lives/public/login/reports">Click Me</a>';
       // Make the attachment
     $config = Array(
         'protocol' => 'smtp',

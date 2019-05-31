@@ -37,15 +37,17 @@ class Home extends Secure_Controller
 		
 		// if($this->session->userdata('person_id')==16||$this->session->userdata('person_id')==15){
 			
-		// 	$this->db->where('deleted',0);
-		// 	$query = $this->db->get('stock_locations');	
-		// 	$data['shops']=$query->result();
-		// 	$this->db->where(array('deleted'=>0));
-		// 	$this->db->get('stock_locations');
-		// 	$this->load->view('home/admin_home',$data);
-		// }else{			
-		// 	$this->load->view('home/home');
-		// }
+			
+			$this->db->where('deleted',0);
+			$query = $this->db->get('stock_locations');	
+			$data['shops']=$query->result();
+			$this->db->where(array('deleted'=>0));
+			$this->db->get('stock_locations');
+			$this->load->view('home/admin_home',$data);
+		}
+		else{			
+			$this->load->view('home/home');
+		}
 	}
 
 	public function exists($location_id = -1)
@@ -91,7 +93,9 @@ class Home extends Secure_Controller
     	  ->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
 				->get()
 				->result_array();
-        echo count($sales); 
+		echo count($sales); 
+		
+
      }
  
 	
@@ -140,6 +144,9 @@ class Home extends Secure_Controller
 			$data['totalSales']= $totSell?$totSell:0; 
 			echo json_encode($data);
 		}
+
+
+
 
 	public function logout()
 	{

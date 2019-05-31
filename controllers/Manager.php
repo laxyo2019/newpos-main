@@ -346,11 +346,9 @@ public function items_undelete_data($id){
   
        ));
    }
-
    fclose($file);
    exit;
   }
-
  public function list_filtered_items($location_id)
   {
     $filter = $this->input->post('filter');
@@ -599,11 +597,9 @@ public function items_undelete_data($id){
      $data['report'] = $data_rows;
      $this->load->view('manager/sublists/custom_format', $data);
   }
-  
   public function send_email(){
     $this->load->view('manager/modals/send_email');
   }
-
   public function monthly_report_csv(){
 
     $curr_month = date('m');
@@ -611,8 +607,6 @@ public function items_undelete_data($id){
 
     $start_date =  $curr_year .'-' . $curr_month . '-' . '01';
     $end_date = date("Y-m-t", strtotime($start_date));
-   
-
      $filters = array(
       'sale_type' => 'all',
       'start_date' => $start_date,
@@ -649,7 +643,7 @@ public function items_undelete_data($id){
     
 
     //file creation and store 
-   if($file = fopen("../reports/monthly_report/".$filename, 'w+')){
+   if($file = fopen("../reports/".$filename, 'w+')){
     
    
 	//	$file = fopen('php://temp', 'w');
@@ -676,7 +670,6 @@ public function items_undelete_data($id){
     window.location.href="http://localhost/newpos-lives/public/manager/monthly_report";
     </script>
     ';
-
     fclose($file);
    
 
@@ -684,7 +677,6 @@ public function items_undelete_data($id){
   else{
     echo '<script>alert("failed");</script>';
   }
-   
 
     
   }

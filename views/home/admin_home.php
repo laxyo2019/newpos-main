@@ -1,7 +1,9 @@
 <?php $this->load->view("partial/header"); ?>
 <ul class="nav nav-tabs" data-tabs="tabs" id="shop_tab">
+
 	<?php foreach($shops as $shop) {?>
 	<li class="" role="presentation">
+		
 		<a data-toggle="tab" href="javascript:void(0)" onclick='count_data(<?php echo $shop->location_id.",".$shop->location_owner;?>)' title='<?php echo $shop->alias?>'><?php echo $shop->location_name;?></a>
 	</li>
 	<?php } ?>
