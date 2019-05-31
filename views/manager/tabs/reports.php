@@ -12,6 +12,7 @@
   <a href="<?php echo site_url('manager/tally_report'); ?>" class="list-group-item">Tally Format</a>
   <a href="<?php echo site_url('manager/monthly_report'); ?>" class="list-group-item">Monthly Format</a>
   <a href="<?php echo site_url('manager/custom_report'); ?>" class="list-group-item">Custom Format</a>
+  <a href="<?php echo site_url('manager/send_email'); ?>" class="list-group-item">Email Reports</a>
 </div>
 </div>
 </div>

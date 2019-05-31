@@ -95,6 +95,51 @@ class Sales extends Secure_Controller
 	}
 
 
+	/*============== Start this function for deleted bills==================*/
+	public function bill_delete_csv()
+	{
+		$curr_month = date('m');
+		$curr_year = date('Y');
+
+		$a =  $curr_year .'-' . $curr_month . '-' . '01';
+		$b = date("Y-m-t", strtotime($a));
+	
+	$query=$this->db->query('SELECT ospos_sales.sale_id AS sale_id,sale_time AS sale_time, concat(first_name," ",last_name) AS customer_id, ospos_sales_payments.payment_amount AS payment_amount, concat(payment_type," ",payment_amount) AS payment_type, concat(tally_number,"/",invoice_number) AS invoice_number,ospos_sales.comment AS comment 
+	FROM ospos_sales
+	INNER JOIN ospos_people ON ospos_sales.customer_id = ospos_people.person_id 
+	INNER JOIN ospos_sales_payments ON ospos_sales.sale_id = ospos_sales_payments.sale_id 
+	WHERE DATE(ospos_sales.sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'" AND ospos_sales.sale_status = 2 
+	ORDER BY sale_time DESC');
+	
+	$items= $query->result();
+
+	//print_r($items);
+
+	$curr_month_name = date('M');
+    $filename = 'DBF_'.$curr_month_name.'_Deleted_Bill_Report'.'.csv';
+	 
+		 //$file = fopen('php://output', 'w');
+		$file = fopen('../reports/bill_deleted/'.$filename, 'w+');
+		$header = array("Id","Time","Customer","Amount","Type","Invoice","Comment");
+
+		 fputcsv($file, $header);
+		 foreach ($items as $item) {
+		 	    fputcsv($file,array(
+		           $item->sale_id ,
+		           $item->sale_time,
+		           $item->customer_id,
+		           $item->payment_amount,
+		           $item->payment_type,
+		           $item->invoice_number,
+		           $item->comment
+		 	));
+		          
+		 }
+     fclose($file);
+     exit; 
+}
+  /*============== End this function for deleted bills==================*/
+
 	public function invoice_excel($sale_id)
 	{
 		$data = $this->_load_sale_data($sale_id);

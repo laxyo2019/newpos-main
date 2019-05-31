@@ -15,8 +15,8 @@
      <div class="form-group">
       <select class="form-control" id="sale_type">
        <option value="all">All</option>
-       <option value="1" style="margin-bottom: 50px;">Credit Note</option>
-       <option value="0" style="margin-bottom: 50px;">Invoice</option>
+       <option value="4" style="margin-bottom: 50px;">Credit Note</option>
+       <option value="1" style="margin-bottom: 50px;">Invoice</option>
        </select> 
     </div>
     </span>
@@ -42,13 +42,14 @@
 
     $('#monthlyFormat').on('click', function(){
        var location_id = $('#location_id').val();
+       var sale_type = $('#sale_type').val();
        console.log(location_id);
        if(location_id != null)
       {
       $('#report_table_area').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
 
       $.post('<?php echo site_url($controller_name."/custom_sales_format");?>', 
-        {'start_date': start_date, 'end_date': end_date, 'location_id': location_id}, function(data) {
+        {'start_date': start_date, 'end_date':end_date, 'sale_type':sale_type, 'location_id': location_id}, function(data) {
           $('#report_table_area').html(data);
           $('#report_list').DataTable({
                 "scrollX": true,

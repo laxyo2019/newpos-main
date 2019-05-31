@@ -322,6 +322,7 @@ class Receivings extends Secure_Controller
 		$data['datetime'] = $this->db->where('receiving_id', $last_receiving_id)->get('receivings')->row()->receiving_time;
 
 		$data['items'] = $items_sub_array;
+
 		$this->load->view('receivings/delivery_challan', $data);
 	}
 
@@ -357,7 +358,8 @@ class Receivings extends Secure_Controller
 	public function stock_in()
 	{
 		$transfers = $this->get_transfers($this->session->userdata('person_id'), 'rows');
-		$receivings = array('' => $this->lang->line('items_none'));
+		// $receivings = array('' => $this->lang->line('items_none'));
+
 
 		foreach($transfers->result_array() as $row)
 		{
@@ -372,46 +374,75 @@ class Receivings extends Secure_Controller
 
 	public function st_fetch_instance() // to fetch a particular transfer
 	{
+		
+	
 		$array = array(
-			'receiving_id' => $this->input->post('receiving_id'),
+			'receiving_id' => $this->input->get_post('receiving_id'),
 			'processed' => 0
 		);
 		$this->db->where($array);
-		$data['items'] = $this->db->get('stock_movement')->result_array();
-		$this->load->view('receivings/sub_st_list', $data);
+		$data['items'] = $this->db->get('stock_movement')->result_array();	
+		$new_data = $this->load->view('receivings/sub_st_list', $data);
+			echo $new_data;
+	//	$this->load->view('receivings/stock_in',$new_data);
 	}
 
 	public function st_process()
 	{
 		$success = TRUE;
 		$receiving_id = trim($this->input->post('receiving_id'));
-		$item_id = trim($this->input->post('item_id'));
+		//$item_id = trim($this->input->post('item_id'));
 
+	    $item_id = $this->input->post('item_id');
+		if(!empty($item_id))
+		{
+			$item_id_arr  = array();
+			foreach ($item_id as $item_ids ){
+				$item_id_arr [] = $item_ids;
+				
+			}
+		}
+
+		$quantity = $this->input->post('quantity');
+		if(!empty($quantity))
+		{
+			$quantity_arr  = array();
+			foreach ($quantity as $quantity ){
+				$quantity_arr [] = $quantity;
+				
+			}
+		}
+		$array_length = count($item_id_arr);
+			
+	for($i=0;$i<=$array_length-1;$i++){
 		$main_array = array(
-			'item_id' => $item_id,
+			'item_id' => $item_id_arr[$i],
 			'receiving_id' => $receiving_id
 		);
+
+		// print_r($main_array);
+		
 		$this->db->where($main_array);
 		$query = $this->db->get('stock_movement');
+		
 		if($query->row('processed') != 1) //restrict process to run twice for same row
 		{
-			$accept = trim($this->input->post('accept'));
+			
 			$good = trim($this->input->post('good'));
 			$bad = trim($this->input->post('bad'));
 			$scrap = trim($this->input->post('scrap'));
 
 			$data = array(
 				'receiving_id' => $receiving_id,
-				'item_id' => $item_id,
-				'accept' => $accept,
+				'item_id' => $item_id_arr[$i],
+				'accept' => $quantity_arr[$i],
 				'good' => $good,
 				'bad' => $bad,
 				'scrap' => $scrap,
 			);
 			$success &= $this->db->insert('stock_transfers', $data);
-
-			// ----------------------------------------------------
-
+			
+				// ----------------------------------------------------
 			$owner_id = $this->Receiving->get_recv_stock_owner($receiving_id, 'destination');
 
 			$location_id = $this->Stock_location->get_location_id_2($owner_id);
@@ -419,13 +450,13 @@ class Receivings extends Secure_Controller
 			// ----------------------------------------------------
 
 			$array = array(
-				'item_id' => $item_id,
+				'item_id' => $item_id[$i],
 				'location_id' => $location_id
 			);
 			$this->db->where($array);
 			$query = $this->db->get('item_quantities');
 			$prev_qty = $query->row('quantity');
-			$new_qty = $prev_qty + $accept;
+			$new_qty = $prev_qty + $quantity_arr[$i];
 
 			$data_array = array(
 				'quantity' => $new_qty
@@ -439,28 +470,48 @@ class Receivings extends Secure_Controller
 			);
 			$this->db->where($main_array);
 			$success &= $this->db->update('stock_movement', $data_array);
-
-			echo (($success) ? 'success' : 'failed');
-
+			
 		}
 		else
 		{
 			echo 'Already Processed';
 		}
+	 }
+
+
+	 $recv_id = trim($this->input->post('recv_id'));
+	 $fn_cmnt = $this->input->post('fn_cmnt');
+	 $this->st_complete($recv_id, $fn_cmnt);
+
+
+
+	 echo (($success) ? 'success' : 'failed');
 
 	}
 
-	public function st_complete()
+	public function st_complete($recv_id,$fn_cmnt)
 	{
+
+		$item_id = $this->input->post('item_id');
+		if(!empty($item_id))
+		{
+			$item_id_arr  = array();
+			foreach ($item_id as $item_ids ){
+				$item_id_arr [] = $item_ids;
+				
+			}
+		}
 		$success = TRUE;
-		$recv = $this->input->post('recv'); // receiving id
-		$final_comment = $this->input->post('final_comment'); // stock in comment
-		$this->db->where('receiving_id', $recv);
+
+		$receiving_id = $recv_id;
+
+		$final_comment = $fn_cmnt; // stock in comment
+		$this->db->where('receiving_id', $receiving_id);
 		$query = $this->db->get('receivings');
 		if($query->row('completed') != 1) //restrict process to run twice for same row
 		{
 			$array = array(
-				'receiving_id' => $recv,
+				'receiving_id' => $receiving_id,
 				'processed' => 1
 			);
 			$this->db->where($array);
@@ -469,16 +520,17 @@ class Receivings extends Secure_Controller
 			foreach($items as $item)
 			{
 				$array = array(
-					'receiving_id' => $recv,
+					'receiving_id' => $receiving_id,
 					'item_id' => $item['item_id']
 				);
+				
 				$this->db->where($array);
 				$query = $this->db->get('stock_transfers');
 				$good = $query->row('good'); //add this good qty to the source's stock
 
 				// ----------------------------------------------------
 
-				$owner_id = $this->Receiving->get_recv_stock_owner($recv, 'employee_id');
+				$owner_id = $this->Receiving->get_recv_stock_owner($receiving_id, 'employee_id');
 
 				$source_location_id = $this->Stock_location->get_location_id_2($owner_id);
 
@@ -501,14 +553,13 @@ class Receivings extends Secure_Controller
 				$success &= $this->db->update('item_quantities', $data);
 			}
 
-			$this->db->where('receiving_id', $recv);
+			$this->db->where('receiving_id', $receiving_id);
 			$data = array(
 				'completed' => 1,
 				'final_comment' => $final_comment
 			);
 			$success &= $this->db->update('receivings', $data);
 
-			echo (($success) ? 'success' : 'failed');
 		}
 		else
 		{

@@ -52,6 +52,29 @@
 		</div>
 		</div>
 </div>
+<div class="row">
+	<div class="col-md-6">
+		<h3>Points Table</h3>
+		<table class="table table-hover table-bordered" >
+			<thead >
+				<tr>
+					<th>Shop Name</th>
+					<th>Total's Earning</th>
+					<th>Total Items</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach($rank as $row) :?>
+					<tr>
+						<td><?php echo $row->location_name;?></td>
+						<td><i class="fa fa-inr">&nbsp;&nbsp;</i><?php echo $row->Total_earning;?></td><!--<i class="fa fa-inr">/-&nbsp;&nbsp;</i>-->
+						<td><?php echo round($row->total_sale)?></td>
+					</tr>
+				<?php endforeach;?>
+			</tbody>
+		</table>
+	</div>
+</div>
 <?php $this->load->view("partial/footer");?>
 <script>
 $(document).ready(function(){

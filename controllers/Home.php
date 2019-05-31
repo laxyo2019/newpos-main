@@ -11,18 +11,41 @@ class Home extends Secure_Controller
 
 	public function index()
 	{
-	
-		if($this->session->userdata('person_id')==16||$this->session->userdata('person_id')==15){
+		$curr_month = date('m');
+		$curr_year = date('Y');
+		$a =  $curr_year .'-' . $curr_month . '-' . '01';
+		$b = date("Y-m-t", strtotime($a));
+		$query =$this->db->query('SELECT ospos_stock_locations.location_name,SUM(DISTINCT ospos_sales_payments.payment_amount) AS Total_earning,SUM(ospos_sales_items.quantity_purchased) AS total_sale
+			FROM `ospos_sales`
+			INNER JOIN ospos_sales_payments ON ospos_sales_payments.sale_id =ospos_sales.sale_id 
+			INNER JOIN ospos_stock_locations ON ospos_sales.employee_id=ospos_stock_locations.location_owner 
+			INNER join ospos_sales_items ON ospos_sales_items.sale_id=ospos_sales.sale_id 
+			WHERE DATE(ospos_sales.sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"
+			GROUP BY ospos_stock_locations.location_name
+			ORDER BY SUM(DISTINCT ospos_sales_payments.payment_amount) DESC');
+
+		$data['rank']=$query->result();
+		//print_r($data);
+		$this->session->userdata('username');
+		$this->db->where('deleted',0);
+		$query = $this->db->get('stock_locations');	
+		$data['shops']=$query->result();
+		$this->db->where(array('deleted'=>0));
+		$this->db->get('stock_locations');
+		$this->load->view('home/admin_home',$data);
+
+		
+		// if($this->session->userdata('person_id')==16||$this->session->userdata('person_id')==15){
 			
-			$this->db->where('deleted',0);
-			$query = $this->db->get('stock_locations');	
-			$data['shops']=$query->result();
-			$this->db->where(array('deleted'=>0));
-			$this->db->get('stock_locations');
-			$this->load->view('home/admin_home',$data);
-		}else{			
-			$this->load->view('home/home');
-		}
+		// 	$this->db->where('deleted',0);
+		// 	$query = $this->db->get('stock_locations');	
+		// 	$data['shops']=$query->result();
+		// 	$this->db->where(array('deleted'=>0));
+		// 	$this->db->get('stock_locations');
+		// 	$this->load->view('home/admin_home',$data);
+		// }else{			
+		// 	$this->load->view('home/home');
+		// }
 	}
 
 	public function exists($location_id = -1)

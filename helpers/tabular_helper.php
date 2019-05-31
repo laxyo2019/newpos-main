@@ -137,6 +137,9 @@ function get_sale_data_row1($sale)
 
 	$row = array (
 		'sale_id' => $sale->sale_id,
+		'bill_type' => $sale->bill_type,
+		'employee_id' => $sale->employee_id,
+		'sale_status'=>$sale->sale_status,
 		'sale_time' => date($CI->config->item('dateformat') . ' ' . $CI->config->item('timeformat'), strtotime($sale->sale_time)),
 		'customer_name' => $sale->customer_name,
 		'amount_due' => $sale->amount_due,
