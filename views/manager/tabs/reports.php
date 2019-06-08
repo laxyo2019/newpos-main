@@ -1,5 +1,5 @@
 <?php $this->load->view("partial/header"); ?>
-<?php if($this->Item->check_auth(array('superadmin', 'admin'))){ ?>
+<?php if($this->Item->check_auth(array('superadmin', 'admin','accounts'))){ ?>
 <div class="row">
   <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
       <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> Reports 
@@ -13,7 +13,7 @@
   <a href="<?php echo site_url('manager/monthly_report'); ?>" class="list-group-item">Monthly Format</a>
   <a href="<?php echo site_url('manager/custom_report'); ?>" class="list-group-item">Custom Format</a>
 
-  <a href="<?php echo site_url('manager/send_email'); ?>" class="list-group-item">Send Email</a>
+  <a href="<?php echo site_url('manager/send_email'); ?>" class="list-group-item">Email Reports</a>
 </div>
 </div>
 </div>

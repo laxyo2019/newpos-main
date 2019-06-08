@@ -600,13 +600,17 @@ public function items_undelete_data($id){
   public function send_email(){
     $this->load->view('manager/modals/send_email');
   }
+
   public function monthly_report_csv(){
 
-    $curr_month = date('m');
+   
+    $curr_month = date('m', strtotime("-1 month"));
     $curr_year = date('Y');
 
     $start_date =  $curr_year .'-' . $curr_month . '-' . '01';
     $end_date = date("Y-m-t", strtotime($start_date));
+   
+
      $filters = array(
       'sale_type' => 'all',
       'start_date' => $start_date,
@@ -634,7 +638,8 @@ public function items_undelete_data($id){
       $data_rows[] = $this->xss_clean(get_sale_data_row1($sale));
     }
   
-   $curr_month_name = date('M');
+    $curr_month_name = date('M', strtotime("-1 month"));
+   
     $filename = 'DBF_'.$curr_month_name.'_Report_Data'.'.csv';
 
 	  // header("Content-Description: File Transfer");
@@ -643,7 +648,7 @@ public function items_undelete_data($id){
     
 
     //file creation and store 
-   if($file = fopen("../reports/".$filename, 'w+')){
+   if($file = fopen("../reports/monthly_sales_report/".$filename, 'w+')){
     
    
 	//	$file = fopen('php://temp', 'w');
@@ -670,6 +675,7 @@ public function items_undelete_data($id){
     window.location.href="http://localhost/newpos-lives/public/manager/monthly_report";
     </script>
     ';
+
     fclose($file);
    
 
@@ -677,8 +683,7 @@ public function items_undelete_data($id){
   else{
     echo '<script>alert("failed");</script>';
   }
-
-    
+       
   }
 
   public function fetch_stockup_items()

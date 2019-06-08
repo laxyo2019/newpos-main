@@ -788,7 +788,15 @@ class Sale_lib
 		if($price_mode == PRICE_MODE_STANDARD)
 		{
 			$cost_price = $item_info->cost_price;
-				if($unit_price == 0.00 && $offer_status==0){ //FIXED PRICE ITEM
+				if($unit_price == 0.00 && $offer_status==0){ //FIXED PRICE ITEM	
+					
+					// $categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
+					// if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories)){
+					// 	$price = 150.00;
+					// }else{
+					// 	$price = json_decode($item_info->cost_price)->$billtype;
+					// }
+
 					$price = json_decode($item_info->cost_price)->$billtype;
 					$discount = 0.00;
 				}else if($unit_price == 0.00 && $offer_status==1){

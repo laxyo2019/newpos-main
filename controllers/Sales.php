@@ -95,10 +95,10 @@ class Sales extends Secure_Controller
 	}
 
 
-	/*============== Start this function for deleted bills==================*/
 	public function bill_delete_csv()
 	{
-		$curr_month = date('m');
+		
+		$curr_month = date('m', strtotime("-1 month"));
 		$curr_year = date('Y');
 
 		$a =  $curr_year .'-' . $curr_month . '-' . '01';
@@ -115,7 +115,7 @@ class Sales extends Secure_Controller
 
 	//print_r($items);
 
-	$curr_month_name = date('M');
+	$curr_month_name = date('M', strtotime("-1 month"));
     $filename = 'DBF_'.$curr_month_name.'_Deleted_Bill_Report'.'.csv';
 	 
 		 //$file = fopen('php://output', 'w');
@@ -771,10 +771,16 @@ class Sales extends Secure_Controller
 		{
 			//update Discount according to dynamic pricing--
 			$offer_status=0;
-			if($offer_discount = $this->check_offer_dynamic_pricing($item_id_or_number_or_item_kit_or_receipt)){
-				$discount = $offer_discount;
-				$offer_status=1;
+
+			$itemInfo_db = $this->Item->get_info($item_id_or_number_or_item_kit_or_receipt);
+			
+			if($itemInfo_db->unit_price !=0.00 ){
+				if($offer_discount = $this->check_offer_dynamic_pricing($item_id_or_number_or_item_kit_or_receipt)){
+					$discount = $offer_discount;
+					$offer_status=1;
+				}
 			}
+			
 			
 			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, PRICE_MODE_STANDARD,NULL,NULL,NULL,NULL,NULL,FALSE,NULL,$offer_status))
 			{
@@ -2493,7 +2499,7 @@ class Sales extends Secure_Controller
 		//echo "</pre>"; print_R($locations_group_ids); die;
 	}
 
-	public function check_offer_dynamic_pricing($item_id=55){
+	public function check_offer_dynamic_pricing($item_id=-1){
 
 		if($locations_group_ids=$this->get_location_match()){
 			$Offer_status=0;
@@ -2501,10 +2507,10 @@ class Sales extends Secure_Controller
 			//-- if offer is applicable for login person_id
 			$this->db->select();
 			$this->db->where_in('location_group_id',$locations_group_ids);
-			$dynamic_offers = $this->db->get_where('dynamic_prices',array('status'=>1,'end_time>'=>date('Y-m-d H:i:s',time())))->result();
+			$dynamic_offers = $this->db->get_where('dynamic_prices',array('status'=>1,'end_time>'=>date('Y-m-d H:i:s',time()),'start_time<'=>date('Y-m-d H:i:s',time())))->result();
 
 			$item_info = $this->Item->get_info($item_id);
-			if(isset(($item_info->discounts)->retail)){
+			if(isset(json_decode($item_info->discounts)->retail)){
 				$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
 
 			}else{

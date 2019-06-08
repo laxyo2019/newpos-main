@@ -103,56 +103,72 @@ class Login extends CI_Controller
 	}
 	public function reports()
 	{
-    $curr_month = date('M');
+    $curr_month = date('M', strtotime("-1 month"));
   
 		$name = 'DBF_'.$curr_month.'_Report_Data'.'.csv';
-
-    $data = file_get_contents('../reports/' . $name);
-   	force_download($name, $data);
+    $data = file_get_contents('../reports/monthly_sales_report/' . $name);
+   force_download($name, $data);
     
 	}
+		/*==========Start delete csv file and save in folder=====================*/
+
+		public function deleted_reports()
+		{
+			$curr_month = date('M', strtotime("-1 month"));
+	
+			$name = 'DBF_'.$curr_month.'_Deleted_Bill_Report'.'.csv';
+			$data = file_get_contents('../reports/bill_deleted/' . $name);
+			force_download($name, $data);
+	
+		}
+		/*==========End delete csv file and save in folder=====================*/
 
 public function send_Email_report(){
 
-	$email = $this->input->get_post('email');
-
-  $curr_month_name = date('M');
-  
-  $from ='babaentertainment1@gmail.com';
- 
-  $subject = "DBF Monthly Sales Report";
-  $message = '<b>DBF monthly report format of '. $curr_month_name . "\r\n" . 'the download link is here </b> </br> <a href="http://localhost/newpos-lives/public/login/reports">Click Me</a>';
-      // Make the attachment
-    $config = Array(
-        'protocol' => 'smtp',
-        'smtp_host' => 'in-v3.mailjet.com',
-        'smtp_port' => 25,
-        'smtp_user' => '58e4acb8f3f8c17af91c68a3ea3c44d1',
-        'smtp_pass' => '8ca222fc94782b04643db9510fdff46e',
-        'mailtype' => 'html',
-        'charset' => 'iso-8859-1',
-        'wordwrap' => TRUE
-      );
-     
-      $this->load->library('email');
-      $this->email->initialize($config);
-      $this->email->set_newline("\r\n");
-      $this->email->from($from);
-      $this->email->to($email);
-      $this->email->subject($subject);
-      $this->email->message($message);
-      
-    if($this->email->send())
-      {?>
-          <script>alert('Email Send');</script> <?php
-        
-      }
-      else
-      {
-        show_error($this->email->print_debugger());
-      }
-
-}
+			$email = $this->input->get_post('email');
+			$category =$this->input->get_post('category');
+			$curr_month_name = date('M', strtotime("-1 month"));
+			
+			$from ='babaentertainment1@gmail.com';
+			if ($category=="monthly_sales") {
+				$subject = "DBF Monthly Sales Report";
+				$message = '<b>DBF monthly report format of '. $curr_month_name . " month " . 'the download link is here </b> </br> <a href="http://localhost/dbf/public/login/reports">Click Me</a>';
+			}else{
+				$subject = "DBF Monthly Deleted Report";
+				$message = '<b>DBF monthly deleted report format of '. $curr_month_name ." month " . 'the download link is here </b> </br> <a href="http://localhost/dbf/public/login/deleted_reports">Click Me</a>';
+			}
+					// Make the attachment
+				$config = Array(
+						'protocol' => 'smtp',
+						'smtp_host' => 'in-v3.mailjet.com',
+						'smtp_port' => 25,
+						'smtp_user' => '58e4acb8f3f8c17af91c68a3ea3c44d1',
+						'smtp_pass' => '8ca222fc94782b04643db9510fdff46e',
+						'mailtype' => 'html',
+						'charset' => 'iso-8859-1',
+						'wordwrap' => TRUE
+					);
+				 
+					$this->load->library('email');
+					$this->email->initialize($config);
+					$this->email->set_newline("\r\n");
+					$this->email->from($from);
+					$this->email->to($email);
+					$this->email->subject($subject);
+					$this->email->message($message);
+					
+				if($this->email->send())
+					{?>
+							<script>alert('Email Send');</script> <?php
+						
+					}
+					else
+					{
+						show_error($this->email->print_debugger());
+					}
+		
+		}
+		
 
 
 }

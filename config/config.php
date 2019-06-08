@@ -411,10 +411,10 @@ $config['encryption_key'] = getenv('ENCRYPTION_KEY') ? getenv('ENCRYPTION_KEY') 
 | except for 'cookie_prefix' and 'cookie_httponly', which are ignored here.
 |
 */
-// $config['sess_driver'] = 'files';
-// $config['sess_save_path'] = '/var/lib/php/sessions';
-$config['sess_driver'] = 'database';
-$config['sess_save_path'] = 'sessions';
+$config['sess_driver'] = 'files';
+$config['sess_save_path'] = '/var/lib/php/sessions';
+// $config['sess_driver'] = 'database';
+// $config['sess_save_path'] = 'sessions';
 $config['sess_cookie_name'] = 'ospos_session';
 $config['sess_expiration'] = 7200;
 $config['sess_match_ip'] = TRUE;
