@@ -200,7 +200,7 @@
 			
 			<?php for($i=1;$i<=10;$i++):?>
 			<div class="form-group form-group-sm">
-				<?php echo form_label("Custom Column".$i, 'config_column'.$i, array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label("column".$i, 'config_column'.$i, array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'column'.$i.'_name',
@@ -212,7 +212,7 @@
 			<?php endfor;?>
 				
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom1'), 'config_custom1', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom1', 'config_custom1', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom1_name',
@@ -223,7 +223,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom2'), 'config_custom2', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom2', 'config_custom2', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom2_name',
@@ -234,7 +234,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom3'), 'config_custom3', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom3', 'config_custom3', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom3_name',
@@ -245,7 +245,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom4'), 'config_custom4', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom4', 'config_custom4', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom4_name',
@@ -256,7 +256,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom5'), 'config_custom5', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom5', 'config_custom5', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom5_name',
@@ -267,7 +267,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom6'), 'config_custom6', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom6', 'config_custom6', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom6_name',
@@ -278,7 +278,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom7'), 'config_custom7', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom7', 'config_custom7', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom7_name',
@@ -289,7 +289,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom8'), 'config_custom8', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom8', 'config_custom8', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom8_name',
@@ -300,7 +300,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom9'), 'config_custom9', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom9', 'config_custom9', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom9_name',
@@ -311,7 +311,7 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_custom10'), 'config_custom10', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label('custom10', 'config_custom10', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_input(array(
 						'name' => 'custom10_name',

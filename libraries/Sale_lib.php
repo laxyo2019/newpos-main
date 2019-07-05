@@ -765,7 +765,7 @@ class Sale_lib
 
 		if(empty($discount))
 		{
-			$discount = json_decode($item_info->discounts)->$billtype;
+			$discount = isset(json_decode($item_info->discounts)->$billtype) ?  json_decode($item_info->discounts)->$billtype : 0;
 		}
 		
 		if($billtype == "1rupee")
@@ -790,14 +790,18 @@ class Sale_lib
 			$cost_price = $item_info->cost_price;
 				if($unit_price == 0.00 && $offer_status==0){ //FIXED PRICE ITEM	
 					
-					// $categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
-					// if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories)){
-					// 	$price = 150.00;
-					// }else{
-					// 	$price = json_decode($item_info->cost_price)->$billtype;
-					// }
+					//Uncomment this---
+					$categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
+					if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories)){
+						$price = 150.00;
+					}else{
+						$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
+					}
 
-					$price = json_decode($item_info->cost_price)->$billtype;
+					// comment this
+					// $price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
+					//Example 1,000 will be read as 1 so need to do this.
+
 					$discount = 0.00;
 				}else if($unit_price == 0.00 && $offer_status==1){
 					$price = json_decode($item_info->cost_price)->$billtype;

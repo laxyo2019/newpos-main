@@ -2531,7 +2531,9 @@ class Sales extends Secure_Controller
 				$pointer_matched = $this->get_pointer_match($item_id, $pointer_array->type, explode(',',$types->name));
 
 				if($pointer_matched){
-					$final_discount = $final_discount<$dynamic_offer->discount ? $dynamic_offer->discount : $final_discount;
+					// $final_discount = $final_discount<$dynamic_offer->discount ? $dynamic_offer->discount : $final_discount;
+
+					$final_discount =  $dynamic_offer->discount;
 					//Update discount if older discount is less
 					$Offer_status =1 ;
 				}

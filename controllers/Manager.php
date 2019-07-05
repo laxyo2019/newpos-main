@@ -343,7 +343,6 @@ public function items_undelete_data($id){
            $item->column8,
            $item->column9,
            $item->column10
-  
        ));
    }
    fclose($file);
@@ -357,16 +356,20 @@ public function items_undelete_data($id){
         $array[$key] = $value;
       }
     }
-    $this->db->select('items.*, item_quantities.quantity, GROUP_CONCAT(percent) AS percent, item_quantities.item_id, GROUP_CONCAT(CONCAT(CONCAT(CONCAT("""","loc_",""),location_id,""""),":",concat("""",quantity,"""")))as All_locations ');
+    $this->db->select('items.*','item_quantities.item_id AS item_quantities_item_id','item_quantities.quantity, GROUP_CONCAT(percent) AS percent, item_quantities.item_id, GROUP_CONCAT(CONCAT(CONCAT(CONCAT("""","loc_",""),location_id,""""),":",concat("""",quantity,"""")))as All_locations ');
     $this->db->from('item_quantities');
     $this->db->join('items','items.item_id=item_quantities.item_id','inner');
     $this->db->join('items_taxes','items_taxes.item_id=items.item_id','inner');
-    if($location_id=='all'){}else {
-    $this->db->where('location_id', $location_id); }
+    if($location_id=='all'){
+
+    }else {
+	    $this->db->where('location_id', $location_id); 
+	  }
     $this->db->where(array('items.deleted'=> 0));
     $this->db->group_by('item_quantities.item_id');
     $this->db->where($array);
     $data['itemss'] = $this->db->get()->result_array();
+    echo $this->db->last_query();
     $data['selected_location']=$location_id;
     if($location_id =='all'){
       $this->load->view('manager/sublists/items_sublist', $data );
@@ -464,7 +467,7 @@ public function items_undelete_data($id){
   $header = array( "Sale ID", "Sale Time","Customer Name","Customer GST No.", "Invoice Number","Shop ID",
   "Barcode","Item Name", "Item Category","Item Subcategory","Item Brand", "Taxable Value","HSN", "CGST %",
   "CGST Amt.","SGST %","SGST Amt.", "IGST %", "IGST Amt.", "Quantity", "Item Type","Discount", 
-  "Gross Value", "Sale Payments","Sale Type","Sale Status","Customer Type");
+  "Gross Value", "Sale Payments","Sale Type","Sale Status","Customer Type","Stock Edition");
   fputcsv($file, $header);
   
   
@@ -514,7 +517,8 @@ public function items_undelete_data($id){
   $sale_payment,
   ($row['sale_type'] == 1) ? "Invoice" : "Credit Note",
   ($row['sale_status'] == 0) ? "Active" : "Cancelled",
-  ($row['bill_type'] == 'ys') ? "Special Approval" : ucfirst($row['bill_type'])
+  ($row['bill_type'] == 'ys') ? "Special Approval" : ucfirst($row['bill_type']),
+  $item_info->custom6,
   ));
   }
   
