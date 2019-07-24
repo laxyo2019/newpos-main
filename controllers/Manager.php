@@ -357,7 +357,11 @@ public function items_undelete_data($id){
         $array[$key] = $value;
       }
     }
-    $this->db->select('items.*, GROUP_CONCAT(percent) AS percent, item_quantities.item_id, GROUP_CONCAT(CONCAT(CONCAT(CONCAT("""","loc_",""),location_id,""""),":",concat("""",quantity,"""")))as All_locations ');
+
+    // $this->db->select('items.*, GROUP_CONCAT(percent) AS percent, item_quantities.item_id, GROUP_CONCAT(CONCAT(CONCAT(CONCAT("""","loc_",""),location_id,""""),":",concat("""",quantity,"""")))as All_locations ');
+
+    $this->db->select('items.*','item_quantities.item_id AS item_quantities_item_id','item_quantities.quantity, GROUP_CONCAT(percent) AS percent, item_quantities.item_id, GROUP_CONCAT(CONCAT(CONCAT(CONCAT("""","loc_",""),location_id,""""),":",concat("""",quantity,"""")))as All_locations ');
+
     $this->db->from('item_quantities');
     $this->db->join('items','items.item_id=item_quantities.item_id','inner');
     $this->db->join('items_taxes','items_taxes.item_id=items.item_id','inner');

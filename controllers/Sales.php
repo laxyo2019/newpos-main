@@ -2521,8 +2521,6 @@ class Sales extends Secure_Controller
 
 				if($pointer_matched){
 					$final_discount = $final_discount<$dynamic_offer->discount ? $dynamic_offer->discount : $final_discount;
-
-					// $final_discount =  $dynamic_offer->discount;
 					//Update discount if older discount is less
 					$offer_status = 1 ;
 				}

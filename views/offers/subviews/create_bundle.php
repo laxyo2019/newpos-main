@@ -5,6 +5,10 @@
         <label>Title : </label>
         <input type="text" id="title" class="form-control" placeholder="Enter Title" required/>
     </div>
+    <div class="form-group col-sm-12">
+        <label>Barcode : </label>
+        <input type="text" id="barcode" class="form-control" placeholder="Enter Barcode" required/>
+    </div>
     <div class="form-group col-sm-6">
         <label>Select Type : </label>
         <select name="type" class="form-control" required>
@@ -13,6 +17,7 @@
             <option value="categories">Category</option>
             <option value="subcategories">Sub Category</option>
             <option value="brands">Brand</option>
+            <option value="barcode">Barcode</option>
         </select>
     </div>
     <div class="form-group col-sm-6 hide" id="category_div">
@@ -28,7 +33,7 @@
     <div class="form-group col-sm-12" id="bundle_div">
     <label>Select : </label>
     <div class="clearfix"></div>
-    <select name="bundle" class="form-control col-sm-12" id="insert_bun" style="width:100%!important" multiple required>
+    <select name="bundle" class="form-control col-sm-12" id="insert_bun" style="width:100%!important" multiple>
         <!-- options will b inserted acc to type through ajax -->
     </select>
     </div>
@@ -77,6 +82,7 @@ $(document).ready(function(){
     $('#submit_bundle').submit(function(e){
         e.preventDefault();
         var title = $('#title').val();
+        var barcode = $('#barcode').val();
         var type = $('[name="type"]').val();
         if(type=="subcategories"){
             var parent_id = $('[name="category"]').val();
@@ -84,7 +90,7 @@ $(document).ready(function(){
             var parent_id = 0;
         }
         var bundle = $('[name="bundle"]').val();
-        $.post('<?php echo base_url();?>/offers/insert_offer_bundle',{parent_id:parent_id,title:title,type:type,bundle:bundle},function(data){
+        $.post('<?php echo base_url();?>/offers/insert_offer_bundle',{barcode:barcode,parent_id:parent_id,title:title,type:type,bundle:bundle},function(data){
             $('#close').click();
             $.notify("Created Succesfully", { type:'success' } );
             insert_table();     

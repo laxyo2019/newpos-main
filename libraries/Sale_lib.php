@@ -889,6 +889,7 @@ class Sale_lib
 						}else{
 							$price = 150.00;
 						}
+
 					}else{
 						$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
 					}
