@@ -10,14 +10,8 @@
 
 <div class='col-sm-12 bg-info'  style='color: white;padding: 10px;margin-bottom: 20px;font-size: 15px;'> Sheet Name : <?php echo $sheets[0]->sheet_name;?></div>
 
-<div class='pull-right <?php if($sheets[0]->sheet_status != 'pending'){echo 'hide';}?>'>
 
-<div class='btn btn-xs padding-5 bg-warning' onclick='sheet_action(<?php echo $sheets[0]->parent_id;?>,"approve");'><span class='fa fa-check-square-o mar_r_7'></span>Approve</div>
-
-<div class='btn btn-xs padding-5 bg-danger'  onclick='sheet_action(<?php echo $sheets[0]->parent_id;?>,"discard");'><span class='fa fa-times-circle mar_r_7'></span>Discard</div>
-
-</div>
-<div class='clearfix' style='margin-bottom:10px;'></div>
+<div class='clearfix' style='margin-bottom:50px;'></div>
 <table>
   <thead>
     <tr>
@@ -95,7 +89,23 @@
   <?php endforeach; ?>
   </tbody>
 </table>
-<div class='col-sm-12' style='position: absolute;top: 11px;right: 0;text-align: right;color: #fff;'><?php echo $error_count;?> Out of <?php echo count($sheets);?> entries is inccorect</div>
+
+<div class='col-sm-12' style='position: absolute;top: 11px;right: 0;text-align: right;color: #fff;'><?php echo $error_count;?> Out of <?php echo count($sheets);?> entries is inccorect
+</div>
+</div>
+<div class='pull-right <?php if($sheets[0]->sheet_status != 'pending'){echo 'hide';}?>'>
+
+<div style="margin:35px 0;   top: 95px;position: absolute;right: 16px;">
+<?php if($error_count==0):?>
+
+<button class='btn btn-xs padding-5 bg-warning pull-right' onclick='sheet_action(<?php echo $sheets[0]->parent_id;?>,"approve");'><span class='fa fa-check-square-o mar_r_7'></span>Approve</button>
+
+<?php else:?>
+
+<button class='btn btn-xs padding-5 bg-danger pull-right'  onclick='sheet_action(<?php echo $sheets[0]->parent_id;?>,"discard");'><span class='fa fa-times-circle mar_r_7'></span>Discard</button>
+
+<?php endif;?>
+</div>
 </div>
 <script>
   $(document).ready( function () {
@@ -111,18 +121,8 @@
 
 //Action Either Approve or Discarded
 function sheet_action(sheet_id,action){
-  swal("Verify", {  //Verify User
-        content: {
-          element: "input",
-          attributes: {
-            placeholder: "Type your password",
-            type: "password",
-          },
-        },
-  })
-  .then((value) => {
-      $.post('<?php echo site_url();?>manager/verify_user',{pwd:value},function(data){
-        if(data==1){
+
+ 
           $('.content').html("<img src='<?php echo base_url('images/loader.gif'); ?>' alt='Loading'>");
           if(action=='approve'){  //Execute if action is approve
             $.post('<?php echo site_url();?>/items/upload_sheet_data_items/'+sheet_id,{},function(){
@@ -146,15 +146,8 @@ function sheet_action(sheet_id,action){
             });
           }
 
-        }else{
-          swal({
-            title: "",
-            text: data,
-            icon: "error",
-          });
-        }
-    });
-  });
+    
+  
 }
 
 </script>

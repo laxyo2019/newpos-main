@@ -43,7 +43,11 @@ class Sale_lib
 			}
 			// $register_modes['sale_invoice'] = $this->CI->lang->line('sales_invoice');
 		}
-		$register_modes['return'] = $this->CI->lang->line('sales_return');
+		$return_shops = array(1090,7,7562,13);
+		if(in_array($this->CI->session->userdata('person_id'),$return_shops)){
+			 $register_modes['return'] = $this->CI->lang->line('sales_return');
+		}
+		
 		return $register_modes;
 	}
 
@@ -740,7 +744,94 @@ class Sale_lib
 	{
 		$this->CI->session->unset_userdata('sales_giftcard_remainder');
 	}
+	public function check_offer_dynamic_pricing($item_id ){
 
+		if($locations_group_ids=$this->get_location_match()){
+			$offer_status = 0;
+
+			//-- if offer is applicable for logged in shop(person_id)
+			$this->CI->db->select();
+			$this->CI->db->where_in('location_group_id',$locations_group_ids);
+			$dynamic_offers = $this->CI->db->get_where('dynamic_prices',array(
+							'status' => 1,
+							'end_time>=' => date('Y-m-d H:i:s'),
+							'start_time<=' => date('Y-m-d H:i:s')
+						)
+					)->result();
+
+			$item_info = $this->CI->Item->get_info($item_id);
+			// if(isset(json_decode($item_info->discounts)->retail)){
+			// 	$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
+			// }else{
+				$final_discount = 0.00;  //there is no need of actual disacount of item if it comes under offer
+			// } 
+
+			foreach($dynamic_offers as $dynamic_offer){ //loop to opstimize best offer
+
+				//get applicable pointers IDs acc to location
+				$pointers_group_id = $dynamic_offer->pointer_group_id; 	
+
+				$pointer_info = $this->CI->db->select()->where('id',$pointers_group_id)->get('offer_pointer_groups')->row();
+
+				$pointer_array = json_decode($pointer_info->bundle); 
+
+				//get all name (category/subcategory/brand) as string
+				$types = $this->CI->db->select('GROUP_CONCAT(name) as name')->where_in('id',$pointer_array->entities)->get('master_'.$pointer_array->type)->row();
+				$pointer_matched = $this->get_pointer_match($item_id, $pointer_array->type, explode(',',$types->name));
+
+				if($pointer_matched){
+					$final_discount = $final_discount<$dynamic_offer->discount ? $dynamic_offer->discount : $final_discount;
+
+					// $final_discount =  $dynamic_offer->discount;
+					//Update discount if older discount is less
+					$offer_status = 1 ;
+				}
+			}
+
+			return $offer_status == 1 ? $final_discount : FALSE; 
+		}
+		
+	}	
+	
+	public function get_pointer_match($item_id, $type, $check_array = NULL)
+	{
+		switch ($type) {
+			case "categories":
+					if(in_array($this->CI->db->where('item_id', $item_id)->get('items')->row()->category, $check_array))
+					{
+						return True;
+					}
+				break;
+			case "subcategories":
+					if(in_array($this->CI->db->where('item_id', $item_id)->get('items')->row()->subcategory, $check_array))
+					{
+						return True;
+					}
+				break;
+			case "brands":
+					if(in_array($this->CI->db->where('item_id', $item_id)->get('items')->row()->brand, $check_array))
+					{
+						return True;
+					}
+				break;
+				
+			default:
+				return False;
+		}
+	}
+		public function get_location_match(){
+		$person_id = $this->CI->session->userdata('person_id');
+		$locations_group_ids = array();
+		$locations_groups = $this->CI->db->select('id,locations')->get_where('offer_location_groups',array('deleted'=>0))->result();
+		foreach($locations_groups as $locations_group){
+			$locations_groups_array =  json_decode($locations_group->locations);
+			if(in_array($person_id,$locations_groups_array)){
+				$locations_group_ids[] = $locations_group->id;
+			}
+		}
+		return empty($locations_group_ids) ? FALSE : $locations_group_ids;
+		//echo "</pre>"; print_R($locations_group_ids); die;
+	}
 	public function set_rewards_remainder($value)
 	{
 		$this->CI->session->set_userdata('sales_rewards_remainder', $value);
@@ -756,7 +847,7 @@ class Sale_lib
 		$this->CI->session->unset_userdata('sales_rewards_remainder');
 	}
 
-	public function add_item(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL, $offer_status=0 )
+	public function add_item(&$item_id, $quantity = 1, $item_location, $discount = 0, $price_mode = PRICE_MODE_STANDARD, $kit_price_option = NULL, $kit_print_option = NULL, $price_override = NULL, $description = NULL, $serialnumber = NULL, $include_deleted = FALSE, $print_option = NULL)
 	{
 		$item_info = $this->CI->Item->get_info_by_id_or_number($item_id);
 		$invoice_mode = $this->CI->session->userdata('billtype');
@@ -765,7 +856,7 @@ class Sale_lib
 
 		if(empty($discount))
 		{
-			$discount = json_decode($item_info->discounts)->$billtype;
+			$discount = isset(json_decode($item_info->discounts)->$billtype) ?  json_decode($item_info->discounts)->$billtype : 0;
 		}
 		
 		if($billtype == "1rupee")
@@ -788,20 +879,45 @@ class Sale_lib
 		if($price_mode == PRICE_MODE_STANDARD)
 		{
 			$cost_price = $item_info->cost_price;
-				if($unit_price == 0.00 && $offer_status==0){ //FIXED PRICE ITEM	
+				if($unit_price == 0.00){ //FIXED PRICE ITEM	
 					
-					// $categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
-					// if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories)){
-					// 	$price = 150.00;
-					// }else{
-					// 	$price = json_decode($item_info->cost_price)->$billtype;
-					// }
+					//Uncomment this---
+					$categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
+					if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories)){
+						if($item_info->item_number=='51170324021795'||$item_info->item_number=='51060324014178'){
+							$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
+						}else{
+							$price = 150.00;
+						}
+					}else{
+						$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
+					}
 
-					$price = json_decode($item_info->cost_price)->$billtype;
+					// comment this
+					// $price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
+					//Example 1,000 will be read as 1 so need to do this.
+
 					$discount = 0.00;
-				}else if($unit_price == 0.00 && $offer_status==1){
-					$price = json_decode($item_info->cost_price)->$billtype;
 				}else{ //DISCOUNTED ITEM
+					if($billtype=='retail' && $this->check_offer_dynamic_pricing($item_id)){
+						$discount = $this->check_offer_dynamic_pricing($item_id);
+					}
+					$barcode_array = array(
+						'134212022033304',
+						'134212022033307',
+						'134212019033299',
+						'134212022033363',
+						'134070125000779',
+						'134212021033303',
+						'134072019033509',
+						'134210125000095',
+						'134212021033306'
+					);
+					$session_billtype = $this->CI->session->userdata('billtype');
+					if(in_array($item_info->item_number,$barcode_array) && $billtype=='retail'){
+							$discount = 40.00;
+					}
+
 					$price = $unit_price;
 				}
 			

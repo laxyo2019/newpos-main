@@ -23,10 +23,10 @@ class Sales extends Secure_Controller
 		$this->_reload();
 	}
 
-	public function test($item_id)
-	{
-		echo $this->Pricing->check_active_offers($item_id);
-	}
+	// public function test($item_id)
+	// {
+	// 	echo $this->Pricing->check_active_offers($item_id);
+	// }
 
 	public function manage()
 	{
@@ -710,10 +710,7 @@ class Sales extends Secure_Controller
 
 	public function add()
 	{
-		$data = array();
-
-		$discount = 0;
-
+		$data = array(); $discount = 0;
 		$customer_id = $this->sale_lib->get_customer();
 
 		$item_id_or_number_or_item_kit_or_receipt = $this->input->post('item');
@@ -769,20 +766,8 @@ class Sales extends Secure_Controller
 		}
 		else
 		{
-			//update Discount according to dynamic pricing--
-			$offer_status=0;
-
-			$itemInfo_db = $this->Item->get_info($item_id_or_number_or_item_kit_or_receipt);
 			
-			if($itemInfo_db->unit_price !=0.00 ){
-				if($offer_discount = $this->check_offer_dynamic_pricing($item_id_or_number_or_item_kit_or_receipt)){
-					$discount = $offer_discount;
-					$offer_status=1;
-				}
-			}
-			
-			
-			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, PRICE_MODE_STANDARD,NULL,NULL,NULL,NULL,NULL,FALSE,NULL,$offer_status))
+			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount))
 			{
 				$data['error'] = $this->lang->line('sales_unable_to_add_item');
 			}
@@ -2499,23 +2484,27 @@ class Sales extends Secure_Controller
 		//echo "</pre>"; print_R($locations_group_ids); die;
 	}
 
-	public function check_offer_dynamic_pricing($item_id=-1){
+	public function check_offer_dynamic_pricing($item_id ){
 
 		if($locations_group_ids=$this->get_location_match()){
-			$Offer_status=0;
+			$offer_status = 0;
 
-			//-- if offer is applicable for login person_id
+			//-- if offer is applicable for logged in shop(person_id)
 			$this->db->select();
 			$this->db->where_in('location_group_id',$locations_group_ids);
-			$dynamic_offers = $this->db->get_where('dynamic_prices',array('status'=>1,'end_time>'=>date('Y-m-d H:i:s',time()),'start_time<'=>date('Y-m-d H:i:s',time())))->result();
+			$dynamic_offers = $this->db->get_where('dynamic_prices',array(
+							'status' => 1,
+							'end_time>=' => date('Y-m-d H:i:s'),
+							'start_time<=' => date('Y-m-d H:i:s')
+						)
+					)->result();
 
 			$item_info = $this->Item->get_info($item_id);
-			if(isset(json_decode($item_info->discounts)->retail)){
-				$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
-
-			}else{
-				$final_discount = 0.00;
-			}
+			// if(isset(json_decode($item_info->discounts)->retail)){
+			// 	$final_discount = json_decode($item_info->discounts)->retail; //Item's discount
+			// }else{
+				$final_discount = 0.00;  //there is no need of actual disacount of item if it comes under offer
+			// } 
 
 			foreach($dynamic_offers as $dynamic_offer){ //loop to opstimize best offer
 
@@ -2532,12 +2521,14 @@ class Sales extends Secure_Controller
 
 				if($pointer_matched){
 					$final_discount = $final_discount<$dynamic_offer->discount ? $dynamic_offer->discount : $final_discount;
+
+					// $final_discount =  $dynamic_offer->discount;
 					//Update discount if older discount is less
-					$Offer_status =1 ;
+					$offer_status = 1 ;
 				}
 			}
 
-			return $Offer_status==1 ? $final_discount : FALSE; 
+			return $offer_status == 1 ? $final_discount : FALSE; 
 		}
 		
 	}	

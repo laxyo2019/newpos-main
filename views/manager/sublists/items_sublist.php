@@ -9,6 +9,7 @@
       <th>SubCategory</th>
       <th>Brand</th>
       <th>Expiry Date</th>
+      <th>Stock Edition</th>
       <th>Size</th>
       <th>Color</th>
       <th>Model</th>
@@ -61,6 +62,7 @@
       <td><?php echo $item['subcategory']; ?></td>
       <td><?php echo $item['brand']; ?></td>
       <td><?php echo $item['custom5']; ?></td>
+      <td><?php echo $item['custom6']; ?></td>
       <td><?php echo $item['custom2']; ?></td>
       <td><?php echo $item['custom3']; ?></td>
       <td><?php echo $item['custom4']; ?></td>                

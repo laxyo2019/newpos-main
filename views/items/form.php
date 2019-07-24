@@ -384,18 +384,20 @@
 				</div>
 			</div>
 
-			<div class="form-group form-group-sm">
-				<?php echo form_label('SPECIAL APPROVAL', 'special', array('class'=>'control-label col-xs-3')); ?>
-				<div class='col-xs-8'>
-					<?php echo form_input(array(
-							'name'=> 'special',
-							'id'=> 'special',
-							'class'=>'form-control input-sm',
-							'value' => (empty($billtype_ys)) ? NULL : $billtype_ys
-							)
-					);?>
+			<?php if($this->Item->check_auth(array('superadmin'))){ ?>
+				<div class="form-group form-group-sm">
+					<?php echo form_label('SPECIAL APPROVAL', 'special', array('class'=>'control-label col-xs-3')); ?>
+					<div class='col-xs-8'>
+						<?php echo form_input(array(
+								'name'=> 'special',
+								'id'=> 'special',
+								'class'=>'form-control input-sm',
+								'value' => (empty($billtype_ys)) ? NULL : $billtype_ys
+								)
+						);?>
+					</div>
 				</div>
-			</div>
+			<?php } ?>
 		<?php } ?>
 
 	</fieldset>

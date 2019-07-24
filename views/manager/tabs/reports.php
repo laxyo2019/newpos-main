@@ -1,5 +1,5 @@
 <?php $this->load->view("partial/header"); ?>
-<?php if($this->Item->check_auth(array('superadmin', 'admin','accounts'))){ ?>
+<?php if($this->Item->check_auth(array('superadmin', 'admin','accounts','hub'))){ ?>
 <div class="row">
   <div class='bg-info' style='color:#fff;padding:10px;margin-bottom:20px;'>
       <a style='color:#fff' href='<?php echo site_url('manager');?>'><h4 style='display:inline'>Manager</h4>  </a>>> Reports 
