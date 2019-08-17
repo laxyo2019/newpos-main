@@ -103,7 +103,6 @@
 
 <button class='btn btn-xs padding-5 bg-danger pull-right'  onclick='sheet_action(<?php echo $sheets[0]->parent_id;?>,"discard");'><span class='fa fa-times-circle mar_r_7'></span>Discard</button>
 
-
 </div>
 </div>
 <script>

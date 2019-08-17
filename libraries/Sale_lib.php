@@ -883,8 +883,10 @@ class Sale_lib
 					
 					//Uncomment this---
 					$categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
+
 					$sub_categories = array("MEN'S JEANS","WOMEN'S JEANS");
 					if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories) && !in_array($item_info->subcategory,$sub_categories) ){
+						// for WS offer of 150 but jeans subcategory and 2 barcodes are excluded from offer
 						if($item_info->item_number=='51170324021795'||$item_info->item_number=='51060324014178'){
 							$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
 						}else{

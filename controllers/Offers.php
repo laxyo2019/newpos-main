@@ -89,7 +89,6 @@ class Offers extends Secure_Controller
 		
 		$response = array();
 		$valid_date_range = 0;
-
 		$array['title'] = $this->input->post('title');
 		$array['location_group_id']  = $this->input->post('locations');
 		$array['pointer_group_id'] = $this->input->post('pointers');
@@ -665,14 +664,23 @@ class Offers extends Secure_Controller
 		}else{
 			$post_bundle = $this->input->post('bundle');
 			$post_type = $this->input->post('type');
+			$post_barcode = $this->input->post('barcode');
 		}
 
 		$parent_id = $this->input->post('parent_id');
-		$bundle = array(
-			'type' =>  $post_type,
+		if($post_type!='barcode'){
+			$bundle = array(
+				'type' =>  $post_type,
 				'parent_id' => $parent_id,
-			'entities' =>$post_bundle
-		);
+				'entities' =>$post_bundle
+			);
+		}else{
+			$bundle = array(
+				'type' =>  $post_type,
+				'barcode' => $post_barcode
+			);
+		}
+	
 		$data['bundle'] = json_encode($bundle);
 		$data['title'] = $this->input->post('title');
 		$data['created_at']= date('Y-m-d H:i:s',time());
