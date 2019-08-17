@@ -58,7 +58,7 @@
       var quantity = <?php echo json_encode($quantity); ?>;
       var recv_id = $('#recv_id').val();
       $.post('<?php echo site_url($controller_name."/st_process");?>', {'receiving_id': receiving_id, 'item_id': item_id, 'quantity': quantity, 'good': good, 'bad': bad, 'scrap': scrap, 'recv_id':recv_id,'fn_cmnt': fn_cmnt}, function(data) {
-           alert(data);
+           // alert(data);
            location.reload();
       });
 

@@ -354,16 +354,21 @@ class Receivings extends Secure_Controller
 		$data['items'] = $items_sub_array;
 		$this->load->view('receivings/challan_excel', $data);
 	}
-
+	public function add_comment(){
+		$id =  $this->input->post('receiving_id');
+		$comment = $this->input->post('f_comment');
+		$this->db->set('final_comment', $comment);
+		$this->db->where('receiving_id', $id);
+		$this->db->update('receivings'); 
+		return 'Successfully updated';
+	}
 	public function stock_in()
 	{
 		$transfers = $this->get_transfers($this->session->userdata('person_id'), 'rows');
 		// $receivings = array('' => $this->lang->line('items_none'));
-
-
 		foreach($transfers->result_array() as $row)
 		{
-			$receiving_detail = $this->Stock_location->get_location_name2($row['employee_id']).' | '.$row['receiving_time'].' | Challan ID- '.$row['receiving_id'];
+			$receiving_detail = $this->Stock_location->get_location_name2($row['employee_id']).' | '.$row['final_comment'].' | '.$row['receiving_time'].' | Challan ID- '.$row['receiving_id'];
 			// to be continued...
 			$receivings[$this->xss_clean($row['receiving_id'])] = $this->xss_clean($receiving_detail);
 		}
@@ -372,6 +377,72 @@ class Receivings extends Secure_Controller
 		$this->load->view('receivings/stock_in', $data);
 	}
 
+	public function accept_receiving_items(){ //accept all items of receiving
+		$success = TRUE;
+		$receiving_id = $this->input->get_post('receiving_id');
+		$where = array(
+			'receiving_id' => $receiving_id,
+			'processed' => 0
+		);
+		$this->db->where($where);
+		$items = $this->db->get('stock_movement')->result_array();	
+		if(!empty($items))
+		{
+			foreach ($items as $item ){
+				$where2 = array(
+					'item_id' => $item['item_id'],
+					'receiving_id' => $receiving_id
+				);
+				$this->db->where($where2);
+				$query = $this->db->get('stock_movement');
+				if($query->row('processed') != 1){
+					$data = array(
+						'receiving_id' => $receiving_id,
+						'item_id' => $item['item_id'],
+						'accept' => $item['quantity'],
+						'good' => 0,
+						'bad' => 0,
+						'scrap' => 0,
+					);
+					$success &= $this->db->insert('stock_transfers', $data);
+					$owner_id = $this->Receiving->get_recv_stock_owner($receiving_id, 'destination');
+					$location_id = $this->Stock_location->get_location_id_2($owner_id);
+					$where3 = array(
+						'item_id' => $item['item_id'],
+						'location_id' => $location_id
+					);
+					$this->db->where($where3);
+					$query = $this->db->get('item_quantities');
+					$prev_qty = $query->row('quantity');
+					$new_qty = $prev_qty + $item['quantity'];
+					$data_array = array(
+						'quantity' => $new_qty
+					);
+					$this->db->where($where3);
+					$success &= $this->db->update('item_quantities', $data_array);
+					$data_array = array(
+						'processed' => 1
+					);
+					$this->db->where($where2);
+					$success &= $this->db->update('stock_movement', $data_array);
+				}			
+			}
+
+		}
+		$where = array(
+			'receiving_id' => $receiving_id,
+			'processed' => 0
+		);
+		$this->db->where($where);
+		$items = $this->db->get('stock_movement')->result_array();	
+		if(empty($items)){
+			$this->db->where('receiving_id', $receiving_id);
+			$this->db->update('receivings', array('completed'=>1)); 
+			echo 'Accepted Succesully';
+		}else{ 
+			echo 'Something Went Wrong.';
+		}
+	}
 	public function st_fetch_instance() // to fetch a particular transfer
 	{
 		
@@ -383,8 +454,8 @@ class Receivings extends Secure_Controller
 		$this->db->where($array);
 		$data['items'] = $this->db->get('stock_movement')->result_array();	
 		$new_data = $this->load->view('receivings/sub_st_list', $data);
-			echo $new_data;
-	//	$this->load->view('receivings/stock_in',$new_data);
+		return json_encode($new_data);
+		// $this->load->view('receivings/stock_in',$new_data);
 	}
 
 	public function st_process()
@@ -393,7 +464,7 @@ class Receivings extends Secure_Controller
 		$receiving_id = trim($this->input->post('receiving_id'));
 		//$item_id = trim($this->input->post('item_id'));
 
-	    $item_id = $this->input->post('item_id');
+	  $item_id = $this->input->post('item_id');
 		if(!empty($item_id))
 		{
 			$item_id_arr  = array();
