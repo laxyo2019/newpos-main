@@ -18,15 +18,13 @@ class Sales extends Secure_Controller
 		$this->load->library('token_lib');
 	}
 
+	public function test(){
+		
+	}
 	public function index()
 	{
 		$this->_reload();
 	}
-
-	// public function test($item_id)
-	// {
-	// 	echo $this->Pricing->check_active_offers($item_id);
-	// }
 
 	public function manage()
 	{
@@ -2385,6 +2383,7 @@ class Sales extends Secure_Controller
 
 	public function check_purchase_limits($customer_id)
   {
+  	$return_value = TRUE;
 		$today = date("Y-m-d");
 
     $this->db->select('
@@ -2442,8 +2441,30 @@ class Sales extends Secure_Controller
 				}
 			}
 		}
-
-		return (empty($disputed)) ? TRUE : json_encode($disputed);
+		if(!empty($disputed)){
+			if($locations_group_ids=$this->get_location_match()){
+				$this->db->select();
+				$this->db->where_in('location_group_id',$locations_group_ids);
+				$dynamic_offers = $this->db->get_where('dynamic_prices',array(
+								'status' => 1,
+								'end_time>=' => date('Y-m-d H:i:s'),
+								'start_time<=' => date('Y-m-d H:i:s')
+							)
+						)->result();
+				foreach($dynamic_offers as $offer){
+					$pointer = $this->db->where('id',$offer->pointer_group_id)->get('ospos_offer_pointer_groups')->row();
+					if(json_decode($pointer->bundle)->type == 'categories'){
+						foreach(json_decode($pointer->bundle)->entities as $entity){
+							$offer_category = $this->db->where('id',$entity)->get('master_categories')->row();
+							if($offer_category->name == $disputed['mci']){
+								$return_value = false;
+							}
+						}
+					}
+				}
+			}
+		}
+		return ($return_value) ? TRUE : '"'.$disputed['mci'].'" is exceeded by '.$disputed['exceed_by'];
 	}
 	//match pointer
 	public function get_pointer_match($item_id, $type, $check_array = NULL)

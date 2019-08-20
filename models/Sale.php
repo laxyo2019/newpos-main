@@ -119,16 +119,27 @@ class Sale extends CI_Model
 		echo $query->row('first_name').' '.$query->row('last_name');
 	}
 
+	// public function get_cashiers()
+	// {
+	// 	$response = array();
+	// 	$shop_id = $this->session->userdata('person_id');
+	// 	foreach($this->db->where('status', 'checked')->get('cashiers')->result_array() as $row)
+	// 	{
+	// 		if(in_array($shop_id, json_decode($row['shops'])))
+	// 		{
+	// 			$response[$row['id']] = $row['name'];
+	// 		}
+	// 	}
+	// 	return $response;
+	// }
 	public function get_cashiers()
 	{
 		$response = array();
 		$shop_id = $this->session->userdata('person_id');
-		foreach($this->db->where('status', 'checked')->get('cashiers')->result_array() as $row)
+		foreach($this->db->where('person_id',$shop_id)->get('cashier_shops')->result_array() as $row)
 		{
-			if(in_array($shop_id, json_decode($row['shops'])))
-			{
-				$response[$row['id']] = $row['name'];
-			}
+			$cashier_name = $this->db->where('id',$row['cashier_id'])->get('cashiers')->row();
+			$response[$row['cashier_id']] =  $cashier_name->name;
 		}
 		return $response;
 	}
