@@ -599,11 +599,17 @@ class Offers extends Secure_Controller
 		$data['name'] = $this->input->post('name'); 
 		$data['contact'] = $this->input->post('contact'); 
 		$data['webkey'] = $this->input->post('webkey'); 
+		$shops= $this->input->post('shops'); 
 		$cashier_id= $this->input->post('cashier_id'); 
 
+		$this->db->delete('cashier_shops',array('cashier_id'=>$cashier_id));
 		$this->db->where('id',$cashier_id);
 		$this->db->update('cashiers',$data);
-
+		if(!empty($shops)){
+			foreach($shops as $person_id){
+				$this->db->insert('cashier_shops',array('cashier_id'=>$cashier_id,'person_id'=>$person_id));
+			}
+		}
 		echo 'Edited Successfully.';
 	}
 	public function edit_loc($action){
@@ -611,8 +617,7 @@ class Offers extends Secure_Controller
 		$cashier_id = $this->input->post('cashier_id');
 		if($action=='insert'){
 			$data = array('cashier_id'=>$cashier_id,
-									'person_id'=>$loc_id,
-									'created_at'=>date('Y-m-d H:i:s')
+									'person_id'=>$loc_id
 								);
 			$this->db->insert('cashier_shops',$data);
 			echo 'Added Successfully.';

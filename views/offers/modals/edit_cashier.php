@@ -45,27 +45,34 @@
         ?>
     </div>
 </div>
-<div class="col-xs-2 pull-right">
-    <button class="btn btn-sm btn-success" id="cashier_save">Submit</button>
-</div>
-</div>
-<hr>
-<div class="row">
 <div class='col-sm-12'>
-<?php foreach($shops as $key=>$value):?>
+
+	 <select class="form-control" multiple="multiple" id="cashier_locations">
+      <?php foreach($shops as $key=>$value):?>
+        <option value="<?php echo $key; ?>" <?php if(in_array($key,$locations_arr)){
+                echo 'selected';
+             }?>><?php echo strtoupper($value); ?></option>
+      <?php endforeach; ?>
+    </select>
+
+<!-- <?php //foreach($shops as $key=>$value):?>
     <div class='col-sm-6'>
         <input 
             type='checkbox' 
             class='location_checkbox' 
-            value='<?php echo $key; ?>'
-            <?php if(in_array($key,$locations_arr)){
-                echo 'checked';
-             }?>>
-        <?php echo strtoupper($value); ?>
+            value='<?php //echo $key; ?>'
+            <?php//if(in_array($key,$locations_arr)){
+              //  echo 'checked';
+             //}?>>
+        <?php //echo strtoupper($value); ?>
     </div>
- <?php endforeach; ?>
+ <?php //endforeach; ?> -->
+</div>
+<div class="col-xs-2 pull-right" style="margin-top:16px;">
+    <button class="btn btn-sm btn-success" id="cashier_save">Submit</button>
 </div>
 </div>
+
 <script>
   $(document).ready(function(){
     $('#cashier_locations').select2();
@@ -83,6 +90,7 @@
         });
     });
     $('#cashier_save').on('click', function(){
+
 	  var shops = $('#cashier_locations').val();
       if(typeof(shops) != "undefined" && shops !== null) {
         shops.toString();
@@ -105,7 +113,7 @@
                     icon: "warning",
             });
       }else{
-        console.log(shops);
+        console.log('shops',shops);
             $.post('<?php echo site_url($controller_name."/cashier_edit");?>', {'cashier_id' : cashier_id, 'webkey':webkey,'shops': shops, 'name': name, 'contact': contact}, function(data) {
                 alert(data);
                 $('#close').click();
