@@ -144,7 +144,7 @@ $quantities  = !empty($data[0]['quantity'])?$data[0]['quantity']:'';
 		<td><?php echo $row['custom6']; ?></td>
 		<td><?php echo $row['unit_price']; ?></td>
 		<td><?php echo $quantities; ?></td>
-		<td class="print_hide headcol"><a href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
+		<td class="print_hide"><a href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
 
 		<a href="<?php echo site_url($controller_name.'/count_details/').$row['item_id'] ;?>" class="modal-dlg" title="Inventory Count Details"><span style="padding-right: 10px;" class="glyphicon glyphicon-list-alt"></span></a>
 
