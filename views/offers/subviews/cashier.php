@@ -1,11 +1,12 @@
 <div class="row">
     <span class="col-md-4 col-md-offset-8">
       <div class="form-group">
+        
         <select class="form-control" id="location_id" onchange="cashier(this);">
         <option value="" >Select Location</option>
           <?php foreach($locations as $key=>$value): ?>
-            <option value="<?php echo $key; ?>" ><?php echo strtoupper($value); ?></option>
-          <?php endforeach; ?>
+            <option value="<?php echo $key.','.$value; ?>" ><?php echo strtoupper($value); ?></option>
+           <?php endforeach; ?>
         </select>
       </div>
     </span>
@@ -17,7 +18,7 @@
   function cashier(e){
     x = $(e).val();
     $("#shop_id").val(x);
-    console.log(x);
+  
     if(x!=""){
       $.ajax({ 
             url: "<?php echo site_url('offers/get_cashiers')?>",

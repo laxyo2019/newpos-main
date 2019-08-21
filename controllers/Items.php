@@ -12,8 +12,8 @@ class Items extends Secure_Controller
 	}
 	public function index()
 	{
-		$data['table_headers'] = $this->xss_clean(get_items_manage_table_headers());
-
+		//$data['table_headers'] = $this->xss_clean(get_items_manage_table_headers());
+		$data['data'] = $this->Item->get_all_item(-1,100,0)->result_array();
 		 $data['stock_location'] = $this->xss_clean($this->item_lib->get_item_location());
 		 $data['stock_locations'] = $this->xss_clean($this->Stock_location->get_allowed_locations());
 
@@ -185,6 +185,129 @@ class Items extends Secure_Controller
 		echo json_encode($result);
 	}
 
+	public function get_suggestion()
+	{	
+		$sug         = $this->input->post('search');
+		$location_id = $this->input->post('location_id');
+		$slc_subcate = $this->input->post('slc_subcate');
+		$slc_cate    = $this->input->post('slc_cate');
+		$slc_brnd    = $this->input->post('slc_brnd');
+		$filters     = $this->input->post('filters');
+	 	$edition_id  = $this->input->post('edition_id'); 
+	 		
+		$cat_name = '';
+		if(!empty($slc_cate) && $slc_cate !='Categorie..'){
+			$this->db->from('master_categories');
+			$this->db->where('id',$slc_cate);
+			$cat_ls = $this->db->get()->result();
+			$cat_name = !empty($cat_ls[0]->name)?$cat_ls[0]->name:'';
+		}
+
+		if($slc_subcate == 'Subcategorie..'){
+		 	  $slc_subcate = '';	  
+		 }
+
+		 if(($slc_cate =='Categorie..')){
+		 	$slc_cate = '';
+		 }
+		 if($slc_brnd == 'Brand..'){
+		 	$slc_brnd == '';
+		 }
+
+		 if($edition_id=='Stock Edition...'){
+		 	$edition_id = '';
+		 }
+
+
+		$this->db->from('items');
+		$this->db->join('item_quantities', 'item_quantities.item_id = items.item_id','LEFT');
+		$this->db->group_by('item_quantities.item_id');
+		$this->db->order_by('items.item_id', 'DESC');
+		$this->db->limit(200);
+		
+		//$this->db->having('items.deleted', 0);
+		
+		// if(!empty($slc_cate) && ($slc_cate !='Categorie..')){
+		// 	$this->db->where('category',$cat_name);
+		// }
+		//$this->db->having('deleted',0);
+
+		if(!empty($edition_id)){
+		 	$this->db->where('items.custom6',$edition_id);
+		 }
+		
+		if(!empty($location_id)){
+			$this->db->where('location_id',$location_id);
+		}
+
+		if(!empty($cat_name)){
+			$this->db->where('category',$cat_name);
+		}
+
+		if(!empty($slc_subcate)){
+			$this->db->where('subcategory',$slc_subcate);
+		}
+		if($slc_brnd != 'Brand..'){
+			$this->db->where('brand',$slc_brnd );	
+		}
+		
+		if(!empty($id)){
+			$this->db->where('item_number',$id);
+		}		
+		if(in_array('empty_upc',$filters))
+		{
+			$this->db->where('items.item_number',NULL,TRUE);
+		}
+		if(in_array('low_inventory',$filters))
+		{
+			$this->db->where('quantity',0);
+		}
+		if(in_array('is_serialized',$filters))
+		{
+			$this->db->where('is_serialized', 1);
+		}
+		if(in_array('no_description',$filters))
+		{
+			$this->db->where('description !=',NULL);
+		}
+		
+		if(!empty($filters))
+		{
+			if(in_array('is_deleted',$filters)){
+				
+				$this->db->having('deleted',1);
+			}else{
+		 		$this->db->having('deleted',0);
+			}
+		}
+
+		if(is_numeric($sug)){
+			$this->db->like('items.item_number', $sug);
+		}
+		else{
+			if(!empty($sug)){
+				
+				if(!empty($cat_name) && ((!empty($sug)) && empty($slc_subcate))){
+					$this->db->like('subcategory',$sug);
+				}
+				
+			 	if(!empty($cat_name) && !empty($sug) && !empty($slc_subcate)){
+			 		$this->db->like('brand', $sug);
+			 	}
+			 	if(!empty($sug) && empty($cat_name) && empty($slc_subcate)){
+			 		$this->db->like('name',$sug);
+			 		$this->db->or_like('subcategory',$sug);
+			 		$this->db->or_like('brand', $sug);	
+			 		$this->db->or_like('items.item_number', $sug);
+			 		$this->db->or_like('items.item_id', $sug);
+			 		$this->db->or_like('category', $sug);
+			 	}
+			}
+		}
+		$query = $this->db->get();
+		$data['data']= $query->result_array();
+		$this->load->view('items/item_table', $data);
+	}
 	// public function custom_script()
 	// {
 	// 	$str = '32A,
@@ -1980,7 +2103,11 @@ class Items extends Secure_Controller
 		$this->db->where(array('tag'=>'sheet_uploader','id'=>$id,'varchar_value'=>$pwd));
 		echo $this->db->count_all_results();
 	}
-
+	public function get_subcate(){
+		$cat_id = $this->input->post('id');
+		$data = $this->Item->get_subcate($cat_id);
+		return $data ;
+	}
 	
 }
 ?>

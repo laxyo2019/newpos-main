@@ -869,7 +869,7 @@ public function items_undelete_data($id){
   {
     $location_name = $this->input->post('report_edit');
     $data['editadd'] = $this->db->select('location_id, location_name, shop_incharge, alias, address, tnc')->where('location_name',$location_name)->get('stock_locations')->result_array();
-    $this->load->view('manager/sublists/detailifo_location',$data);
+    $this->load->view('manager/sublists/detail_info_location',$data);
   }
 
    public function save_stocklocation()

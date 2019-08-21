@@ -15,6 +15,9 @@
             <li role="presentation "  id="location_tab">
                 <a data-toggle="tab" href="javascript:void(0)" onclick="load_loc_group()" title="Locations groups">Locations groups</a>
             </li>
+            <li role="presentation "  id="custom_tab">
+                <a data-toggle="tab" href="javascript:void(0)" onclick="load_custom_tab()" title="Locations groups">Custom Field</a>
+            </li>
         </ul>
     </div>
     <hr>
@@ -50,9 +53,15 @@ function load_cashier_details(){
   });
 }
 
-$(document).ready( function () {
-  load_cashier();
-   // $('#offers').load('<?php //echo site_url('offers/load_offer_bundle');?>',function(data){});   
-    dialog_support.init("button.modal-dlg-wide, a.modal-dlg-wide");
-})
+function load_custom_tab(){
+  $.post('<?php echo base_url();?>offers/load_custom_tab',{},function(data){
+    $('.content').html(data);
+  });
+}
+
+// $(document).ready( function () {
+//   load_cashier();
+//    // $('#offers').load('<?php //echo site_url('offers/load_offer_bundle');?>',function(data){});   
+//     dialog_support.init("button.modal-dlg-wide, a.modal-dlg-wide");
+// })
 </script>

@@ -1,6 +1,7 @@
 <?php $this->load->view("partial/header"); ?>
 
 <?php
+$data_item = array();
 	$error_count = 0;
 	$total=0;
 if (isset($error))
@@ -44,6 +45,14 @@ if (isset($msg))
 
 		<a href='<?php echo site_url($controller_name."/view_transfer_manager");?>' id="transfer_manager" class="btn btn-sm btn-info pull-right" target="_blank"	title='Transfer Manager'>
 			Manage Transfer</a>
+
+		<button style="margin-right: 7px;" class="btn btn-sm btn-info pull-right hit_rmv_btn">Remove</button>	
+		
+		<a style="display: none; margin-right: 7px;" href='' id="rmv_out" class="btn btn-sm btn-info pull-right" title='Remove All Out Of Stocks'>
+			Remove</a>
+		
+		<a style="display: none; margin-right: 7px;" href='<?php echo site_url($controller_name."/all_delete_item_view");?>' id="reload_btn" class="btn btn-sm btn-info pull-right" title='Remove All Out Of Stocks'>
+		Remove</a>
 
 		<?php
 			// if(!empty($pending_transfers)){ 
@@ -175,10 +184,11 @@ if (isset($msg))
 			{
 			
 				foreach(array_reverse($cart, TRUE) as $line=>$item)
-				{		
+				{	
 						$total++;
 						$text_danger = 	$item['in_stock']>0 ? '' : "text-danger";
 						if($item['in_stock']<=0){
+							$data_item[] = $item['line'];
 							$error_count++;
 						}
 			?>
@@ -392,8 +402,31 @@ if (isset($msg))
 		?>
 	</div>
 </div>
+<input type="hidden" value="<?php echo implode(",",$data_item); ?>" name="rmv_id[]" id="rmv_id">
 
 <script type="text/javascript">
+
+$(document).ready(function(){
+	$('.hit_rmv_btn').hover(function(){
+		var ids =  $('#rmv_id').val();
+	
+		if(ids == ''){
+			$('.hit_rmv_btn').attr("disabled", 'disabled');
+		}
+		else{
+			$('.hit_rmv_btn').attr("disabled", false);	
+		}
+		$('#rmv_out').attr('href','<?php echo site_url($controller_name.'/all_delete_item/?id=');?>'+ids);
+	});
+})
+
+$(document).on('click','.hit_rmv_btn',function(){
+		$('#rmv_out')[0].click();
+	setTimeout(function() {
+	    $('#reload_btn')[0].click();
+	}, 4e3);	
+})
+
 $(document).ready(function()
 {
 	$("#item").autocomplete(

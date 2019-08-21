@@ -25,7 +25,14 @@
 				<td><?php echo $row['shop_incharge']; ?></td>
 				<td><?php echo $row['alias']; ?></td>
 				<td><?php echo $row['address']; ?></td>
-				<td><?php echo $row['tnc']; ?></td>
+				<td>
+					<section>
+					<p style="font-size: 0.8em; padding: 0px 5px; margin: 0px;">TERMS AND CONDITIONS</p>
+					<h6 style="font-size: 0.7em; padding: 5px; margin: 0px">
+					<?php echo $row['tnc']; ?>
+					</h6>
+					</section>
+					</td>
 				<td><a class="modal-dlg-wide" title="Edit" href="<?php echo site_url($controller_name."/edit_stocklocation/".$row['location_id']); ?>"><span class="glyphicon glyphicon-pencil"></a></td>
 			</tr>
 		<?php endforeach; ?>

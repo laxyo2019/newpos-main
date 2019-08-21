@@ -166,6 +166,48 @@ class Receivings extends Secure_Controller
 		$this->_reload($data);
 	}
 
+	
+	public function all_delete_item_view(){
+		$this->_reload();
+	}		
+
+	public function all_delete_item()
+	{	
+		$item_number = $this->input->get('id');
+		$item_number = explode(',',$item_number);
+		
+		//$this->load->library('Excel');
+		
+		$data_array =array();
+
+		foreach ($item_number as $id) {
+			$data = $this->receiving_lib->delete_item($id);
+			$data_array[] = $data;
+		}
+
+		$filename = 'DBF Out Of Stock Data'.date('d-m').'.csv';
+				
+		header("Content-Description: File Transfer");
+		header("Content-Disposition: attachment; filename=$filename");
+		header("Content-Type: application/csv; ");
+		
+	   // file creation
+		$file = fopen('php://output', 'w');
+	    $header = array("Barcode","Item Name","Quantity","Price");
+		fputcsv($file, $header);
+		  
+	    foreach($data_array as $row){
+	    	fputcsv($file,array(
+				 	$row['item_number'],
+			 		$row['name'],
+			 		$row['quantity'],
+			 	 	$row['price']
+				 	));
+	     }
+
+		fclose($file);
+	  	 
+	}
 	public function edit_item($item_id)
 	{
 		$data = array();

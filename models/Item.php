@@ -1124,5 +1124,74 @@ class Item extends CI_Model
 
 	}
 
+
+	public function get_cate($id=""){
+		$this->db->select('*');
+		$this->db->from('master_categories');
+		if(!empty($id)){
+			$this->db->where('id',$id);
+		}
+		$query = $this->db->get();
+		$data  = $query->result();
+		return $data;
+	}
+
+	public function get_subcate($id=""){
+		$this->db->from('master_subcategories');
+		$this->db->where('parent_id',$id);
+		$query = $this->db->get();
+		$data  = $query->result();
+		?>
+		<option>Subcategorie..</option>
+		<?php 
+			foreach ($data as $row) { ?>
+				<option value="<?php echo $row->name; ?>"><?php echo $row->name; ?></option>
+	<?php
+			}
+	}
+
+	public function get_brand(){
+		$this->db->select('*');
+		$this->db->from('master_brands');
+		$query = $this->db->get();
+		$data  = $query->result();
+		return $data;
+	}
+
+	// public function get_stock_edition($id=''){
+	// 	$this->db->select('*');
+	// 	$this->db->from('ospos_stock_edition');
+	// 	if(!empty($id)){
+	// 		$this->db->where('id',$id);
+	// 	}
+	// 	$query = $this->db->get();
+	// 	$data  = $query->result();
+	// 	return $data;
+	// }
+
+	public function get_all_item($stock_location_id = -1, $rows = 0, $limit_from = 0)
+	{
+		$this->db->from('items');
+		$this->db->join('suppliers', 'suppliers.person_id = items.supplier_id', 'left');
+
+		if($stock_location_id > -1)
+		{
+			$this->db->join('item_quantities', 'item_quantities.item_id = items.item_id');
+			$this->db->where('location_id', $stock_location_id);
+		}
+		
+		$this->db->where('items.deleted', 0);
+
+		// order by name of item
+		$this->db->order_by('items.item_id', 'DESC');
+
+		if($rows > 0)
+		{
+			$this->db->limit($rows, $limit_from);
+		}
+
+		return $this->db->get();
+	}
+
 }
 ?>

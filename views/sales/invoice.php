@@ -251,7 +251,12 @@ $(document).ready(function()
 				<div class="clearfix"></div>
 				<br>
 				<section style="padding: 0px 5px;">
+					<section>
+					<p style="font-size: 0.8em; padding: 0px 5px; margin: 0px;">TERMS AND CONDITIONS</p>
+					<h6 style="font-size: 0.7em; padding: 5px; margin: 0px">
 					<?php echo $this->Sale->get_invoice_details($sale_id_num)['tnc']; ?>
+					</h6>
+					</section>
 				</section>
 				
 				<div style="width: 200px;margin: auto;display: block">

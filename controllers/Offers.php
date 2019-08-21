@@ -334,7 +334,38 @@ class Offers extends Secure_Controller
 		$this->db->where('id', $this->input->post('id'));
 		echo ($this->db->update('purchase_limiter', $data)) ? 'success' : 'failed';
 	}
-	
+	public function cashier_add2($loc_name='',$loc_id='',$array=''){
+			$loc_name = $this->input->get('loc_name');
+			$loc_id   = $this->input->get('loc_id');
+			$id       = $this->input->get('id');
+			
+		foreach($this->Pricing->get_active_shops(array('shop', 'dbf', 'hub')) as $row)
+			{
+				$shops[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['first_name']);
+			}
+		$ids = explode(',',$id);
+
+		$data['shops']    = $shops;
+		$data['loc_name'] = $loc_name;
+		$data['loc_id']   = $loc_id;
+		$data['id']       = $ids;
+		
+		$this->load->view('offers/modals/add_cashier2',$data);
+	}
+
+		public function add_cashier_loc(){
+		$cashier_id  = $this->input->post('name');
+		$location_id = $this->input->post('location_id');
+		
+		$data = array('cashier_id'=>$cashier_id,
+					'person_id'=>$location_id,
+					);
+		$this->db->insert('cashier_shops',$data);
+		if($data){
+			echo 'Added Successfully.';
+		}
+	}
+
 	public function active_plimit_window()
 	{
 		$this->load->view('offers/sublists/active_plimit_window');
@@ -484,11 +515,26 @@ class Offers extends Secure_Controller
 		$this->load->view("offers/subviews/edit_gift_vc",$data);
 	}
 
+	public function change_custom_status(){
+		$id = $this->input->post('id');
+		$status = $this->input->post('status');
+		$data = $this->Offers_manage->update_status($id,$status);
+	}
+
 	public function view_gift_vc($id){
 		$data['id']=$id;
 		$this->load->view("offers/subviews/display_created_vc",$data);
 	}
-	
+	public function load_custom_tab(){
+		$this->load->view('offers/subviews/custom_fields');
+	}
+	public function get_custom_tags(){
+		$id = $this->input->post('id');
+		$data['data'] = $this->Offers_manage
+
+		->get_custom_data('tag',$id);
+		return $this->load->view('offers/subviews/custom_field_table',$data); 
+	}
 	public function view_purchase_limits(){
 		$data['mci_data'] = $this->Item->get_mci_data('all');
 		$this->load->view("offers/submodules/purchase_limits",$data);
@@ -579,12 +625,21 @@ class Offers extends Secure_Controller
 			echo 'Deleted Successfully.';
 		}
 	}
-	public function cashier_save(){
+		public function cashier_save(){
+		
 		$shops = $this->input->post('shops'); //array
+
 		$data['name'] = $this->input->post('name'); 
 		$data['contact'] = $this->input->post('contact'); 
-		$data['webkey'] = $this->input->post('webkey'); 
+		$data['webkey'] = $this->input->post('webkey');
+		$location_id = !empty($this->input->post('location_id'))?$this->input->post('location_id'):''; 
+
 		$row_count = 	$this->db->get_where('cashiers',array('name'=>$data['name']))->num_rows();
+		
+		if(!empty($location_id)){
+			$shops[] = $location_id;
+		}
+
 		if($row_count>0){
 			echo TRUE;
 		}else{
@@ -594,7 +649,6 @@ class Offers extends Secure_Controller
 				foreach($shops as $shop){
 					$data_loc['cashier_id'] = $cashierId;
 					$data_loc['person_id'] = $shop;
-					$data_loc['created_at'] = date('Y-m-d H:i:s');
 					$this->db->insert('cashier_shops',$data_loc);
 				}
 			}
@@ -711,7 +765,18 @@ class Offers extends Secure_Controller
 		}
 		echo $result;
 		}
+		public function add_tags(){
+			$title     = $this->input->post('title');
+			$alias     = $this->input->post('alias');
+			$int_value = $this->input->post('int_value');
+			$tag_name  = $this->input->post('tag_name');
 
+			$data = array('title'=>$title,'alias'=>$alias,'int_value'=>$int_value,'tag'=>$tag_name);
+			$result = $this->Offers_manage->add_tags($data);
+
+			return $result;
+
+		}
 		public function fetch_tags(){
 			$this->db->select('id, alias as name');
 			$this->db->where('tag','category_tag');
@@ -723,6 +788,12 @@ class Offers extends Secure_Controller
 			echo $result;
 		}
 
+		public function create_tag($tag_name=''){
+			$tag_name1 = $this->input->post('tag_name');
+			echo $tag_name1;
+			$data['data'] = $tag_name;
+			$this->load->view('offers/subviews/create_tag',$data);
+		}
 		public function view_offer_bundle_table(){
 			$data['bundles']=$this->db->get_where('offer_pointer_groups',array('deleted'=>0))->result();
 			$this->load->view('offers/sublists/offer_bundle_table',$data);

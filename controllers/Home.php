@@ -116,7 +116,9 @@ class Home extends Secure_Controller
 			$location_ow= $this->input->get('per');
 			//Total
 			$this->db->select_sum('quantity');
+			$this->db->join('items','items.item_id = item_quantities.item_id');
 			$this->db->where('location_id',$location_id);
+			$this->db->where('deleted',0);
 			$query = 	$this->db->get('item_quantities');
 			$data['itemcount']= $query->row()->quantity?$query->row()->quantity:0; 
 

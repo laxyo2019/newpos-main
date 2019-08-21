@@ -3,13 +3,25 @@
     transform: rotate(180deg);
 }
 </style>
+<?php $loc_name = !empty($shop_details[0]->location_name)?$shop_details[0]->location_name:'';
+      $loc_id   = !empty($shop_details[0]->location_owner)?$shop_details[0]->location_owner:'';
+      $ids = array();
+      foreach ($cashiers as $person) {
+          $ids[] = $person->id;
+      }
+      $id = implode(',',$ids);
+      
+ ?>
+    
 <div class="row">
 <div class="col-sm-4">
          <div  class='list-group-item disabled' style='background-color: #132639;color:#fff;font-size:15px;'>
             <span class='glyphicon glyphicon-user' style='color: white;margin-right:10px;'></span>
-            Cashiers 
+            Cashiers
+
+             <button id="add_cashier" class="btn btn-xs btn-info col-sm-3 col-sm-offset-1 pull-right modal-dlg" data-href='<?php echo site_url($controller_name."/cashier_add2/?loc_name="); ?><?php echo $loc_name.'&loc_id='. $loc_id.'&id='. $id; ?>'>Add Cashier</button>
          </div>
-<?php if($cashiers){ ?>
+    <?php if($cashiers){ ?>
        <?php foreach($cashiers as $row): ?>
         <div class="panel-group">
         <div class="panel panel-default">
@@ -119,7 +131,12 @@
 <br><br>
 
 <script>
-   CKEDITOR.replace( 'tnc' );
+    $(document).ready(function(){
+        dialog_support.init(".modal-dlg");
+        $('.cashier_toggle').bootstrapToggle();
+   });
+
+    CKEDITOR.replace( 'tnc' );
     CKEDITOR.replace( 'address' );
 </script>
 <script>
