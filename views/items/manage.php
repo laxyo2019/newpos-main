@@ -90,9 +90,6 @@ $(document).ready(function()
 						title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
 				<span class="glyphicon glyphicon-tag">&nbsp</span><?php echo $this->lang->line($controller_name. '_new'); ?>
 		</button>
-		<button class="btn btn-info btn-sm pull-right" id="filter_data_btn">	
-				<span class="glyphicon glyphicon-filter">&nbsp</span>Filter
-		</button>
 	    
 	<?php } ?>
 		<?php if($this->Item->is_both()) { ?>
@@ -147,21 +144,23 @@ $(document).ready(function()
 			<?php	}
 				 ?>
 			</select>
-
-			<select class="hidden" style="max-width: 145px;" id ="edition_id" class=" selectpicker show-menu-arrow" data-width="12%"  data-style='btn-default btn-sm'>
+			<?php
+				$edition = $this->Item->get_stock_edition();
+			?>
+			<select class="form-control" style="max-width: 145px;padding:0!important;height:36px !important" id ="edition_id" class=" selectpicker show-menu-arrow" data-width="12%"  data-style='btn-default btn-sm'>
 				<option>Stock Edition...</option>
-				<?php
-					//$edition = $this->Item->get_stock_edition();
-					$edition = array();
+			<?php
 					foreach ($edition as $edit) { ?>
-						<option value = "<?php echo $edit->id ; ?>"><?php echo $edit->name ; ?></option>
+						<option value = "<?php echo $edit->custom6 ; ?>"><?php echo $edit->custom6 ; ?></option>
 			<?php	}
 				 ?>
 			</select>
 
-
-			<input style="width: 25%;" placeholder="Search" id="serch_item" class="pull-right form-control input-sm">
-
+			<button style="margin-left:15px;padding:5px;" class="btn btn-info btn-sm pull-right" id="filter_data_btn">	
+					Get Items
+			</button>
+			<input style="width: 20%;" placeholder="Search" id="serch_item" class="pull-right form-control input-sm">
+			
 	    </div>
 	</div>
 

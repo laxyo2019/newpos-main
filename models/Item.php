@@ -1158,16 +1158,14 @@ class Item extends CI_Model
 		return $data;
 	}
 
-	// public function get_stock_edition($id=''){
-	// 	$this->db->select('*');
-	// 	$this->db->from('ospos_stock_edition');
-	// 	if(!empty($id)){
-	// 		$this->db->where('id',$id);
-	// 	}
-	// 	$query = $this->db->get();
-	// 	$data  = $query->result();
-	// 	return $data;
-	// }
+	public function get_stock_edition(){
+		$this->db->select('custom6');
+		$this->db->distinct();
+		$this->db->from('items');
+		$query = $this->db->get();
+		$data  = $query->result();
+		return $data;
+	}
 
 	public function get_all_item($stock_location_id = -1, $rows = 0, $limit_from = 0)
 	{

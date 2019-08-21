@@ -141,7 +141,7 @@ $quantities  = !empty($data[0]['quantity'])?$data[0]['quantity']:'';
 		<td><?php echo $row['custom2']; ?></td>
 		<td><?php echo $row['custom3']; ?></td>
 		<td><?php echo $row['custom5']; ?></td>
-		<td><?php echo $row['custom6	']; ?></td>
+		<td><?php echo $row['custom6']; ?></td>
 		<td><?php echo $row['unit_price']; ?></td>
 		<td><?php echo $quantities; ?></td>
 		<td class="print_hide headcol"><a href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
