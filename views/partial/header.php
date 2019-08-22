@@ -66,6 +66,8 @@
 		<script type="text/javascript" src="js/imgpreview.full.jquery.js"></script>
 		<script type="text/javascript" src="js/manage_tables.js"></script>
 		<script type="text/javascript" src="js/nominatim.autocomplete.js"></script>
+		<script type="text/javascript" src="js/notify.js"></script>
+
 		<!-- end js template tags -->
 
 		

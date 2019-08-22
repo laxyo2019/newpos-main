@@ -90,6 +90,7 @@ $(document).ready(function () {
   }); 
    
 </script>
+<div class="clearfix"></div>
 <table id="table123" class="table table-responsive table-striped ">
 <thead>
 	<tr>
@@ -121,11 +122,10 @@ foreach($data as $row){
 $item_id     = !empty($row['item_id'])?$row['item_id']:'';
 $location_id = !empty($row['location_id'])?$row['location_id']:'';
 
-$data        = $this->Item->get_multiple_info($item_id,$location_id)->result_array();
-$quantities  = !empty($data[0]['quantity'])?$data[0]['quantity']:'';
+$data  = $this->Item->get_multiple_info($item_id,$location_id)->result_array();
 
 ?>		
-	<tr>
+	<tr data-uniqueid="<?php echo $row['item_id'];?>">
 		<?php if($this->Item->is_both()) { 
 			 if($this->Item->is_superadmin()) { ?>
 				<td><input type="checkbox" class="sub_chk" data-id="<?php echo $row['item_id']; ?>"></td>
@@ -143,14 +143,66 @@ $quantities  = !empty($data[0]['quantity'])?$data[0]['quantity']:'';
 		<td><?php echo $row['custom5']; ?></td>
 		<td><?php echo $row['custom6']; ?></td>
 		<td><?php echo $row['unit_price']; ?></td>
-		<td><?php echo $quantities; ?></td>
-		<td class="print_hide"><a href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
+		<td class="qty_td"><?php echo  $row['quantity']; ?></td>
+		<td class="print_hide">
+<?php if($this->Item->check_auth(array('superadmin','admin'))) {?>
+
+	<a href="JavaScript:void(0)" class="qty_update" id="<?php echo $row['quantity'] ?>" data-btn-submit="Submit" title="Quick Quantity Update" style="margin-right: 9px;color: #000022d6;"><span class="glyphicon glyphicon-erase"></span></a>
+
+<?php } ?>
+			<a href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
 
 		<a href="<?php echo site_url($controller_name.'/count_details/').$row['item_id'] ;?>" class="modal-dlg" title="Inventory Count Details"><span style="padding-right: 10px;" class="glyphicon glyphicon-list-alt"></span></a>
 
-		<a href="<?php echo site_url($controller_name.'/view/') .$row['item_id']; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Item"><span class="glyphicon glyphicon-edit"></span></a></td>
+		<?php if($this->Item->check_auth(array('superadmin','admin'))) {?>
+
+		<a href="<?php echo site_url($controller_name.'/view/') .$row['item_id']; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Item"><span class="glyphicon glyphicon-edit"></span></a>
+
+		<?php } ?>
+	</td>
 	</tr>
 
 <?php }
 ?>	</tbody> 
 </table>
+
+<script>
+
+	$(document).ready(function(){
+			$(".qty_update").on('click', function(event){
+			var item_id = $(this).parent().parent().attr('data-uniqueid');
+			var item_qty = this.id;
+			console.log('item_id: '+item_id);
+			console.log('item_quantity: '+item_qty);
+			var new_qty = prompt("Please enter value", item_qty);
+			if(new_qty)
+			{
+				new_qty = new_qty.trim();
+				new_qty = parseInt(new_qty, 10);
+				if(Number.isInteger(new_qty))
+				{
+						new_qty = Math.abs(new_qty);
+						console.log(new_qty);
+						$.post('<?php echo site_url($controller_name."/quick_item_quantity_update"); ?>', {'item_id': item_id, 'new_qty': new_qty}, function(data) {
+							if(data=='Successfully Updated'){
+								$.notify(data);
+								// $("#"+item_qty).parent().parent().find('.qty_td').text(new_qty);
+							}else{
+								$.notify(data);
+							}
+								// location.reload();
+      	      });
+				}
+				else
+				{
+					console.log('invalid');
+				} 
+			}
+			else
+			{
+				console.log("empty");
+			}
+		});
+
+		})
+	</script>

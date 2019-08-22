@@ -13,7 +13,8 @@ class Items extends Secure_Controller
 	public function index()
 	{
 		//$data['table_headers'] = $this->xss_clean(get_items_manage_table_headers());
-		$data['data'] = $this->Item->get_all_item(-1,100,0)->result_array();
+		$data['data'] = $this->Item->get_all_item(7,100,0)->result_array();
+
 		 $data['stock_location'] = $this->xss_clean($this->item_lib->get_item_location());
 		 $data['stock_locations'] = $this->xss_clean($this->Stock_location->get_allowed_locations());
 
@@ -25,6 +26,7 @@ class Items extends Secure_Controller
 			'search_custom' => $this->lang->line('items_search_custom_items'),
 			'is_deleted' => $this->lang->line('items_is_deleted'));
 
+				$data['mci_data'] = $this->Item->get_mci_data('all');
 		$this->load->view('items/manage', $data);
 	}
 
@@ -189,6 +191,7 @@ class Items extends Secure_Controller
 	{	
 		$sug         = $this->input->post('search');
 		$location_id = $this->input->post('location_id');
+		$this->session->set_userdata('item_location', $location_id);
 		$slc_subcate = $this->input->post('slc_subcate');
 		$slc_cate    = $this->input->post('slc_cate');
 		$slc_brnd    = $this->input->post('slc_brnd');
@@ -285,24 +288,15 @@ class Items extends Secure_Controller
 			$this->db->like('items.item_number', $sug);
 		}
 		else{
-			if(!empty($sug)){
-				
-				if(!empty($cat_name) && ((!empty($sug)) && empty($slc_subcate))){
-					$this->db->like('subcategory',$sug);
-				}
-				
-			 	if(!empty($cat_name) && !empty($sug) && !empty($slc_subcate)){
-			 		$this->db->like('brand', $sug);
-			 	}
-			 	if(!empty($sug) && empty($cat_name) && empty($slc_subcate)){
+			 	if(!empty($sug)){
 			 		$this->db->like('name',$sug);
 			 		$this->db->or_like('subcategory',$sug);
 			 		$this->db->or_like('brand', $sug);	
 			 		$this->db->or_like('items.item_number', $sug);
 			 		$this->db->or_like('items.item_id', $sug);
 			 		$this->db->or_like('category', $sug);
+			 		$this->db->or_like('custom4', $sug);
 			 	}
-			}
 		}
 		$query = $this->db->get();
 		$data['data']= $query->result_array();

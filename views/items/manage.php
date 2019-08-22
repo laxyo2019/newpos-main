@@ -1,4 +1,7 @@
 <style>
+td{
+	padding:2px!important;
+}
 td, th {
   margin: 0;
   border: 1px solid grey;
@@ -23,7 +26,9 @@ tr:nth-child(even) .headcol{
 
 </style>
 
-<?php $this->load->view("partial/header"); ?>
+<?php $this->load->view("partial/header"); 
+// echo '<pre>';print_r($mci_data); die;
+?>
 
 <script type="text/javascript">
 $(document).ready(function()
@@ -94,6 +99,7 @@ $(document).ready(function()
 	<?php } ?>
 		<?php if($this->Item->is_both()) { ?>
 		<?php if($this->Item->is_superadmin()) { ?>
+
 			<button disabled="true" id="delete" class="btn btn-default btn-sm print_hide">
 					<span class="glyphicon glyphicon-trash">&nbsp</span><?php echo $this->lang->line("common_delete"); ?>
 			</button>
@@ -102,6 +108,8 @@ $(document).ready(function()
 		title='<?php echo $this->lang->line('items_edit_multiple_items'); ?>'>
 				<span class="glyphicon glyphicon-edit">&nbsp</span><?php echo $this->lang->line("items_bulk_edit"); ?>
 		</button>
+
+		<button  class="btn btn-info btn-sm pull-right" id="filter_data_btn">Get Items</button>
 	<?php } ?>
 	
 
@@ -124,9 +132,9 @@ $(document).ready(function()
 			<select style="max-width: 134px;" data-width="12%" id ="cat_id" class="selectpicker show-menu-arrow" data-style='btn-default btn-sm'>
 				<option>Category..</option>
 				<?php
-					$cate = $this->Item->get_cate();
+					$cate = $mci_data['categories'];
 					foreach ($cate as $cat) { ?>
-						<option value = "<?php echo $cat->id ; ?>"><?php echo $cat->name ; ?></option>
+						<option value = "<?php echo $cat['id'] ; ?>"><?php echo $cat['name'] ; ?></option>
 			<?php	}
 				 ?>
 			</select>
@@ -138,9 +146,9 @@ $(document).ready(function()
 			<select style="max-width: 145px!imortant;" id ="brand_id" class=" selectpicker show-menu-arrow" data-width="12%"  data-style='btn-default btn-sm'>
 				<option>Brand..</option>
 				<?php
-					$brands = $this->Item->get_brand();
+					$brands =  $mci_data['brands'];
 					foreach ($brands as $list) { ?>
-						<option value = "<?php echo $list->name ; ?>"><?php echo $list->name ; ?></option>
+						<option value = "<?php echo $list['name'] ; ?>"><?php echo $list['name'] ; ?></option>
 			<?php	}
 				 ?>
 			</select>
@@ -155,17 +163,13 @@ $(document).ready(function()
 			<?php	}
 				 ?>
 			</select>
-
-			<button style="margin-left:15px;padding:5px;" class="btn btn-info btn-sm pull-right" id="filter_data_btn">	
-					Get Items
-			</button>
 			<input style="width: 20%;" placeholder="Search" id="serch_item" class="pull-right form-control input-sm">
 			
-	    </div>
+	    </div>   
 	</div>
-
-	<div id="table_holder" style="margin-top:16px;overflow-x:auto">
-	    <table id="table1" class="table table-responsive table-striped" style="width: 100%; display:table-caption;">
+	<div class="clearfix"></div>
+	<div id="table_holder" class="text-center" style="margin-top:16px;overflow-x:auto">
+	    <table id="table1" class="table table-responsive table-striped table-hover table-condensed table-bordered" style="width: 100%; display:table-caption;">
 	    	<thead>
 		<tr>
 			<?php if($this->Item->is_both()) { 
@@ -191,18 +195,16 @@ $(document).ready(function()
 	</thead>	
 	<tbody>
 	<?php
-
 	foreach($data as $row){ 
 	$item_id     = !empty($row['item_id'])?$row['item_id']:'';
 	$location_id = !empty($row['location_id'])?$row['location_id']:'';
 
 	$data = $this->Item->get_multiple_info($item_id,$location_id)->result_array();
-	$quantities = !empty($data[0]['quantity'])?$data[0]['quantity']:'';
 	//$stock       = $this->Item->get_stock_edition($row['custom6']);
 
 
 	?>		
-		<tr>
+		<tr data-uniqueid="<?php echo $row['item_id'];?>">
 			<?php if($this->Item->is_both()) { 
 				 if($this->Item->is_superadmin()) { ?>
 					<td><input type="checkbox" class="sub_chk" data-id="<?php echo $row['item_id']; ?>"></td>
@@ -220,24 +222,35 @@ $(document).ready(function()
 			<td><?php echo $row['custom5']; ?></td>
 			<td><?php echo $row['custom6']; ?></td>
 			<td><?php echo $row['unit_price']; ?></td>
-			<td><?php echo $quantities; ?></td>
+			<td><?php echo $row['quantity']; ?></td>
 			<td class="" style=""><a  href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
 
 			<a href="<?php echo site_url($controller_name.'/count_details/').$row['item_id'] ;?>" class="modal-dlg" title="Inventory Count Details"><span style="padding-right: 10px;" class="glyphicon glyphicon-list-alt"></span></a>
 
-			<a href="<?php echo site_url($controller_name.'/view/') .$row['item_id']; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Item"><span class="glyphicon glyphicon-edit"></span></a></td>
+			<?php if($this->Item->check_auth(array('superadmin','admin'))) {?>
+
+			<a href="JavaScript:void(0)" class="qty_update" id="<?php echo $row['quantity'] ?>" data-btn-submit="Submit" title="Quick Quantity Update"><span class="glyphicon glyphicon-erase"></span></a>
+
+			<a href="<?php echo site_url($controller_name.'/view/') .$row['item_id']; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Item"><span class="glyphicon glyphicon-edit"></span></a>
+			<?php } ?>
+		</td>
 		</tr>
 
 	<?php }
 	?>	</tbody> 
 	    </table>
 	</div>
+	<div class="hidden_img hidden">
+		<img src="<?php echo base_url('images/loader.gif')?>" alt="Loading..">
+	</div>
 </div>
 <script>
 	dialog_support.init("button.modal-dlg, button.modal-dlg-wide");
 
 	$(document).ready(function(){
-		$("#table").on('click', '.qty_update', function(event){
+		var img_data = $('.hidden_img').html();
+		$("#table_holder").html(img_data);
+		$(".qty_update").on('click', function(event){
 			var item_id = $(this).parent().parent().attr('data-uniqueid');
 			var item_qty = this.id;
 			console.log('item_id: '+item_id);
@@ -293,7 +306,10 @@ $(document).ready(function()
 	})
 
 	$(document).ready(function(){
-		$('#filter_data_btn').on('click',function(){
+		filter_data();
+		function filter_data(){
+			var img_data = $('.hidden_img').html();
+		$("#table_holder").html(img_data);
 			var filters        = $('#filters').val();
 			var serch_item     = $('#serch_item').val();
 			var stock_location = $('#stock_location').val();
@@ -305,11 +321,15 @@ $(document).ready(function()
 			$.post('<?php echo site_url($controller_name."/get_suggestion");?>',{'search':serch_item,'location_id':stock_location,'slc_subcate':sub_cat,'slc_cate':cat_id,'slc_brnd':brand,'filters[]':filters,'edition_id':edition_id},function(data){
 					$('#table_holder').html(data);
 			})
+		}
+		$('#filter_data_btn').on('click',function(){
+			filter_data();
 		})
 	})
 
 $(document).ready(function () {
-	
+		$('div.container').addClass('container-fluid');
+		$('div.container-fluid').removeClass('container');
 	  // $('#table1').DataTable({
    //      "scrollX": true,
    //      dom: 'Bfrtip',
