@@ -221,7 +221,15 @@ $(document).ready(function()
 			<td><?php echo $row['custom3']; ?></td>
 			<td><?php echo $row['custom5']; ?></td>
 			<td><?php echo $row['custom6']; ?></td>
-			<td><?php echo $row['unit_price']; ?></td>
+			<td><?php 
+
+			if($row['unit_price'] > 0.00){
+				echo $row['unit_price'];
+			}else{
+				echo json_decode($row['cost_price'])->retail;
+			}
+
+			?></td>
 			<td><?php echo $row['quantity']; ?></td>
 			<td class="" style=""><a  href="<?php echo site_url($controller_name.'/inventory/').$row['item_id'] ; ?>" class="modal-dlg" data-btn-submit="Submit" title="Update Inventory"><span style="padding-right: 10px;" class="glyphicon glyphicon-pushpin"></span></a>
 

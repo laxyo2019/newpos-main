@@ -142,7 +142,13 @@ $data  = $this->Item->get_multiple_info($item_id,$location_id)->result_array();
 		<td><?php echo $row['custom3']; ?></td>
 		<td><?php echo $row['custom5']; ?></td>
 		<td><?php echo $row['custom6']; ?></td>
-		<td><?php echo $row['unit_price']; ?></td>
+		<td><?php 
+			if($row['unit_price'] > 0.00){
+				echo $row['unit_price'];
+			}else{
+				echo json_decode($row['cost_price'])->retail;
+			}
+		 ?></td>
 		<td class="qty_td"><?php echo  $row['quantity']; ?></td>
 		<td class="print_hide">
 <?php if($this->Item->check_auth(array('superadmin','admin'))) {?>
