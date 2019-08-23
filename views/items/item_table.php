@@ -186,7 +186,7 @@ $data  = $this->Item->get_multiple_info($item_id,$location_id)->result_array();
 						$.post('<?php echo site_url($controller_name."/quick_item_quantity_update"); ?>', {'item_id': item_id, 'new_qty': new_qty}, function(data) {
 							if(data=='Successfully Updated'){
 								$.notify(data);
-								// $("#"+item_qty).parent().parent().find('.qty_td').text(new_qty);
+								$("#"+item_qty).parent().parent().find('.qty_td').text(new_qty);
 							}else{
 								$.notify(data);
 							}

@@ -123,13 +123,13 @@ $(document).ready(function()
 			<?php
 			if (count($stock_locations) > 1)
 			{
-				echo form_dropdown('stock_location', $stock_locations, $stock_location, array('id'=>'stock_location', 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
+				echo form_dropdown('stock_location', $stock_locations, $stock_location, array('id'=>'stock_location', 'class'=>''));
 			}
 			?>
 			<?php 
 		
 			 ?>
-			<select style="max-width: 134px;" data-width="12%" id ="cat_id" class="selectpicker show-menu-arrow" data-style='btn-default btn-sm'>
+			<select id="filter_categories" style="max-width: 134px;" data-width="12%" id ="cat_id" class="selectpicker show-menu-arrow" data-style='btn-default btn-sm'>
 				<option>Category..</option>
 				<?php
 					$cate = $mci_data['categories'];
@@ -143,7 +143,7 @@ $(document).ready(function()
 				<option>Subcategorie..</option>
 			</select>
 
-			<select style="max-width: 145px!imortant;" id ="brand_id" class=" selectpicker show-menu-arrow" data-width="12%"  data-style='btn-default btn-sm'>
+			<select style="max-width: 145px!imortant;" id ="brand_id" class="" >
 				<option>Brand..</option>
 				<?php
 					$brands =  $mci_data['brands'];
@@ -241,13 +241,14 @@ $(document).ready(function()
 	    </table>
 	</div>
 	<div class="hidden_img hidden">
-		<img src="<?php echo base_url('images/loader.gif')?>" alt="Loading..">
+		<img src="<?php echo base_url('images/loader.gif')?>" alt="Loading.." style="width: 100px;height: 100px;margin-top: 50px;">
 	</div>
 </div>
 <script>
 	dialog_support.init("button.modal-dlg, button.modal-dlg-wide");
 
 	$(document).ready(function(){
+		$('#filter_categories, #sub_cat, #stock_location, #brand_id, #edition_id').select2();
 		var img_data = $('.hidden_img').html();
 		$("#table_holder").html(img_data);
 		$(".qty_update").on('click', function(event){
