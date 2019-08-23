@@ -433,11 +433,71 @@ public function items_undelete_data($id){
   //   $this->load->view('manager/sublists/report_sales', $data);
   // }
 
-  public function tally_report()
+   public function tally_report()
   {
-    $this->load->view('manager/modals/tally_report');
+  	$data['mci_data'] = $this->Item->get_mci_data('all');
+    $this->load->view('manager/modals/tally_report',$data);
   }
+	public function get_subcategory(){
+		$category_name = $this->input->post('category');
+		$category_id = $this->db->get_where('master_categories',array('name'=>$category_name))->row()->id;
+		$subcategory  = $this->db->get_where('master_subcategories',array('parent_id'=>$category_id))->result();
+		$data = '';
+		foreach($subcategory as $row){
+			$data .= '<option value="'.$row->name.'">'.$row->name.'</option>';
+		}
+		echo $data;
+	}
+	public function get_filtered_sales(){
+		$category = $this->input->post('category');
+		$subcategory = $this->input->post('subcategory'); 
+		$brand = $this->input->post('brand');
+		$start_date = $this->input->post('start_date');
+		$end_date = $this->input->post('end_date');
 
+    $result_items = array();
+
+    $this->db->select('
+      sales.sale_id AS sale_id,
+      items.category AS category,
+      items.subcategory AS subcategory,
+      items.brand AS brand,
+      items.item_number AS item_number,
+      items.name AS name,
+      items.custom1 AS custom1,
+      items.custom6 AS custom6,
+      items.unit_price AS unit_price,
+      sales.sale_time AS sale_time,
+      sales.customer_id AS customer_id,
+      sales.tally_number AS tally_number,
+      sales.employee_id AS employee_id,
+      sales.sale_status AS sale_status,
+      sales.sale_type AS sale_type,
+      sales.bill_type AS bill_type,
+
+      sales_items.item_id AS item_id,
+      sales_items.quantity_purchased AS quantity,
+      sales_items.item_unit_price AS item_price,
+      sales_items.discount_percent AS item_discount
+    ');
+
+    $this->db->from('sales');
+    $this->db->join('sales_items', 'sales_items.sale_id = sales.sale_id');
+    $this->db->join('items', 'sales_items.item_id = items.item_id');
+    if($category != ''){
+    	$this->db->where('items.category',$category);
+    }
+    if($subcategory != ''){
+    	$this->db->where('items.subcategory',$subcategory);
+    }
+    if($brand != ''){
+    	$this->db->where('items.brand',$brand);
+    }
+    $this->db->where('DATE(sale_time) BETWEEN "'.rawurldecode($start_date).'" AND "'.rawurldecode($end_date).'"');
+    $data['report_results'] = $this->db->get()->result_array();
+    
+    return $this->load->view('manager/sublists/filtered_sales_items',$data);
+	}
   public function tally_format($start_date,$end_date)
   {
     $start_date = $start_date;

@@ -175,6 +175,6 @@
 				</div>
 			</div>
 		</div>
-		<?php  //echo "<pre>";print_R($this->session->userdata()); echo "</pre>"; ?>
+		<?php  echo "<pre>";print_R($this->session->userdata()); echo "</pre>"; ?>
 		<div class="container">
-			<div class="row">
+		<div class="row">

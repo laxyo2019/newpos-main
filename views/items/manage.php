@@ -109,9 +109,9 @@ $(document).ready(function()
 				<span class="glyphicon glyphicon-edit">&nbsp</span><?php echo $this->lang->line("items_bulk_edit"); ?>
 		</button>
 
-		<button  class="btn btn-info btn-sm pull-right" id="filter_data_btn">Get Items</button>
+		
 	<?php } ?>
-	
+	<button  class="btn btn-info btn-sm pull-right" id="filter_data_btn">Get Items</button>
 
 	</div>
 
