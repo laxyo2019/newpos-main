@@ -129,12 +129,12 @@ $(document).ready(function()
 			<?php 
 		
 			 ?>
-			<select id="filter_categories" style="max-width: 134px;" data-width="12%" id ="cat_id" class="selectpicker show-menu-arrow" data-style='btn-default btn-sm'>
+			<select id="cat_id" style="max-width: 134px;" data-width="12%" id ="" class=" filter_categories selectpicker show-menu-arrow" data-style='btn-default btn-sm'>
 				<option>Category..</option>
 				<?php
 					$cate = $mci_data['categories'];
 					foreach ($cate as $cat) { ?>
-						<option value = "<?php echo $cat['id'] ; ?>"><?php echo $cat['name'] ; ?></option>
+						<option value = "<?php echo $cat['id'];?>"><?php echo $cat['name'] ; ?></option>
 			<?php	}
 				 ?>
 			</select>
@@ -256,7 +256,7 @@ $(document).ready(function()
 	dialog_support.init("button.modal-dlg, button.modal-dlg-wide");
 
 	$(document).ready(function(){
-		$('#filter_categories, #sub_cat, #stock_location, #brand_id, #edition_id').select2();
+		$('.filter_categories, #sub_cat, #stock_location, #brand_id, #edition_id').select2();
 		var img_data = $('.hidden_img').html();
 		$("#table_holder").html(img_data);
 		$(".qty_update").on('click', function(event){
@@ -308,7 +308,9 @@ $(document).ready(function()
     
 
     $(document).on('change','#cat_id',function(){
+
 		var id = $('#cat_id').val();
+		console.log('cat-id',id);
 		$.post('<?php echo site_url($controller_name."/get_subcate"); ?>',{'id':id},function(data){
 			$('#sub_cat').html(data);
 		})
@@ -317,13 +319,15 @@ $(document).ready(function()
 	$(document).ready(function(){
 		filter_data();
 		function filter_data(){
-			var img_data = $('.hidden_img').html();
+		var img_data = $('.hidden_img').html();
 		$("#table_holder").html(img_data);
 			var filters        = $('#filters').val();
 			var serch_item     = $('#serch_item').val();
 			var stock_location = $('#stock_location').val();
 			var cat_id         = $('#cat_id').val();
+		
 			var sub_cat        = $('#sub_cat').val();
+				console.log('category',sub_cat);
 			var brand          = $('#brand_id').val();
 			var edition_id     = $('#edition_id').val();
 

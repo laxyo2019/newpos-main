@@ -32,7 +32,7 @@ class Item_taxes extends CI_Model
 	}
 
 	/*
-	Gets tax info for a particular item
+	Calculated tax from clothes and footwear according to condition
 	*/
 	public function get_info($item_id, $amt)
 	{

@@ -537,7 +537,7 @@ public function items_undelete_data($id){
   $header = array( "Sale ID", "Sale Time","Customer Name","Customer GST No.", "Invoice Number","Shop ID",
   "Barcode","Item Name", "Item Category","Item Subcategory","Item Brand", "Taxable Value","HSN", "CGST %",
   "CGST Amt.","SGST %","SGST Amt.", "IGST %", "IGST Amt.", "Quantity", "Item Type","Discount", 
-  "Gross Value", "Sale Payments","Sale Type","Sale Status","Customer Type","Stock Edition");
+  "Gross Value","MRP per item","Sale Payments","Sale Type","Sale Status","Customer Type","Stock Edition");
   fputcsv($file, $header);
 
     foreach ($report_results as $row)
@@ -557,9 +557,30 @@ public function items_undelete_data($id){
   $customer_info = $this->Customer->get_info($row['customer_id']);
   $sale_payments = $this->Sale->get_sale_payment_types($row['sale_id']);
   $sale_payment ='';
+
+  $mrp_val = '';
+  if($item_info->unit_price == 0.00){   //fixed -- fetch price from cost_price
+  	$mrp = json_decode($item_info->cost_price);
+  }else{  //discounted fetch price from discounts
+  	$mrp_val = $item_info->unit_price;
+  }
+ if($item_info->unit_price == 0.00 && $row['bill_type']!='1rupee'){   
+	  foreach($mrp as $key => $mrp_row){
+	  	if($key == $row['bill_type']){
+	  		$mrp_val = $mrp_row;
+	  	}
+	  }
+	}elseif($item_info->unit_price == 0.00){
+		foreach($mrp as $key => $mrp_row){
+	  	if($key == 'retail'){
+	  		$mrp_val = $mrp_row;
+	  	}
+	  }
+	}
   foreach($sale_payments as $pays){
-  $sale_payment .= $pays['payment_type']." ";
+  	$sale_payment .= $pays['payment_type']." ";
   } 
+
   fputcsv($file,array(
   $row['sale_id'],
   $row['sale_time'],
@@ -584,6 +605,7 @@ public function items_undelete_data($id){
   ($item_info->unit_price == 0.00) ? "FP" : "DISC",
   $row['item_discount'],
   $price,
+  $mrp_val,
   $sale_payment,
   ($row['sale_type'] == 1) ? "Invoice" : "Credit Note",
   ($row['sale_status'] == 0) ? "Active" : "Cancelled",

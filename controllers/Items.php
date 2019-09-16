@@ -1304,7 +1304,7 @@ class Items extends Secure_Controller
 							'subcategory'		=> $subcategory,
 							'brand'				=> $brand,
 							'price'				=> $data[5], //unit_price
-							'igst'				=> $data[8], 
+							'igst'				=> $data[8], // TAX
 							'retail_discount'	=> $data[9] == NULL ? '0.00' : number_format($data	[9], 2, '.', ''), 
 							'wholesale_discount'=> $data[10] == NULL ? '0.00' : number_format($data[10], 2, '.', ''),
 							'franchise_discount'=> $data[11] == NULL ? '0.00' : number_format($data[11], 2, '.', ''),
@@ -1403,7 +1403,6 @@ class Items extends Secure_Controller
 			$redundant_item = $this->get_redundant_item($item_data, "get");		
 			if($redundancy_count == 1)
 			{
-		
 				$item_id = $redundant_item[0]['item_id'];
 				$location_id = $item->location_id;
 				$new_quantity = $this->Item_quantity->get_item_quantity($item_id, $location_id)->quantity;

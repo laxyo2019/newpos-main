@@ -881,11 +881,11 @@ class Sale_lib
 			$cost_price = $item_info->cost_price;
 				if($unit_price == 0.00){ //FIXED PRICE ITEM	
 					
-					//Uncomment this---
+					// //Uncomment this---
 					$categories = array("MEN'S CLOTHING","WOMEN'S CLOTHING","KID'S CLOTHING","UNISEX WEARABLES");	
 
 					$sub_categories = array("MEN'S JEANS","WOMEN'S JEANS");
-					if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories) && !in_array($item_info->subcategory,$sub_categories) ){
+					if($this->CI->session->userdata('person_id') == 10544 && $item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >150.00 && in_array($item_info->category,$categories) && !in_array($item_info->subcategory,$sub_categories) ){
 						// for WS offer of 150 but jeans subcategory and 2 barcodes are excluded from offer
 						if($item_info->item_number=='51170324021795'||$item_info->item_number=='51060324014178'){
 							$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
@@ -897,7 +897,7 @@ class Sale_lib
 					}
 
 					// comment this
-					// $price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
+					//$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
 					//Example 1,000 will be read as 1 so need to do this.
 
 					$discount = 0.00;
