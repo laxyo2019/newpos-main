@@ -482,9 +482,9 @@ class Offers extends Secure_Controller
 				
 			}
 		$count = count($vouchers_arr);
-			if($count >8){?>
+			if($count > 18){?>
 				<script>
-						alert("You can not select more than 8 vouchers!");
+						alert("You can not select more than 18 vouchers!");
 				</script>
 				<?php 
 				$this->load->view("offers/submodules/vouchers");
@@ -506,6 +506,7 @@ class Offers extends Secure_Controller
 		$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value');
 		$this->db->from('voucher_gifts');
 		$this->db->join('vc_gift_master','voucher_gifts.voucher_id=vc_gift_master.id','inner');
+		$this->db->order_by('created_at','desc');
 		$data['vc_info'] = $this->db->get()->result();
 		$this->load->view('offers/sublists/gift_vc',$data);
 	}

@@ -251,7 +251,7 @@
 
 	<!-- Allow alternate description and serialized checkbox code removed from here -->
 
-	<?php if($this->Item->is_superadmin()) { ?>
+	<?php if($this->Item->is_superadmin() || $this->session->userdata('person_id') == 11143) { ?>
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_is_deleted'), 'is_deleted', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-1'>
