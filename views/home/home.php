@@ -41,9 +41,13 @@
     </center>
   </div>
 </div>
+
+ 
+
  <script type="text/javascript">
-	$(document).ready(function(){
-    $('#itemcount').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+  $(document).ready(function(){
+
+     $('#itemcount').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
     $.get('<?php echo site_url('home/item_count') ?>', function(data){
       $('#itemcount').html(data);
 

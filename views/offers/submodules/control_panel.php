@@ -30,31 +30,33 @@
 <script>
 
 function load_cashier(){
-  $.post('<?php echo base_url();?>offers/load_cashier',{},function(data){
+  $.post('<?php echo base_url();?>offers/load_cashier',{'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'},function(data){
     $('.content').html(data);
   });
 }
 
 function load_loc_group(){
-  $.post('<?php echo base_url();?>offers/load_loc_group',{},function(data){
+  
+  $.post('<?php echo base_url();?>offers/load_loc_group',{'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'},function(data){
+  
     $('.content').html(data);
   });
 }
 
 function load_offer_bundle(){
-  $.post('<?php echo base_url();?>offers/load_offer_bundle',{},function(data){
+  $.post('<?php echo base_url();?>offers/load_offer_bundle',{'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'},function(data){
     $('.content').html(data);
   });
 }
 
 function load_cashier_details(){
-  $.post('<?php echo base_url();?>offers/load_cashier_details',{},function(data){
+  $.post('<?php echo base_url();?>offers/load_cashier_details',{'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'},function(data){
     $('.content').html(data);
   });
 }
 
 function load_custom_tab(){
-  $.post('<?php echo base_url();?>offers/load_custom_tab',{},function(data){
+  $.post('<?php echo base_url();?>offers/load_custom_tab',{'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'},function(data){
     $('.content').html(data);
   });
 }

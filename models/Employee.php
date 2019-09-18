@@ -516,6 +516,15 @@ class Employee extends Person
 		$this->db->where($where);
 		$query = $this->db->get($tblname);
 		return $query->row();		
-	}	
+	}
+
+	public function get_time($id){
+		$this->db->select('*');
+		$this->db->from('ospos_stock_locations');
+		$this->db->where('location_owner',$id);
+		$query = $this->db->get();
+		$data  = $query->result();
+		return $data; 
+	}
 }
 ?>

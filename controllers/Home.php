@@ -25,13 +25,18 @@ class Home extends Secure_Controller
 			ORDER BY SUM(DISTINCT ospos_sales_payments.payment_amount) DESC');
 
 		$data['rank']=$query->result();
-		//print_r($data);
+		
+			
 		$this->session->userdata('username');
 		$this->db->where('deleted',0);
 		$query = $this->db->get('stock_locations');	
 		$data['shops']=$query->result();
 		$this->db->where(array('deleted'=>0));
 		$this->db->get('stock_locations');
+
+		$data['time']  = $this->Home_con->get_time($this->session->userdata('person_id'));
+		$data['model'] = $this->Home_con->get_today_date($this->session->userdata('person_id'));
+		$data['log_dtl']  = $this->Home_con->get_login_details($this->session->userdata('person_id'));
 		$this->load->view('home/admin_home',$data);
 
 		
@@ -150,7 +155,7 @@ class Home extends Secure_Controller
 
 	public function logout()
 	{
-		$this->Employee->logout();
+		$this->Employee->logout();		
 	}
 
 	/*
@@ -201,6 +206,35 @@ class Home extends Secure_Controller
 		{
 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('employees_current_password_invalid'), 'id' => -1));
 		}
+	}
+
+	public function reason_save($status=''){
+		$reason = $this->input->post('reason')?$this->input->post('reason'):'';
+		$this->session->userdata('person_id');
+		$data['logintime']      = date('H:i:s');
+		$data['location_owner']	= $this->session->userdata('person_id');
+		$data['reason']         = $reason;
+		$data['date']           = date('Y-m-d');
+
+		$this->db->insert('ospos_open_close_time',$data);
+		
+		echo 'true';
+	}
+
+	public function get_all_login(){
+		$data['login'] = $this->Home_con->get_all_login($this->session->userdata('person_id'));	
+		return $this->load->view('home/login_details',$data);
+	}	
+
+	public function shop_close($status){
+		echo 'hello';
+		if(!empty($status)){
+			$data1['logouttime'] = date('H:i:s');
+			$this->db->where('location_owner',$this->session->userdata('person_id'));
+			$this->db->where('date',date('Y-m-d'));
+    		$this->db->update('ospos_open_close_time', $data1);
+    	}
+    	redirect('home');
 	}
 }
 ?>

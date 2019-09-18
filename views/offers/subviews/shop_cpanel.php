@@ -10,9 +10,26 @@
           $ids[] = $person->id;
       }
       $id = implode(',',$ids);
-      
+      $login = $time[0]->login ? $time[0]->login:'';
+      $logout = $time[0]->logout ? $time[0]->logout:'';
  ?>
-    
+<div class="row">
+    <div class='col-sm-4 col-md-4' >
+        <label>Shop Open Time</label>
+        <input id="timepicker" type="text" value="<?php echo $login; ?>" class="form-control input-small open_time"> 
+    </div>
+</div>
+<div class="row">
+    <div class='col-sm-4 col-md-4'>
+        <label>Shop Close Time</label>
+        <input id="timepicker1" type="text" value="<?php echo $logout; ?>" class="form-control input-small close_time">        
+    </div>
+</div>
+<div class="row">    
+    <div class='col-sm-2 col-md-2' style="padding-top: 10px;padding-bottom: 10px;">
+        <input type="button" value="Submit" id="save_time" class="btn btn-info">
+    </div>
+</div>    
 <div class="row">
 <div class="col-sm-4">
          <div  class='list-group-item disabled' style='background-color: #132639;color:#fff;font-size:15px;'>
@@ -187,9 +204,23 @@ function save_changes(type){
         });
     }
 $(document).ready(function(){
+
+      $('#timepicker1').timepicker();
+      $('#timepicker').timepicker();
+
     $('.arrow').on('click',function(){
        $(this).toggleClass('rotate_180');
     });
+
+    $('#save_time').on('click',function(){
+        var open_time  = $('.open_time').val();
+        var close_time = $('.close_time').val(); 
+        var location_id = $('#location_id').val();
+        
+        $.post('<?php echo site_url("offers/save_time"); ?>', {'open_time': open_time, 'close_time': close_time,'location_id':location_id,'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'}, function(data) {
+            
+        });
+    })
 })
 </script>
 

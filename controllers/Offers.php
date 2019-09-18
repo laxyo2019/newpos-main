@@ -374,8 +374,10 @@ class Offers extends Secure_Controller
 	public function get_cashiers()
 	{	
 		$loc_owner =  $this->input->get('loc_owner');
+		$id  = explode(',',$loc_owner);
 		$data['shop_details'] = $this->Employee->get_shop_details($loc_owner);
 		$data['cashiers'] = $this->Employee->get_cashiers($loc_owner);
+		$data['time']     = $this->Employee->get_time($id[0]);
 		$this->load->view('offers/subviews/shop_cpanel', $data);
 	
 	}
@@ -482,9 +484,9 @@ class Offers extends Secure_Controller
 				
 			}
 		$count = count($vouchers_arr);
-			if($count >8){?>
+			if($count > 18){?>
 				<script>
-						alert("You can not select more than 8 vouchers!");
+						alert("You can not select more than 18 vouchers!");
 				</script>
 				<?php 
 				$this->load->view("offers/submodules/vouchers");
@@ -506,6 +508,7 @@ class Offers extends Secure_Controller
 		$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value');
 		$this->db->from('voucher_gifts');
 		$this->db->join('vc_gift_master','voucher_gifts.voucher_id=vc_gift_master.id','inner');
+		$this->db->order_by('created_at','desc');
 		$data['vc_info'] = $this->db->get()->result();
 		$this->load->view('offers/sublists/gift_vc',$data);
 	}
@@ -842,6 +845,23 @@ class Offers extends Secure_Controller
 	public function delete_row($tablename='offer_location_groups', $column='location_group_id', $id=10){
 		$data = $this->db->select()->get_where('dynamic_prices',array('status'=>1,$column=>$id))->row();
 		
+	}
+
+	public function save_time(){
+		$open_time  = $this->input->post('open_time');
+		$close_time = $this->input->post('close_time');
+		$data['login']  = $open_time;
+		$data['logout'] = $close_time;
+		$ids = $this->input->post('location_id');
+		$id  = explode(',',$ids); 
+		$this->db->where('location_owner',$id[0]);
+		$data = $this->db->update('ospos_stock_locations',$data);
+		if($data){
+			echo 'done';
+		}
+		else{
+			echo 'error';
+		}
 	}	
 }
 

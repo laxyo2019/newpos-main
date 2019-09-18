@@ -42,7 +42,7 @@ $(document).ready(function () {
 
     $('#gc_table').DataTable({
        
-         
+         "pageLength": 18,
        dom: 'Bfrtip',
            buttons: [
                'copy', 'csv', 'excel', 'pdf', 'print'
