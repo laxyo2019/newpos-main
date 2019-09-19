@@ -119,6 +119,7 @@ class Home extends Secure_Controller
 		public function admin_count(){
 			$location_id= $this->input->get('loc');
 			$location_ow= $this->input->get('per');
+
 			//Total
 			$this->db->select_sum('quantity');
 			$this->db->join('items','items.item_id = item_quantities.item_id');
@@ -147,11 +148,12 @@ class Home extends Secure_Controller
 				->get()->result_array();	
 			$totSell= $total_sales[0]['payment_amount'];
 			$data['totalSales']= $totSell?$totSell:0; 
+
+			$time      = $this->Home_con->get_login_details($location_ow);
+			$data['logintime'] = $time[0]->logintime;
+			$data['logouttime'] = $time[0]->logouttime;
 			echo json_encode($data);
 		}
-
-
-
 
 	public function logout()
 	{
@@ -209,12 +211,14 @@ class Home extends Secure_Controller
 	}
 
 	public function reason_save($status=''){
+	
 		$reason = $this->input->post('reason')?$this->input->post('reason'):'';
 		$this->session->userdata('person_id');
 		$data['logintime']      = date('H:i:s');
 		$data['location_owner']	= $this->session->userdata('person_id');
 		$data['reason']         = $reason;
 		$data['date']           = date('Y-m-d');
+		$data['ip']             = $_SERVER['REMOTE_ADDR'];
 
 		$this->db->insert('ospos_open_close_time',$data);
 		
@@ -222,12 +226,12 @@ class Home extends Secure_Controller
 	}
 
 	public function get_all_login(){
-		$data['login'] = $this->Home_con->get_all_login($this->session->userdata('person_id'));	
+		$id  = $this->input->post('id');
+		$data['login'] = $this->Home_con->get_all_login($id);	
 		return $this->load->view('home/login_details',$data);
 	}	
 
 	public function shop_close($status){
-		echo 'hello';
 		if(!empty($status)){
 			$data1['logouttime'] = date('H:i:s');
 			$this->db->where('location_owner',$this->session->userdata('person_id'));

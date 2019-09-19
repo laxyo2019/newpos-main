@@ -181,7 +181,7 @@
 
 </head>
 
-<body onunload="myFunction()">
+<body>
 	<div class="wrapper">
 		<div class="topbar">
 			<div class="container">

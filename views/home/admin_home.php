@@ -3,7 +3,7 @@
 
 <ul class="nav nav-tabs" data-tabs="tabs" id="shop_tab">
 
-	<?php foreach($shops as $shop) {?>
+	<?php foreach($shops as $shop) { ?>
 	<li class="" role="presentation">
 		
 		<a data-toggle="tab" href="javascript:void(0)" onclick='count_data(<?php echo $shop->location_id.",".$shop->location_owner;?>)' title='<?php echo $shop->alias?>'><?php echo $shop->location_name;?></a>
@@ -83,19 +83,21 @@
 			<div class="card" >
 				<div class="row" style="background-color: #ff704d;padding-top: 10px;">
 					<div class="col-md-4">			
-					<h5>Login Time <?php echo $log_dtl[0]->logintime ? $log_dtl[0]->logintime : ''; ?></h5>
+					<h5>Login Time:- <span id="logintime"></span></h5>
 						
 					</div>
 					<div class="col-md-4">					
-						<h5>Logout Time <?php echo $log_dtl[0]->logouttime ? $log_dtl[0]->logouttime : '' ;?></h5>
+						<h5>Logout Time:- <span id="logouttime"></span></h5>
 					</div>			
 					<div class="col-md-2 ">					
 						<button id="all_details" type="button" class="btn btn-success pull-right">All Details</button>
 					</div>
 					<div class="col-md-2 ">					
 						<a href="<?php echo site_url('/home/shop_close/close') ;?>" class="btn btn-warning pull-right myLink">Shop Close</a>
-					</div>			
-					<div class="col-md-12 show_all_details" style="height: 219px;overflow: scroll;margin-top: 23px;">					
+					</div>
+					<div class="col-md-12 " style=" height: 219px;overflow: scroll;margin-top: 23px;">					
+						<div class="show_all_details" style=" display:none;">				
+						</div>
 						
 					</div>	
 				</div>
@@ -108,6 +110,7 @@
 <input type="hidden" id='logout' value="<?php echo $time[0]->logout ? $time[0]->logout :'20:00'; ?> "/>
 <input type="hidden" id='login_date' value="<?php echo $model[0]->date; ?> "/>
 <input type="hidden" id='current_date' value="<?php echo date('Y-m-d'); ?> "/>
+<input type="hidden" id='ip' value="<?php echo $_SERVER['REMOTE_ADDR']; ?> "/>
 <input type="hidden" id='store_name' value="<?php echo $user_info->first_name . ' ' . $user_info->last_name; ?>" />
 
 <!-- Modal Popup -->
@@ -146,13 +149,17 @@
 
 <?php $this->load->view("partial/footer");?>
 <script>
-	function myFunction() {
-  alert("Thank you for visiting W3Schools!");
-}
  $(document).ready(function(){
- 
+//  window.addEventListener("beforeunload", function (e) {
 
- 	
+//   var confirmationMessage = "Are you sure you want to leave this page without placing the order ?";
+//   (e || window.event).returnValue = confirmationMessage;
+//   return confirmationMessage;
+// })
+ 	// $(window).bind("beforeunload", function() { 
+  //       return confirm("Do you really want to close?"); 
+  //   });
+
 	var d            = new Date();
 	var time         = d.getHours() + ":" + d.getMinutes() ;
 	var login        = $('#login').val();	
@@ -160,7 +167,8 @@
     var title        = $('#store_name').val();
     var login_date   = $('#login_date').val();
     var current_date = $('#current_date').val();
-
+    var ip           = $('#ip').val();
+   
 	var start = login;
     var end = time;
 
@@ -202,15 +210,13 @@
 			})
 	    }
 	    else{
-	    	$('#error').text('Please Enter Your Reason');
+	    	$('#error').text('Please Enter Your Reason Minimum 10 Characters');
 	    }    
 	})
 
 	$('#all_details').on('click',function(){
-		$.post('<?php echo site_url("Home/get_all_login");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'}, function(data){
-				$('.show_all_details').html(data);
-		})
-	})    
+		$('.show_all_details').toggle();
+		})    
 });
 
 $(document).ready(function(){
@@ -221,17 +227,23 @@ $(document).ready(function(){
 function count_data(loc,per){
 	$('.loader_wait').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
     $.get('<?php echo site_url('home/admin_count') ?>', {per:per,loc:loc},function(data){
-    resp = $.parseJSON(data);
+       resp = $.parseJSON(data);
       $('#itemcount').html(resp.itemcount);
       $('#dailySales').html(resp.dailySales);
       $('#totalSales').html(resp.totalSales);
+      $('#logintime').text(resp.logintime);
+      $('#logouttime').text(resp.logouttime);
     });
+
+    $.post('<?php echo site_url("Home/get_all_login");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>','id': per}, function(data){
+	    	  $('.show_all_details').html(data);
+			})
 }
 
 $(document).ready(function(){
 	$('#all_details').on('change',function(){
 		$.post('<?php echo site_url("Home/reason_save");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>','reason': reason}, function(data){
-	    	  alert(data);
+	    	  
 			})
 	})
 })
