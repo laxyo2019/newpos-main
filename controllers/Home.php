@@ -34,9 +34,10 @@ class Home extends Secure_Controller
 		$this->db->where(array('deleted'=>0));
 		$this->db->get('stock_locations');
 
-		$data['time']  = $this->Home_con->get_time($this->session->userdata('person_id'));
-		$data['model'] = $this->Home_con->get_today_date($this->session->userdata('person_id'));
+		$data['time']     = $this->Home_con->get_time($this->session->userdata('person_id'));
+		$data['model']    = $this->Home_con->get_today_date($this->session->userdata('person_id'));
 		$data['log_dtl']  = $this->Home_con->get_login_details($this->session->userdata('person_id'));
+		$data['log_type'] = $this->Home_con->get_login_type($this->session->userdata('person_id'));
 		$this->load->view('home/admin_home',$data);
 
 		

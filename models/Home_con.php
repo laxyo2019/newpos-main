@@ -52,5 +52,14 @@ class Home_con extends CI_Model
 		$data = $query->result();
 		return $data;	
 	}
+
+	public function get_login_type($id){
+		$this->db->select('*');
+		$this->db->from('ospos_employees');
+		$this->db->where('person_id',$id);
+		$query = $this->db->get();
+		$data = $query->result();
+		return $data;		
+	}
 }
 ?>

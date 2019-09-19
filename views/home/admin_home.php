@@ -111,6 +111,7 @@
 <input type="hidden" id='login_date' value="<?php echo $model[0]->date; ?> "/>
 <input type="hidden" id='current_date' value="<?php echo date('Y-m-d'); ?> "/>
 <input type="hidden" id='ip' value="<?php echo $_SERVER['REMOTE_ADDR']; ?> "/>
+<input type="hidden" id='login_type' value="<?php echo $log_type[0]->login_type ; ?>"/>
 <input type="hidden" id='store_name' value="<?php echo $user_info->first_name . ' ' . $user_info->last_name; ?>" />
 
 <!-- Modal Popup -->
@@ -168,7 +169,8 @@
     var login_date   = $('#login_date').val();
     var current_date = $('#current_date').val();
     var ip           = $('#ip').val();
-   
+    var login_type   = $('#login_type').val();
+      
 	var start = login;
     var end = time;
 
@@ -190,11 +192,13 @@
 	$bfr = ''	
 	if(time < login){
 		$bfr = 'done';
-	}	
-	if(login_date !== current_date){	
-	 	$("#MyPopup .modal-title").html(title);
-	    //$("#MyPopup .modal-body").html(logout);
-	    $("#MyPopup").modal({"backdrop": "static"});
+	}
+	if(login_type === 'dbf' || login_type === 'shop'){	
+		if(login_date !== current_date){	
+		 	$("#MyPopup .modal-title").html(title);
+		    //$("#MyPopup .modal-body").html(logout);
+		    $("#MyPopup").modal({"backdrop": "static"});
+		}
 	}
     $('#start_shop').on('click',function(){    
     	var reason  = $('#reason').val();
@@ -210,7 +214,7 @@
 			})
 	    }
 	    else{
-	    	$('#error').text('Please Enter Your Reason Minimum 10 Characters');
+	    	$('#error').text('Please Enter Your Reason In 10 Characters');
 	    }    
 	})
 
