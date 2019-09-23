@@ -38,6 +38,27 @@ class Home extends Secure_Controller
 		$data['model']    = $this->Home_con->get_today_date($this->session->userdata('person_id'));
 		$data['log_dtl']  = $this->Home_con->get_login_details($this->session->userdata('person_id'));
 		$data['log_type'] = $this->Home_con->get_login_type($this->session->userdata('person_id'));
+
+
+		
+		
+
+		if($this->session->userdata('person_id') == '15' || $this->session->userdata('person_id') == '16')
+		{	
+			$data['time'] =  $this->login_logout_time(7);
+
+			$data['login'] = $this->Home_con->get_all_login(7);	
+			$data['person_id'] = 7;	
+			
+		}	
+		else{
+			$data['time'] =  $this->login_logout_time($this->session->userdata('person_id'));
+
+			$data['login'] = $this->Home_con->get_all_login($this->session->userdata('person_id'));	
+			$data['person_id'] =$this->session->userdata('person_id');	
+		}
+
+
 		$this->load->view('home/admin_home',$data);
 
 		
@@ -147,17 +168,16 @@ class Home extends Secure_Controller
 				->where('employee_id', $location_ow)
 				->where('DATE(sale_time) BETWEEN "'.rawurldecode($a).'" AND "'.rawurldecode($b).'"')
 				->get()->result_array();	
-			$totSell= $total_sales[0]['payment_amount'];
-			$data['totalSales']= $totSell?$totSell:0; 
+				$totSell= $total_sales[0]['payment_amount'];
+				$data['totalSales']= $totSell?$totSell:0; 
 
-			$time      = $this->Home_con->get_login_details($location_ow);
-			$data['logintime'] = $time[0]->logintime;
-			$data['logouttime'] = $time[0]->logouttime;
+		
 			echo json_encode($data);
 		}
 
 	public function logout()
 	{
+
 		$this->Employee->logout();		
 	}
 
@@ -217,7 +237,7 @@ class Home extends Secure_Controller
 		$this->session->userdata('person_id');
 		$data['logintime']      = date('H:i:s');
 		$data['location_owner']	= $this->session->userdata('person_id');
-		$data['reason']         = $reason;
+		// $data['reason']         = $reason;
 		$data['date']           = date('Y-m-d');
 		$data['ip']             = $_SERVER['REMOTE_ADDR'];
 
@@ -228,18 +248,33 @@ class Home extends Secure_Controller
 
 	public function get_all_login(){
 		$id  = $this->input->post('id');
-		$data['login'] = $this->Home_con->get_all_login($id);	
+		$data['login'] = $this->Home_con->get_all_login($id);
+		$data['time'] =  $this->login_logout_time($id);		
+		$data['person_id'] = $id;
+
 		return $this->load->view('home/login_details',$data);
 	}	
 
-	public function shop_close($status){
-		if(!empty($status)){
-			$data1['logouttime'] = date('H:i:s');
-			$this->db->where('location_owner',$this->session->userdata('person_id'));
-			$this->db->where('date',date('Y-m-d'));
-    		$this->db->update('ospos_open_close_time', $data1);
-    	}
-    	redirect('home');
+	// public function shop_close($status){
+	// 	if(!empty($status)){
+	// 		$data1['logouttime'] = date('H:i:s');
+	// 		$this->db->where('location_owner',$this->session->userdata('person_id'));
+	// 		$this->db->where('date',date('Y-m-d'));
+ //    		$this->db->update('ospos_open_close_time', $data1);
+ //    	}
+ //    	redirect('home');
+	// }
+
+	public function login_logout_time($location_ow){
+		$time = $this->Home_con->get_login_details($location_ow);		
+		return $time;
 	}
+	public function view_all($location_ow){
+		$data['logins'] =  $this->Home_con->get_all_login($location_ow);	
+		$data['owner'] = $this->Home_con->owner_name($location_ow);
+		
+		return $this->load->view('home/viewLogins',$data);
+	}	
+
 }
 ?>

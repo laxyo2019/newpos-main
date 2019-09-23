@@ -338,6 +338,10 @@ class Employee extends Person
 	*/
 	public function logout()
 	{
+		$data1['logouttime'] = date('H:i:s');
+		$this->db->where('location_owner',$this->session->userdata('person_id'));
+		$this->db->where('date',date('Y-m-d'));
+		$this->db->update('ospos_open_close_time', $data1);
 		$this->session->sess_destroy();
 
 		redirect('login');

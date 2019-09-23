@@ -848,6 +848,8 @@ class Offers extends Secure_Controller
 	}
 
 	public function save_time(){
+
+
 		$open_time  = $this->input->post('open_time');
 		$close_time = $this->input->post('close_time');
 		$data['login']  = $open_time;
@@ -855,9 +857,11 @@ class Offers extends Secure_Controller
 		$ids = $this->input->post('location_id');
 		$id  = explode(',',$ids); 
 		$this->db->where('location_owner',$id[0]);
+		
 		$data = $this->db->update('ospos_stock_locations',$data);
+
 		if($data){
-			echo 'done';
+			echo 'Shop Time Submitted successfully';
 		}
 		else{
 			echo 'error';

@@ -1,12 +1,33 @@
 
 <?php $this->load->view("partial/header"); ?>
+<?php  
+$session = $this->session->all_userdata();
+	
+?>
+<?php 
+	$query = $this->db->select('*')->from('ospos_stock_locations')->where('location_owner',$session['person_id'])->get();
+	$dataLogin = $query->result();
+
+?>
 
 <ul class="nav nav-tabs" data-tabs="tabs" id="shop_tab">
 
 	<?php foreach($shops as $shop) { ?>
-	<li class="" role="presentation">
+	<li <?php
+			if($session['person_id'] == $shop->location_owner ){
+
+				echo 'class="active"';
+			}
+
+			 if($session['person_id'] == '15' || $session['person_id'] == '16'){
+			 	if($shop->location_owner == '7'){
+			 		echo 'class="active"';
+			 	}
+			 }
+
+		?>  role="presentation">
 		
-		<a data-toggle="tab" href="javascript:void(0)" onclick='count_data(<?php echo $shop->location_id.",".$shop->location_owner;?>)' title='<?php echo $shop->alias?>'><?php echo $shop->location_name;?></a>
+		<a data-toggle="tab"  href="javascript:void(0)" onclick='count_data(<?php echo $shop->location_id.",".$shop->location_owner;?>)' title='<?php echo $shop->alias?>'><?php echo $shop->location_name;?></a>
 	</li>
 	<?php } ?>
 </ul>
@@ -55,6 +76,7 @@
 		</div>
 		</div>
 </div>
+
 <div class="row">
 	<div class="col-md-6">
 		<h3>Points Table</h3>
@@ -77,33 +99,13 @@
 			</tbody>
 		</table>
 	</div>
-	<div class="col-md-6">
-		<h3>Login And Logout Details</h3>
-		<div class="column">			
-			<div class="card" >
-				<div class="row" style="background-color: #ff704d;padding-top: 10px;">
-					<div class="col-md-4">			
-					<h5>Login Time:- <span id="logintime"></span></h5>
-						
-					</div>
-					<div class="col-md-4">					
-						<h5>Logout Time:- <span id="logouttime"></span></h5>
-					</div>			
-					<div class="col-md-2 ">					
-						<button id="all_details" type="button" class="btn btn-success pull-right">All Details</button>
-					</div>
-					<div class="col-md-2 ">					
-						<a href="<?php echo site_url('/home/shop_close/close') ;?>" class="btn btn-warning pull-right myLink">Shop Close</a>
-					</div>
-					<div class="col-md-12 " style=" height: 219px;overflow: scroll;margin-top: 23px;">					
-						<div class="show_all_details" style=" display:none;">				
-						</div>
-						
-					</div>	
-				</div>
-			</div>	
-		</div>	
+	<?php  if($session['person_id'] == $dataLogin[0]->location_owner || $session['person_id'] == '15' || $session['person_id'] == '16') {  ?> 
+
+	<div class="col-md-6 show_all_details " style="border: 1px solid #ddd; margin-top: 54px;" >
+		<?php  $this->load->view('home/login_details'); ?>
 	</div>
+<?php } ?>
+
 </div>
 
 <input type="hidden" id='login' value="<?php echo $time[0]->login ? $time[0]->login:'10:00'; ?> "/>
@@ -119,30 +121,17 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            <div class="modal-header">
-                <!-- <button type="button" class="close" data-dismiss="modal">
-                    &times;</button> -->
-                <h4 class="modal-title">
-
+            <div class="modal-header ">             
+                <h4 class="modal-title text-center">
+                	<b>Welcome To </b><b id="shopName"></b>
                 </h4>
             </div>
-            <div class="modal-body" style="text-align: center;">
-            	<span id="msg" style="color: #FF0000; font-size:12px;"></span><br>
-            	<button id="start_shop" type="button" class="btn btn-lg btn-primary" >Start Shop Now</button>
-            	
-            	<div id='reason_field' class="row"  style="display: none ; padding-top: 19px;">
-            		<div  class="col-sm-3 col-md-3">
-            			<label><span style="color: #FF0000; font-size:11px;">*</span>Reason</label>
-            		</div>
-            		<div  class="col-sm-6 col-md-6" style="">
-            			<span id="msg" style="color: #FF0000; font-size:11px;"></span>
-            			<input class="form-control" name="reason" id='reason'/>
-            			<span style="color: #FF0000; font-size:12px;" id="error"></span>
-            		</div>
-            	</div>
-            </div>
-            <div class="modal-footer">
-                
+            <div class="modal-body  text-center" >
+            	<h5><b>Click on this button</b></h5>
+            	</br>
+            	<button id="start_shop" type="button" class="btn btn-md btn-primary" >Start Shop Now</button>
+            	</br></br>
+            
             </div>
         </div>
     </div>
@@ -150,16 +139,7 @@
 
 <?php $this->load->view("partial/footer");?>
 <script>
- $(document).ready(function(){
-//  window.addEventListener("beforeunload", function (e) {
-
-//   var confirmationMessage = "Are you sure you want to leave this page without placing the order ?";
-//   (e || window.event).returnValue = confirmationMessage;
-//   return confirmationMessage;
-// })
- 	// $(window).bind("beforeunload", function() { 
-  //       return confirm("Do you really want to close?"); 
-  //   });
+ $(document).ready(function(){ 
 
 	var d            = new Date();
 	var time         = d.getHours() + ":" + d.getMinutes() ;
@@ -171,63 +151,42 @@
     var ip           = $('#ip').val();
     var login_type   = $('#login_type').val();
       
-	var start = login;
-    var end = time;
 
-    s = start.split(':');
-    e = end.split(':');
-
-    min = e[1]-s[1];
-    hour_carry = 0;
-    if(min < 0){
-        min += 60;
-        hour_carry += 1;
-    }
-    hour = e[0]-s[0]-hour_carry;
-    diff = hour + "	hr " + min+'min';
-	if(time > login){
-			$('#msg').text('You are '+diff+' late please enter reason')
-			$('#reason_field').css('display','block');
-		}
-	$bfr = ''	
-	if(time < login){
-		$bfr = 'done';
-	}
 	if(login_type === 'dbf' || login_type === 'shop'){	
 		if(login_date !== current_date){	
-		 	$("#MyPopup .modal-title").html(title);
-		    //$("#MyPopup .modal-body").html(logout);
+		 	$("#shopName").html(title);		  
 		    $("#MyPopup").modal({"backdrop": "static"});
 		}
 	}
     $('#start_shop').on('click',function(){    
-    	var reason  = $('#reason').val();
-    	var res_len = $('#reason').val().length;
-    	
-	    if(reason !== " " && res_len > 10 || $bfr !== ''){
-	    	$.post('<?php echo site_url("Home/reason_save");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>','reason': reason}, function(data){
+    	$.post('<?php echo site_url("Home/reason_save");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'}, function(data){
 	    	   if(data=='true'){
 					$("#MyPopup").modal("hide");
+					location.reload();
 				}else{
 					alert('Please submit again');
 				}
-			})
-	    }
-	    else{
-	    	$('#error').text('Please Enter Your Reason In 10 Characters');
-	    }    
-	})
+			});
+	    
+	});
 
-	$('#all_details').on('click',function(){
-		$('.show_all_details').toggle();
-		})    
+
+	$('.loader_wait').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
+	// $("#shop_tab li:first-child").addClass('active');
+	
+	
+	var per = "<?php echo  $dataLogin[0]->location_owner ;  ?>" ;
+	var loc = "<?php  echo $dataLogin[0]->location_id ; ?>";
+	var count = "<?php echo count($dataLogin) ?>" ;
+	if(count == 0){
+		count_data(4,7);
+	}
+	else{
+		count_data(loc,per);
+	}
+	
 });
 
-$(document).ready(function(){
-	$('.loader_wait').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
-	$("#shop_tab li:first-child").addClass('active');
-	count_data(4,7);
-})
 function count_data(loc,per){
 	$('.loader_wait').html('<img src="<?php echo base_url('images/loader_icon1.gif'); ?>" alt="loading" />');
     $.get('<?php echo site_url('home/admin_count') ?>', {per:per,loc:loc},function(data){
@@ -235,20 +194,17 @@ function count_data(loc,per){
       $('#itemcount').html(resp.itemcount);
       $('#dailySales').html(resp.dailySales);
       $('#totalSales').html(resp.totalSales);
-      $('#logintime').text(resp.logintime);
-      $('#logouttime').text(resp.logouttime);
+
     });
 
-    $.post('<?php echo site_url("Home/get_all_login");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>','id': per}, function(data){
-	    	  $('.show_all_details').html(data);
-			})
+    var count = "<?php echo count($dataLogin) ?>" ;
+    if(count == 0){
+    	$.post('<?php echo site_url("Home/get_all_login");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>','id': per}, function(data){
+	    	  	$('.show_all_details').empty().html(data);
+			});
+	}
+
 }
 
-$(document).ready(function(){
-	$('#all_details').on('change',function(){
-		$.post('<?php echo site_url("Home/reason_save");?>', {'<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>','reason': reason}, function(data){
-	    	  
-			})
-	})
-})
+
 </script>
