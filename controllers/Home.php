@@ -272,7 +272,6 @@ class Home extends Secure_Controller
 	public function view_all($location_ow){
 		$data['logins'] =  $this->Home_con->get_all_login($location_ow);	
 		$data['owner'] = $this->Home_con->owner_name($location_ow);
-		
 		return $this->load->view('home/viewLogins',$data);
 	}	
 

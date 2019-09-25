@@ -32,7 +32,13 @@
 
 <script type="text/javascript">
 	$(document).ready(function(){
-		$('#tableLogins').DataTable();
+		$('#tableLogins').DataTable({
+			dom: 'Bfrtip',
+	        order: [[2, 'desc']],
+	        buttons: [
+	          'copy', 'csv', 'excel', 'pdf', 'print'
+	        ]
+		});
 	});
 </script>
 
