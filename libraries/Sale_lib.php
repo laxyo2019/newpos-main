@@ -894,7 +894,7 @@ class Sale_lib
 
 					$discount = 0.00;
 				}else{ //DISCOUNTED ITEM
-					if($billtype=='retail' && $this->check_offer_dynamic_pricing($item_id)){
+					if(json_decode($item_info->cost_price)->$billtype >100.00  && $billtype=='retail' && $this->check_offer_dynamic_pricing($item_id)){
 						$discount = $this->check_offer_dynamic_pricing($item_id);
 					}
 					$barcode_array = array(
