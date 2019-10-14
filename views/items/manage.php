@@ -44,10 +44,10 @@ $(document).ready(function()
     dialog_support.init("a.modal-dlg, button.modal-dlg-wide");
 	
 	// when any filter is clicked and the dropdown window is closed
-	$('#filters').on('hidden.bs.select', function(e)
-	{
-        table_support.refresh();
-    });
+	// $('#filters').on('hidden.bs.select', function(e)
+	// {
+ //        table_support.refresh();
+ //    });
 
 
    $(document).ready( function () {

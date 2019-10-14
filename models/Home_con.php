@@ -48,6 +48,7 @@ class Home_con extends CI_Model
 		$this->db->select('*');
 		$this->db->from('ospos_open_close_time');
 		$this->db->where('location_owner',$id);
+		$this->db->order_by('date','desc');
 		$query = $this->db->get();
 		$data = $query->result();
 		return $data;	
@@ -60,6 +61,14 @@ class Home_con extends CI_Model
 		$query = $this->db->get();
 		$data = $query->result();
 		return $data;		
+	}
+	public function owner_name($id){
+		$query = $this->db->select('location_name')
+				->from('ospos_stock_locations')
+				->where('location_owner',$id)
+				->get();
+		return $query->row_array();
+
 	}
 }
 ?>
