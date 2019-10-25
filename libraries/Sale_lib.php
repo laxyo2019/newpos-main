@@ -894,25 +894,24 @@ class Sale_lib
 
 					$discount = 0.00;
 				}else{ //DISCOUNTED ITEM
-					if(json_decode($item_info->cost_price)->$billtype >100.00  && $billtype=='retail' && $this->check_offer_dynamic_pricing($item_id)){
+					if($unit_price > 100.00  && $billtype=='retail' && $this->check_offer_dynamic_pricing($item_id)){
 						$discount = $this->check_offer_dynamic_pricing($item_id);
 					}
-					$barcode_array = array(
-						'134212022033304',
-						'134212022033307',
-						'134212019033299',
-						'134212022033363',
-						'134070125000779',
-						'134212021033303',
-						'134072019033509',
-						'134210125000095',
-						'134212021033306'
-					);
-					$session_billtype = $this->CI->session->userdata('billtype');
-					if(in_array($item_info->item_number,$barcode_array) && $billtype=='retail'){
-							$discount = 40.00;
-					}
-
+					// $barcode_array = array(
+					// 	'134212022033304',
+					// 	'134212022033307',
+					// 	'134212019033299',
+					// 	'134212022033363',
+					// 	'134070125000779',
+					// 	'134212021033303',
+					// 	'134072019033509',
+					// 	'134210125000095',
+					// 	'134212021033306'
+					// );
+					// $session_billtype = $this->CI->session->userdata('billtype');
+					// if(in_array($item_info->item_number,$barcode_array) && $billtype=='retail'){
+					// 		$discount = 40.00;
+					// }
 					$price = $unit_price;
 				}
 			
