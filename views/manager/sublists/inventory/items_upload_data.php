@@ -105,11 +105,12 @@ if(isset($sheets[0])){ ?>
 <div style="margin:35px 0;   top: 95px;position: absolute;right: 16px;">
 <?php if($error_count==0 && isset($sheets[0])):?>
 
-<button class='btn btn-xs padding-5 bg-warning pull-right' style="margin-left:10px;" onclick='sheet_action(<?php echo $sheet->id;?>,"approve");'><span class='fa fa-check-square-o mar_r_7'></span>Approve</button>
-<?php endif;?>
+<button class='btn btn-xs padding-5 bg-warning pull-right' style="margin-left:10px;" onclick='sheet_action(<?php echo $mastersheet->id;?>,"approve");'><span class='fa fa-check-square-o mar_r_7'></span>Approve</button>
+<?php endif;
+?>
 
-<?php if($sheet->status == 'pending'){  ?>
-<button class='btn btn-xs padding-5 bg-danger pull-right'  onclick='sheet_action(<?php echo $sheet->id;?>,"discard");'><span class='fa fa-times-circle mar_r_7'></span>Discard</button>
+<?php if($mastersheet->status == 'pending'){  ?>
+<button class='btn btn-xs padding-5 bg-danger pull-right'  onclick='sheet_action(<?php echo $mastersheet->id;?>,"discard");'><span class='fa fa-times-circle mar_r_7'></span>Discard</button>
 <?php } ?>
 </div>
 </div>

@@ -1528,7 +1528,7 @@ public function items_undelete_data($id){
 		$this->db->select('*');
 		 $this->db->from('sheet_uploads');
   	$this->db->where('id',$sheet_id);
-    $data['sheet'] = $this->db->get()->row();
+    $data['mastersheet'] = $this->db->get()->row();
     $this->load->view('manager/sublists/inventory/items_upload_data',$data);
   }
   public function items_processed_data($sheet_id=1){
