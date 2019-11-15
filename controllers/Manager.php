@@ -274,7 +274,7 @@ public function items_undelete_data($id){
    foreach($custom_attributes as $custom_attribute){
         $custom_col[]=$custom_attribute->value;
     }
-   $header = array("ID","Barcode","Item Name","Category","SubCategory","Brand","Size","Color","Model","MRP","HSN","CGST","SGST","IGST","Disc % (Retail)","Disc % (Wholesale)","Disc % (Franchise)","FP (Retail)","FP (Wholesale)","FP (Franchise)", "AP_Quantity",  "BT_Quantity", "IP_Quantity", "KDR_Quantity", "LH_Quantity", "MH_Quantity","SHOP114_Quantity", $custom_col[1],$custom_col[2],$custom_col[3],$custom_col[4],$custom_col[5],$custom_col[6],$custom_col[7],$custom_col[8],$custom_col[9],$custom_col[0]);
+   $header = array("ID","Barcode","Item Name","Category","SubCategory","Brand","Size","Color","Model","MRP","HSN","CGST","SGST","IGST","Disc % (Retail)","Disc % (Wholesale)","Disc % (Franchise)","FP (Retail)","FP (Wholesale)","FP (Franchise)", "AP_Quantity",  "BT_Quantity", "IP_Quantity", "AR_Quantity", "LH_Quantity", "MH_Quantity","SHOP114_Quantity", $custom_col[1],$custom_col[2],$custom_col[3],$custom_col[4],$custom_col[5],$custom_col[6],$custom_col[7],$custom_col[8],$custom_col[9],$custom_col[0]);
    fputcsv($file, $header);
 
    foreach ($items as $item){
@@ -301,7 +301,7 @@ public function items_undelete_data($id){
       $al_8 = (isset($al->loc_8)) ? $al->loc_8: 0;
       $al_16 = (isset($al->loc_16)) ? $al->loc_16: 0;
       $al_6 = (isset($al->loc_6)) ? $al->loc_6: 0;
-      $al_21 = (isset($al->loc_21)) ? $al->loc_21: 0;
+      $al_22 = (isset($al->loc_22)) ? $al->loc_22: 0;
       $al_4 = (isset($al->loc_4)) ? $al->loc_4: 0;
       $al_11 = (isset($al->loc_11)) ? $al->loc_11: 0;
       $al_20 = (isset($al->loc_20)) ? $al->loc_20: 0;
@@ -330,7 +330,7 @@ public function items_undelete_data($id){
            $al->loc_8,
            $al->loc_16,
            $al->loc_6,
-           $al->loc_21,
+           $al->loc_22,
            $al->loc_4,
            $al->loc_11,
            $al->loc_20,
