@@ -46,11 +46,10 @@ $(document).ready(function()
 	// when any filter is clicked and the dropdown window is closed
 	// $('#filters').on('hidden.bs.select', function(e)
 	// {
- //        table_support.refresh();
- //    });
+ //    table_support.refresh();
+ //  });
 
-
-   $(document).ready( function () {
+ 	$(document).ready( function () {
     	$('#table1').DataTable({
     		 "lengthMenu": [[25, 50, -1], [10, 25, 50, "All"]],
     		'bJQueryUI': true,
@@ -117,8 +116,6 @@ $(document).ready(function()
 
 	<div id="toolbar">
 	    <div class="form-inline" role="toolbar">
-
-
 			<?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
 			<?php
 			if (count($stock_locations) > 1)

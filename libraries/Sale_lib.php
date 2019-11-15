@@ -879,21 +879,21 @@ class Sale_lib
 		if($price_mode == PRICE_MODE_STANDARD)
 		{
 			$cost_price = $item_info->cost_price;
-				if($unit_price == 0.00){ //FIXED PRICE ITEM	
+				if($unit_price == 0.00) { //FIXED PRICE ITEM	
 					
 					// //Uncomment this---
-					if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >100.00 ){
-							$price = 100.00;
-					}else{
+					// if($item_info->brand=="WS" && json_decode($item_info->cost_price)->$billtype >100.00 ){
+					// 		$price = 100.00;
+					// }else{
 						$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
-					}
+					// }
 
 					// comment this
 					//$price = str_replace(',','',json_decode($item_info->cost_price)->$billtype); 
 					//Example 1,000 will be read as 1 so need to do this.
 
 					$discount = 0.00;
-				}else{ //DISCOUNTED ITEM
+				}else { //DISCOUNTED ITEM
 					if($unit_price > 100.00  && $billtype=='retail' && $this->check_offer_dynamic_pricing($item_id)){
 						$discount = $this->check_offer_dynamic_pricing($item_id);
 					}

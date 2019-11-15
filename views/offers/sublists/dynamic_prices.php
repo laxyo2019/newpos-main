@@ -1,3 +1,20 @@
+<style>
+  .dot1 {
+    height: 15px;
+    width: 15px;
+    background-color: #FF0000;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot2 {
+    height: 15px;
+    width: 15px;
+    background-color: #00FF00;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+
 <table id="dynamic_prices" class="display" style="width:100%">
   <thead>
     <tr>
@@ -29,12 +46,16 @@
       <td><?php echo $row['discount']; ?></td>
       <td><?php echo $row['start_time']; ?></td>
       <td><?php echo $row['end_time']; ?></td>
-      <td>
-        <style>
+      <td class="text-center">
+        <!-- <style>
           .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
           .toggle.ios .toggle-handle { border-radius: 20px; }
         </style>
-        <input type="checkbox" class="offer_toggle" data-toggle="toggle" <?php if($row['status']) echo 'checked';?> data-onstyle="success"data-offstyle="danger" data-style="ios" data-size="mini" />
+        <input type="checkbox" class="offer_toggle" data-toggle="toggle" <?php //if($row['status']) echo 'checked';?> data-onstyle="success"data-offstyle="danger" data-style="ios" data-size="mini" /> -->
+
+        <?php
+          echo (strtotime($row['end_time']) < time()) ? '<span class="dot1"></span>' : '<span class="dot2"></span>';
+        ?>
       </td>
     </tr>
   <?php endforeach; ?>
