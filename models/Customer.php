@@ -210,6 +210,18 @@ class Customer extends Person
 		return $this->db->get()->result_array();
 	}
 
+	public function get_customers_numbers()
+	{
+		$this->db->from('customers');
+		$this->db->join('people', 'people.person_id = customers.person_id');
+		$this->db->where('customers.deleted', 0);
+		$rows = $this->db->get()->result_array();
+		foreach ($rows as $value) {
+			$data[] = $value['phone_number']; 
+		}
+		return $data;
+	}
+
 	/*
 	Inserts or updates a customer
 	*/
@@ -370,6 +382,7 @@ class Customer extends Person
 
 		$this->db->from('customers AS customers');
 		$this->db->join('people', 'customers.person_id = people.person_id');
+		//$this->db->join('sales', 'sales.customer_id = people.person_id');
 		$this->db->group_start();
 			$this->db->like('first_name', $search);
 			$this->db->or_like('last_name', $search);
@@ -380,7 +393,6 @@ class Customer extends Person
 			$this->db->or_like('CONCAT(first_name, " ", last_name)', $search);
 		$this->db->group_end();
 		$this->db->where('deleted', 0);
-
 		// get_found_rows case
 		if($count_only == TRUE)
 		{
@@ -393,7 +405,6 @@ class Customer extends Person
 		{
 			$this->db->limit($rows, $limit_from);
 		}
-
 		return $this->db->get();
 	}
 }

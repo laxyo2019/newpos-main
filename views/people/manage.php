@@ -53,6 +53,7 @@ $(document).ready(function()
 	</button>
 
 	<a  class="btn btn-info btn-sm " href="<?php echo site_url($controller_name."/get_datatable"); ?>">Data Table</a>
+	<a  class="btn btn-info btn-sm " href="<?php echo site_url("manager/fetch_valid_customers_contact_no"); ?>">Contact Numbers</a>
 </div>
 
 <div id="toolbar">

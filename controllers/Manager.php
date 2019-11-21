@@ -32,7 +32,8 @@ class Manager extends Secure_Controller
   public function fetch_valid_customers()
   {
     $customers = $this->input->post('customers');
-    $cArray = explode(PHP_EOL, $customers);
+    $cArray = array_unique(explode(PHP_EOL, $customers));
+    //print_r($cArray); die;
     foreach($cArray as $row) {
       if(!empty($row)) {
         if(is_numeric($row) && strlen($row) == 10) {
@@ -42,6 +43,24 @@ class Manager extends Secure_Controller
         }
       }
     }
+  }
+
+  public function fetch_valid_customers_contact_no()
+  {
+		$filename = 'DBF Customer Mobile Numbers'.date('d-m').'.csv';
+		$file = fopen('php://output', 'w');
+		$data = array_unique($this->Customer->get_customers_numbers());
+		// $header = array("Mobile Number");
+		header("Content-Disposition: attachment; filename=$filename");
+		header("Content-Type: application/csv;");
+	  fputcsv($file);	
+	  foreach ($data as $row) {
+  		if(is_numeric($row) && strlen($row) == 10){
+  			fputcsv($file,array($row));  
+		  }
+		}
+		fclose($file);
+		exit;
   }
 
   public function populate_vc_out_table($password)

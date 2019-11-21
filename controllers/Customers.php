@@ -310,7 +310,6 @@ class Customers extends Persons
 	
 		   // file creation
 		  $file = fopen('php://output', 'w');
-		 
 		  $header = array("ID","First Name","Last Name","Mobile Number","Email Address","GST Number");
 		  fputcsv($file, $header);
 	  

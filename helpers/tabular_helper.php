@@ -297,7 +297,6 @@ function get_customer_manage_table_headers()
 		array('phone_number' => $CI->lang->line('common_phone_number')),
 		array('total' => $CI->lang->line('common_total_spent'), 'sortable' => FALSE),
 		array('created_at' => 'Created At'),
-		array('last_purchase' => 'Last Purchase'),
 	);
 
 	if($CI->Employee->has_grant('messages', $CI->session->userdata('person_id')))
@@ -322,8 +321,7 @@ function get_customer_data_row($person, $stats)
 		'first_name' => $person->first_name,
 		// 'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
 		'phone_number' => $person->phone_number,
-		'created_at' => $person->created_at,
-		'last_purchase' => $person->last_purchase,
+		'created_at' => date('h:i A dS-M-Y', strtotime($person->created_at)),
 		'total' => to_currency($stats->total),
 		'messages' => empty($person->phone_number) ? '' : anchor("Messages/view/$person->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
