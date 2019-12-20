@@ -505,9 +505,17 @@ class Offers extends Secure_Controller
 }
 
 	public function all_gc_views(){
+		$filterVoucher  = $this->input->post('voucher');
+		$filterRedeemed = $this->input->post('redeemed');
 		$this->db->select('voucher_gifts.* , vc_gift_master.title as title, vc_gift_master.vc_value as vc_value');
 		$this->db->from('voucher_gifts');
 		$this->db->join('vc_gift_master','voucher_gifts.voucher_id=vc_gift_master.id','inner');
+		if(!empty($filterVoucher)){
+			$this->db->where('voucher_gifts.voucher_id', $filterVoucher);
+		}
+		if($filterRedeemed == on){
+			$this->db->where('voucher_gifts.redeem_at !=', '');
+		}
 		$this->db->order_by('created_at','desc');
 		$data['vc_info'] = $this->db->get()->result();
 		$this->load->view('offers/sublists/gift_vc',$data);
@@ -543,10 +551,11 @@ class Offers extends Secure_Controller
 		$this->load->view("offers/submodules/purchase_limits",$data);
 	}
 
-	public function view_control_panel(){
+	/*public function view_control_panel(){
 		$data['locations'] = $this->Stock_location->get_allowed_locations2();
 		$this->load->view("offers/submodules/control_panel",$data);
-	}
+	}*/
+	
 	public function display_created_vouchers(){
 		$data['result']= $this->input->get('data');
 		$this->load->view("offers/subviews/display_created_vc",$data);
@@ -634,7 +643,7 @@ class Offers extends Secure_Controller
 		}
 	}
 		public function cashier_save(){
-		
+		//print_r($_POST); die;
 		$shops = $this->input->post('shops'); //array
 
 		$data['name'] = $this->input->post('name'); 
@@ -652,14 +661,14 @@ class Offers extends Secure_Controller
 			echo TRUE;
 		}else{
 			$this->db->insert('cashiers',$data);
-			$cashierId = $this->db->insert_id();
+			/*$cashierId = $this->db->insert_id();
 			if($shops!=''){
 				foreach($shops as $shop){
 					$data_loc['cashier_id'] = $cashierId;
 					$data_loc['person_id'] = $shop;
 					$this->db->insert('cashier_shops',$data_loc);
 				}
-			}
+			}*/
 			echo FALSE;
 		}	
 		

@@ -28,6 +28,7 @@
 </div>
 <hr>
 <div class="row">
+	<div id="suggestion" class="text-center"></div>
 	<div class="col-md-6 col-md-offset-3" id="mci_sublist">
 		
 	</div>
@@ -40,6 +41,13 @@
 	</div>
 </div>
 
+<style type="text/css">
+	.myImp{
+		width: 100% !important;
+    border: none !important;
+    background: none !important;
+  }
+</style>
 <script>
 	$(document).ready(function() 
 	{
@@ -116,7 +124,22 @@
 					parent_id = $('#cSwitch').val();
 				}
 				$.post('<?php echo site_url($controller_name."/mci_save");?>', {'type': type, 'id': id, 'name': name, 'parent_id': parent_id}, function(data) {
-					alert(data);
+					if(data == 1){
+	        	alert("Duplicate Entry Not Saved!");
+	        }else if(data == 2){
+	        	alert('Successfully Created');
+	        }else if(data == 3){
+	        	alert('Fields are overloaded');
+	        }else{
+	        	var txt = "";
+	        	var myObj = JSON.parse(data);
+	        	txt += "<div class='row'><div class='col-md-3'></div><div class='col-md-6'><table class='table table-striped'>"
+				    for (x in myObj) {
+				      txt += "<tr><td><input class='myImp' type='text' value='" + myObj[x].name + "' id='myInput"+x+"' readonly></td><td><i class='fa fa-files-o' aria-hidden='true' onclick='myFunction("+ x +")'></i></td></tr>";
+				    }
+				    txt += "</table></div></div>" 
+	        	$("#suggestion").append(txt);
+	        }
 					// location.reload();
 				});
 
@@ -126,4 +149,33 @@
 		});
 
 	});
+</script>
+<script type="text/javascript">
+function myFunction(id) {
+  var copyText = document.getElementById("myInput"+id);
+  console.log(copyText);
+  copyText.select();
+  copyText.setSelectionRange(0, 99999)
+  document.execCommand("copy");
+  alert("Copied the text: " + copyText.value);
+}
+// function myFunction(id) {
+//   var copyText = document.getElementsByClassName("myInput"+id)[0].getAttribute("data-value");
+//   console.log(copyText);
+//   copyText.select();
+//   copyText.setSelectionRange(0, 99999)
+//   document.execCommand("copy");
+//   alert("Copied the text: " + copyText);
+// }
+	/*$(document).ready(function(){
+    $('.myInput0').on("click", function(){
+        value = $(this).data('value'); 
+        console.log(value);
+        var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(value).select();
+          document.execCommand("copy");
+          $temp.remove();
+    })
+	})*/
 </script>

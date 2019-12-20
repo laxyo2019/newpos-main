@@ -91,6 +91,18 @@
 			</center>
 		</div>
 	</div>
+	<div class="col-sm-3" >
+		<div class="column">
+			<center>       
+			<div class="card" style="background-image: linear-gradient(to bottom,#efb1ab, #f77b7b);background-color: #f77b7b;min-height:200px;">
+				<br>
+				<h3>Control Panel</h3>
+				<h1><a  href="<?php echo site_url('/manager/view_control_panel'); ?>"  title="Inventory"><span class="fa fa-cog" style="color: white;"></span></a></h1>
+				<br>
+			</div>
+			</center>
+		</div>
+	</div>
 </div>
 </div>
 </div>

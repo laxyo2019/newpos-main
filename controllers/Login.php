@@ -107,7 +107,7 @@ class Login extends CI_Controller
   
 		$name = 'DBF_'.$curr_month.'_Report_Data'.'.csv';
     $data = file_get_contents('../reports/monthly_sales_report/' . $name);
-   force_download($name, $data);
+   	force_download($name, $data);
     
 	}
 		/*==========Start delete csv file and save in folder=====================*/
@@ -128,14 +128,14 @@ public function send_Email_report(){
 			$email = $this->input->get_post('email');
 			$category =$this->input->get_post('category');
 			$curr_month_name = date('M', strtotime("-1 month"));
-			
+
 			$from ='babaentertainment1@gmail.com';
 			if ($category=="monthly_sales") {
-				$subject = "DBF Monthly Sales Report";
-				$message = '<b>DBF monthly report format of '. $curr_month_name . " month " . 'the download link is here </b> </br> <a href="http://localhost/dbf/public/login/reports">Click Me</a>';
+				$subject = "DBF Monthly Sales Report"; //http://localhost/dbf/public/login/reports
+				$message = '<b>DBF monthly report format of '. $curr_month_name . " month " . 'the download link is here </b> </br> <a href="'.base_url('login/reports').'">Click Me</a>';
 			}else{
 				$subject = "DBF Monthly Deleted Report";
-				$message = '<b>DBF monthly deleted report format of '. $curr_month_name ." month " . 'the download link is here </b> </br> <a href="http://localhost/dbf/public/login/deleted_reports">Click Me</a>';
+				$message = '<b>DBF monthly deleted report format of '. $curr_month_name ." month " . 'the download link is here </b> </br> <a href="'.base_url('login/deleted_reports').'">Click Me</a>';
 			}
 					// Make the attachment
 				$config = Array(
@@ -166,10 +166,6 @@ public function send_Email_report(){
 					{
 						show_error($this->email->print_debugger());
 					}
-		
 		}
-		
-
-
 }
 ?>

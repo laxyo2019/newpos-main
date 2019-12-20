@@ -30,7 +30,7 @@
           <td><?php echo $row['webkey']; ?></td>
           <td><?php echo $row['contact']; ?></td>
           <td>
-          <a class='modal-dlg' href='<?php echo site_url();?>/offers/cashier_edit_view/<?php echo $row['id'];?>' style='font-size:20px'><i class='fa fa-pencil'></i></a>
+          	<a class='modal-dlg' href='<?php echo site_url();?>/offers/cashier_edit_view/<?php echo $row['id'];?>' style='font-size:20px'><i class='fa fa-pencil'></i></a>
             <style>
               .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
               .toggle.ios .toggle-handle { border-radius: 20px; }
@@ -42,6 +42,9 @@
     </tbody>
   </table>
 </div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
     dialog_support.init(".modal-dlg");

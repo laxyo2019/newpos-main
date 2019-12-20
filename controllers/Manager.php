@@ -718,7 +718,6 @@ public function items_undelete_data($id){
 
   public function monthly_report_csv(){
 
-   
     $curr_month = date('m', strtotime("-1 month"));
     $curr_year = date('Y');
 
@@ -738,6 +737,7 @@ public function items_undelete_data($id){
       'employee_id'=> FALSE,
       'is_valid_receipt' => $this->Sale->is_valid_receipt($search)
     );
+
     // $filters['location_id'] =  $this->input->get_post('location_id');
     $filledup = array_fill_keys(array(), TRUE);
     $filters = array_merge($filters, $filledup);
@@ -763,13 +763,13 @@ public function items_undelete_data($id){
     
 
     //file creation and store 
-   if($file = fopen("../reports/monthly_sales_report/".$filename, 'w+')){
-    
-   
+ 
+    $file = fopen("../reports/monthly_sales_report/".$filename, 'w');
+
 	//	$file = fopen('php://temp', 'w');
 	
-    $header = array("ID", "Time", "Coustmer Name", "Tally Number", "Invoice Number", "Total Amount", "Payment Mode", "Sale Type", "Bill Type","Shop ID");
-    fputcsv($file, $header);
+    $header = array("ID", "Time", "Custmer Name", "Tally Number", "Invoice Number", "Total Amount", "Payment Mode", "Sale Type", "Bill Type","Shop ID");
+     fputcsv($file, $header);
    
      foreach($data_rows as $row){
       fputcsv($file,array(
@@ -785,19 +785,16 @@ public function items_undelete_data($id){
            $this->Stock_location->get_location_name2($row['employee_id']),
       ));           
     }
-    echo '<script>
-    alert("success");
-    window.location.href="http://localhost/newpos-lives/public/manager/monthly_report";
-    </script>
-    ';
+   
+    // echo '<script>
+    // alert("success");
+    // window.location.href="http://localhost/newpos-lives/public/manager/monthly_report";
+    // </script>
+    // ';
 
     fclose($file);
-   
-
-  } 
-  else{
-    echo '<script>alert("failed");</script>';
-  }
+    
+ 	exit;
        
   }
 
@@ -871,16 +868,43 @@ public function items_undelete_data($id){
 			);
 		}
 
-    $tablename = 'master_'.$type;
-    $count = $this->db->where('name', $name)->count_all_results($tablename);
-    if($count == 0)
-    {
-      $this->db->insert($tablename, $data);
-      echo "Successfully Created";
-    }
-    else
-    {
-			echo "Duplicate Entry Not Saved!";
+		$tablename = 'master_'.$type;
+		$this->db->select('*');
+    $this->db->from($tablename);
+    $this->db->order_by("id", "desc");
+    $query = $this->db->get();
+    $row = $query->row_array();
+    $tbl_id = strlen($row['id']);
+    if($tbl_id > 2 && $type == "categories") {
+        echo '3';
+    }elseif($tbl_id > 3 && $type == "subcategories") {
+        echo '3';
+    }elseif($tbl_id > 4 && $type == "brands") {
+    		//select * from people where soundex("suit") = soundex(name);
+    		echo '3';
+    }else{
+    	$this->db->select('*');
+	    $this->db->from($tablename);
+	    $this->db->where('soundex("'.$name.'") = soundex(name)');
+	    $query = $this->db->get();
+	    $row = $query->result_array();		
+    	if(!empty($row))
+    	{
+    		foreach ($row as $value) {
+  				$check = $value['name'];
+  				if($check === $name)
+  				{
+  					echo "1"; die; //"Duplicate Entry Not Saved!";
+  				}
+  				else{
+  					$val[] = $value;
+  				}
+    		}
+    		echo json_encode($val); 
+	    }else{
+	    	$this->db->insert($tablename, $data);
+	      echo "2";//"Successfully Created";
+	    }
 		}
 	}
 
@@ -1571,4 +1595,24 @@ public function items_undelete_data($id){
       echo 'Incorrect Password.';
     }
   }
+  
+  public function view_control_panel(){
+		$data['locations'] = $this->Stock_location->get_allowed_locations2();
+		$this->load->view("offers/submodules/control_panel",$data);
+	}
+	
+	public function addLocationCashier()
+	{
+		$cashier_id = $_POST['cashiers_name'];
+		$person_id = $_POST['location_ids'];
+		$this->db->where('person_id', $person_id);
+    $this->db->delete('cashier_shops');       
+		foreach ($cashier_id as $value) {
+			$data = array(
+				'cashier_id' => $value,
+				'person_id' => $person_id,
+			);
+			$insert = $this->db->insert('cashier_shops', $data);
+		}
+	}
 }

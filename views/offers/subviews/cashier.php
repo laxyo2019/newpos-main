@@ -14,6 +14,7 @@
     <hr>
   <div id="shop_cpanel"></div>  
 </div>
+
 <script>
   function cashier(e){
     x = $(e).val();

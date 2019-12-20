@@ -393,7 +393,13 @@ class Sale extends CI_Model
 					// customer first and last name
 					$this->db->or_like('CONCAT(customer_p.first_name, " ", customer_p.last_name)', $search);
 					// customer company name
-					$this->db->or_like('customer.company_name', $search);
+					// $this->db->or_like('customer.company_name', $search);
+					// search by customer invoice no.
+					$this->db->or_like('sales.invoice_number', $search);
+					// search by customer tally no.
+					$this->db->or_like('sales.tally_number', $search);
+					// search by customer ref no.
+					$this->db->or_like('CONCAT(sales.tally_number, "/", sales.invoice_number)', $search);
 				$this->db->group_end();
 			}
 		}

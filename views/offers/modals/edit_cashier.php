@@ -45,7 +45,7 @@
         ?>
     </div>
 </div>
-<div class='col-sm-12'>
+<!-- <div class='col-sm-12'>
 
 	 <select class="form-control" multiple="multiple" id="cashier_locations">
       <?php foreach($shops as $key=>$value):?>
@@ -55,19 +55,19 @@
       <?php endforeach; ?>
     </select>
 
-<!-- <?php //foreach($shops as $key=>$value):?>
-    <div class='col-sm-6'>
-        <input 
-            type='checkbox' 
-            class='location_checkbox' 
-            value='<?php //echo $key; ?>'
-            <?php//if(in_array($key,$locations_arr)){
-              //  echo 'checked';
-             //}?>>
-        <?php //echo strtoupper($value); ?>
-    </div>
- <?php //endforeach; ?> -->
-</div>
+	<?php //foreach($shops as $key=>$value):?>
+	    <div class='col-sm-6'>
+	        <input 
+	            type='checkbox' 
+	            class='location_checkbox' 
+	            value='<?php //echo $key; ?>'
+	            <?php//if(in_array($key,$locations_arr)){
+	              //  echo 'checked';
+	             //}?>>
+	        <?php //echo strtoupper($value); ?>
+	    </div>
+	 <?php //endforeach; ?>
+</div> -->
 <div class="col-xs-2 pull-right" style="margin-top:16px;">
     <button class="btn btn-sm btn-success" id="cashier_save">Submit</button>
 </div>

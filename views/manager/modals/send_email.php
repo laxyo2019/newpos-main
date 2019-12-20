@@ -46,6 +46,7 @@ $(document).ready(function(e){
                         url : url1,
                         async: true,
                         success: function(html){
+                        	console.log(html);
                             swal("Monthly Report file successfully created");
                         },
                         error: function(request, error){

@@ -40,7 +40,7 @@
 			</center>
 		</div>
 	</div>
-	<div class="col-sm-3" >
+	<!-- <div class="col-sm-3" >
 		<div class="column">
 			<center>       
 			<div class="card" style="background-image: linear-gradient(to bottom, #c7a9ef , #bf38d8);min-height:200px;">
@@ -51,7 +51,7 @@
 			</div>
 			</center>
 		</div>
-	</div>
+	</div> -->
 	<div class="clearfix" style="margin-top:20px;"></div>	
 </div>
 </div>

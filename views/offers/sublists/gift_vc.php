@@ -2,7 +2,7 @@
 	dialog_support.init(".modal-dlg");
 </script>
 <?php echo form_open('offers/all_vouchers/', array('id'=>'myform')); ?>
-<p class="text-right"><input type="submit" name="submit" Value="Print" class="btn  btn-info" ></p>
+<p class="text-right" id="printbtn"><input type="submit" name="submit" Value="Print" class="btn  btn-info" ></p>
 <!-- <p id="demo"></p> -->
 <table class="table table-striped table-bordered table-hover"  id="gc_table"   >
   <thead>
@@ -19,15 +19,15 @@
     </tr>
   </thead>
   <tbody>
-    <?php foreach($vc_info as $row): ?>
-      <tr>
-        <td><?php echo $row->id; ?></td>
-        <td><?php echo $row->title; ?></td>
-        <td><?php echo $row->vc_value; ?></td>
-        <td><?php echo $row->voucher_code; ?></td>
-        <td><?php echo $row->expiry_date; ?></td>
-        <td><?php echo $row->redeem_at; ?></td>
-        <td><?php echo $row->created_at; ?></td>
+    <?php foreach($vc_info as $row): ?>   
+      <tr class="Row <?php echo (!empty($row->redeem_at)) ? 'AMCA':''; ?>" data-age="<?php echo $row->vc_value; ?>">
+        <td class=""><?php echo $row->id; ?></td>
+        <td class=""><?php echo $row->title; ?></td>
+        <td class=""><?php echo $row->vc_value; ?></td>
+        <td class=""><?php echo $row->voucher_code; ?></td>
+        <td class=""><?php echo $row->expiry_date; ?></td>
+        <td class="<?php echo (!empty($row->redeem_at)) ? 'AMCA':''; ?>"><?php echo $row->redeem_at; ?></td>
+        <td class=""><?php echo $row->created_at; ?></td>
         <td>
         <a href="<?php echo base_url();?>offers/edit_gift_vc/<?php echo $row->id; ?>" class="modal-dlg fa fa-pencil-square edit" title="Edit" style="font-size:20px;"></a>
         </td>
@@ -36,6 +36,8 @@
     <?php endforeach; ?>
   </tbody>
 </table>
+
+<div id="dialogDiv"></div>
 <script>
 
 $(document).ready(function () { 
@@ -49,6 +51,7 @@ $(document).ready(function () {
            ]
     });
     
+
 
     // $("#print").click(function(){  
     //     var cb = [];
