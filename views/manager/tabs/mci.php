@@ -123,33 +123,43 @@
 					id = $('#index').val();
 					parent_id = $('#cSwitch').val();
 				}
-				$.post('<?php echo site_url($controller_name."/mci_save");?>', {'type': type, 'id': id, 'name': name, 'parent_id': parent_id}, function(data) {
-					if(data == 1){
-	        	alert("Duplicate Entry Not Saved!");
-	        }else if(data == 2){
-	        	alert('Successfully Created');
-	        }else if(data == 3){
-	        	alert('Fields are overloaded');
-	        }else{
-	        	var txt = "";
-	        	var myObj = JSON.parse(data);
-	        	txt += "<div class='row'><div class='col-md-3'></div><div class='col-md-6'><table class='table table-striped'>"
-				    for (x in myObj) {
-				      txt += "<tr><td><input class='myImp' type='text' value='" + myObj[x].name + "' id='myInput"+x+"' readonly></td><td><i class='fa fa-files-o' aria-hidden='true' onclick='myFunction("+ x +")'></i></td></tr>";
-				    }
-				    txt += "</table></div></div>" 
-	        	$("#suggestion").append(txt);
-	        }
-					// location.reload();
-				});
-
+				if(id == '' && name == '' && (type == 'categories' || type == 'subcategories')){
+						alert("input fields required");
+				}else if(name == '' && (type == 'categories' || type == 'subcategories')){
+						alert("name fields required");
+				}else if(id == '' && (type == 'categories' || type == 'subcategories')){
+						alert("Id fields required");
+				}else{
+					$.post('<?php echo site_url($controller_name."/mci_save");?>', {'type': type, 'id': id, 'name': name, 'parent_id': parent_id}, function(data) {
+						if(data == 1){
+		        	alert("Duplicate Entry Not Saved!");
+		        }else if(data == 2){
+		        	alert('Successfully Created');
+		        }else if(data == 3){
+		        	alert('Fields are overloaded');
+		        }else if(data == 4){
+		        	alert('Id already exist! try another...');
+		        }else{
+		        	var txt = "";
+		        	var myObj = JSON.parse(data);
+		        	txt += "<div class='row'><div class='col-md-3'></div><div class='col-md-6'><table class='table table-striped'>"
+					    for (x in myObj) {
+					      txt += "<tr><td><input class='myImp' type='text' value='" + myObj[x].name + "' id='myInput"+x+"' readonly></td><td><i class='fa fa-files-o' aria-hidden='true' onclick='myFunction("+ x +")'></i></td></tr>";
+					    }
+					    txt += "</table></div></div>" 
+		        	$("#suggestion").append(txt);
+		        }
+						// location.reload();
+					});
+				}
 			<?php }else{ ?>
 				alert('Access Denied!');
 			<?php } ?>
 		});
 
 	});
-</script>
+</script>         
+
 <script type="text/javascript">
 function myFunction(id) {
   var copyText = document.getElementById("myInput"+id);

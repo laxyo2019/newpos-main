@@ -874,37 +874,44 @@ public function items_undelete_data($id){
     $this->db->order_by("id", "desc");
     $query = $this->db->get();
     $row = $query->row_array();
-    $tbl_id = strlen($row['id']);
-    if($tbl_id > 2 && $type == "categories") {
-        echo '3';
-    }elseif($tbl_id > 3 && $type == "subcategories") {
-        echo '3';
-    }elseif($tbl_id > 4 && $type == "brands") {
-    		//select * from people where soundex("suit") = soundex(name);
-    		echo '3';
+    $all = $query->result_array();
+    $tbl_id = $row['id'];
+    foreach ($all as $fetch) {
+    		$valid_id[] = $fetch['id'];
+    }
+    if(in_array($id, $valid_id) && ($type == "categories" || $type == "subcategories")){
+    		echo "4"; die;
     }else{
-    	$this->db->select('*');
-	    $this->db->from($tablename);
-	    $this->db->where('soundex("'.$name.'") = soundex(name)');
-	    $query = $this->db->get();
-	    $row = $query->result_array();		
-    	if(!empty($row))
-    	{
-    		foreach ($row as $value) {
-  				$check = $value['name'];
-  				if($check === $name)
-  				{
-  					echo "1"; die; //"Duplicate Entry Not Saved!";
-  				}
-  				else{
-  					$val[] = $value;
-  				}
-    		}
-    		echo json_encode($val); 
-	    }else{
-	    	$this->db->insert($tablename, $data);
-	      echo "2";//"Successfully Created";
-	    }
+    		if($id >= 99 && $type == "categories") {
+		        echo '3';
+		    }elseif($id >= 999 && $type == "subcategories") {
+		        echo '3';
+		    }elseif($tbl_id >= 9999 && $type == "brands") {
+		    		echo '3';
+		    }else{
+		    	$this->db->select('*');
+			    $this->db->from($tablename);
+			    $this->db->where('soundex("'.$name.'") = soundex(name)');
+			    $query = $this->db->get();
+			    $row = $query->result_array();		
+		    	if(!empty($row))
+		    	{
+		    		foreach ($row as $value) {
+		  				$check = $value['name'];
+		  				if($check === $name)
+		  				{
+		  					echo "1"; die; //"Duplicate Entry Not Saved!";
+		  				}
+		  				else{
+		  					$val[] = $value;
+		  				}
+		    		}
+		    		echo json_encode($val); 
+			    }else{
+			    	$this->db->insert($tablename, $data);
+			      echo "2";//"Successfully Created";
+			    }
+				}
 		}
 	}
 
